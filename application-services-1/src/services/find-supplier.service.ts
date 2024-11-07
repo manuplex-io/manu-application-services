@@ -14,16 +14,7 @@ import {
 
 @Injectable()
 export class FindSupplierService implements OnModuleInit {
-  constructor(
-    @Inject('KAFKA_OB1_V2_CLIENT') private readonly kafkaClient: ClientKafka,
-    private readonly kafkaService: KafkaOb1Service,
-  ) {}
-
-  async onModuleInit() {
-    // Subscribe to topics that your service will consume
-    this.kafkaClient.subscribeToResponseOf('manuos-ob1-agentService');
-    await this.kafkaClient.connect();
-  }
+  constructor(private readonly kafkaService: KafkaOb1Service) {}
 
   async findSupplier(
     message: OB1MessageValue,
