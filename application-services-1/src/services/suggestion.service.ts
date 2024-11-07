@@ -1,10 +1,12 @@
-import { OnModuleInit, Logger } from '@nestjs/common';
+import { OnModuleInit, Logger, Injectable } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import { OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { prompts, schemas } from './prompts';
 import { Suggestion } from 'src/interfaces/suggestion.interface';
 
+
+@Injectable()
 export class SuggestionService implements OnModuleInit {
   constructor(private kafkaOb1Service: KafkaOb1Service) {}
   onModuleInit() {}
