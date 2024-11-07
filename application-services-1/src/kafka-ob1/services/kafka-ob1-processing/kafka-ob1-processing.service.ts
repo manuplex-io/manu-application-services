@@ -3,6 +3,7 @@ import { Injectable, Logger, ValidationPipe, BadRequestException } from '@nestjs
 import { OB1MessageValue, OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaContext } from '@nestjs/microservices';
 import { LLMRequest, LLMResponse } from 'src/llm/interfaces/llm.interfaces';
+import { OrderFormService } from 'src/services/orderform.service';
 
 
 @Injectable()
@@ -10,7 +11,7 @@ export class KafkaOb1ProcessingService {
     private readonly logger = new Logger(KafkaOb1ProcessingService.name);
     private validationPipe = new ValidationPipe({ transform: true, whitelist: true }); // Instantiates ValidationPipe
     constructor(
-        private llmService: LLMService,
+        private orderFormService: OrderFormService,
 
 
     ) { }
@@ -33,8 +34,8 @@ export class KafkaOb1ProcessingService {
 
             // Check if the function exists and call it
             // Check if the function is CRUDUserfunction and handle accordingly
-            if (functionName === 'LLMgenerateResponse') {
-                return await this.llmService.generateResponse(functionInput);
+            if (functionName === 'getOrderForm') {
+                return await this.orderFormService.getOrderForm(functionInput);
             }
             else if (functionName === 'CRUDInstancesfunction') {
                 return { errorMessage: 'CRUDInstancesfunction not implemented' };
