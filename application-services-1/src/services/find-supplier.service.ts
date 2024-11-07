@@ -18,7 +18,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async findSupplier(functionInput, context: KafkaContext) {
+  async findSupplier(functionInput: any, context: KafkaContext) {
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key.toString();
@@ -68,5 +68,6 @@ export class FindSupplierService implements OnModuleInit {
       userRole,
       userEmail,
     );
+    return response;
   }
 }
