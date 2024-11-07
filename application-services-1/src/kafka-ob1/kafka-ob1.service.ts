@@ -14,7 +14,7 @@ import {
 export class KafkaOb1Service implements OnModuleInit {
   constructor(
     @Inject('KAFKA_OB1_CLIENT') private readonly kafkaClient: ClientKafka,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     // Subscribe to topics that your service will consume
@@ -23,7 +23,7 @@ export class KafkaOb1Service implements OnModuleInit {
   }
 
   // Request-response message using built-in correlationID
-  
+
   async sendRequest(
     messageKey: string,
     instanceName: string,
@@ -36,7 +36,7 @@ export class KafkaOb1Service implements OnModuleInit {
   ) {
     const messageHeader: any = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      sourceService: `manuos-BKRouter-1`,
+      sourceService: `manuos-application-services`,
       sourceFunction: sourceFunction,
       instanceName: instanceName,
       destinationService: destinationService,
@@ -47,15 +47,17 @@ export class KafkaOb1Service implements OnModuleInit {
     };
 
     // Send the message and apply filters to the observable stream
-    const response$ = this.kafkaClient.send('manuos-ob1-agentService', {
-      key: messageKey,
-      value: messageInput,
-      headers: messageHeader,
-    }).pipe(
-      filter((response) => response !== null && response !== undefined), // Filter out null/undefined responses
-      take(1), // Take the first valid response
-      timeout(5000), // Optional: Set a timeout to prevent waiting indefinitely
-    );
+    const response$ = this.kafkaClient
+      .send('manuos-ob1-agentService', {
+        key: messageKey,
+        value: messageInput,
+        headers: messageHeader,
+      })
+      .pipe(
+        filter((response) => response !== null && response !== undefined), // Filter out null/undefined responses
+        take(1), // Take the first valid response
+        timeout(5000), // Optional: Set a timeout to prevent waiting indefinitely
+      );
 
     try {
       const validResponse = await lastValueFrom(response$);
