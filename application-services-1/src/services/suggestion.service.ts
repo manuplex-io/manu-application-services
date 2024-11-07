@@ -21,7 +21,7 @@ export class SuggestionService implements OnModuleInit {
       messageContent: {
         functionInput: {
           systemPrompt: systemPrompt,
-          userPrompt: suggestionPayload.orderForm,
+          userPrompt: JSON.stringify(suggestionPayload.orderForm),
           responseFormat: responseFormat,
           config: {
             provider: 'openai',
