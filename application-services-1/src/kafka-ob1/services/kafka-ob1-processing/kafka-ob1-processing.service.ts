@@ -12,6 +12,7 @@ import {
 import { KafkaContext } from '@nestjs/microservices';
 import { OrderFormService } from 'src/services/orderform.service';
 import { FindSupplierService } from 'src/services/find-supplier.service';
+import { SuggestionService } from 'src/services/suggestion.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -21,8 +22,9 @@ export class KafkaOb1ProcessingService {
     whitelist: true,
   }); // Instantiates ValidationPipe
   constructor(
-    private orderFormService: OrderFormService,
+    private readonly orderFormService: OrderFormService,
     private readonly findSupplierService: FindSupplierService,
+    private readonly suggestionService: SuggestionService
   ) {}
 
   async processRequest(message: OB1MessageValue, context: KafkaContext) {
@@ -50,7 +52,13 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
-      } else if (functionName === 'CRUDInstancesfunction') {
+      }  else if (functionName === 'getSuggestions') {
+        return await this.suggestionService.getSuggestions(
+          functionInput,
+          context,
+        );
+    }
+      else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
         this.logger.error(`Function ${functionName} not found`);
