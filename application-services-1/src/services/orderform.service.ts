@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientKafka, KafkaContext } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 import { filter, timeout, take } from 'rxjs/operators';
@@ -10,65 +10,71 @@ import {
   OB1MessageValue,
   CURRENT_SCHEMA_VERSION,
 } from 'src/interfaces/ob1-message.interfaces';
+import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 
 @Injectable()
 export class OrderFormService implements OnModuleInit {
   constructor(
-    @Inject('KAFKA_OB1_V2_CLIENT') private readonly kafkaClient: ClientKafka,
-  ) { }
+    private readonly kafkaOb1Service:KafkaOb1Service
+  ) {}
 
   async onModuleInit() {
-    // Subscribe to topics that your service will consume
-    this.kafkaClient.subscribeToResponseOf('manuos-ob1-agentService');
-    await this.kafkaClient.connect();
+    
   }
 
- 
-
-
-
-  async getOrderForm(
-    messageKey: string,
-    instanceName: string,
-    destinationService: string,
-    sourceFunction: string,
-    sourceType: string,
-    messageInput: any,
-    userRole: string,
-    userEmail: string,
-  ) {
-    const messageHeader: any = {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      sourceService: `manuos-BKRouter-1`,
-      sourceFunction: sourceFunction,
-      instanceName: instanceName,
-      destinationService: destinationService,
-      sourceType: sourceType,
-      userRole: userRole,
-      userEmail: userEmail,
-      requestId: `RQ-${sourceFunction}-${Date.now()}`,
+  async getOrderForm(userInput: string, context: KafkaContext) {
+    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader
+    const messageKey = context.getMessage().key?.toString();
+    const messageInput = {
+      messageContent: {
+        functionInput: {
+            systemPrompt: `
+            A procurement manager has provided you with a requirement for placing an order. Extract and provide information based on below guidelines:
+    
+                Guidelines for extraction:
+                - order_summary: A well articulated summary of the procurement manager's requirement in a maximum of 50 words
+                - material_type: Extract ONLY if specific material type is mentioned 
+                - manufacturing_process: Extract ONLY if specific manufacturing methods are mentioned
+                - secondary_operations: Extract ONLY if specific secondary operations are explicitly stated
+                - finishing: Extract ONLY if specific finishing processes are mentioned
+                - product_certifications: Extract ONLY if specific product certifications are listed
+                - certifications: Extract ONLY if specific company/quality certifications are mentioned
+                - facilities_infrastructure: Extract ONLY if specific facility requirements are stated
+                - inspection_techniques: Extract ONLY if specific inspection methods are mentioned
+                - region: Extract ONLY if location is explicitly specified
+            `,
+          userPrompt: userInput,
+          config: {
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+            maxTokens: 4096,
+            topP: 1,
+            frequencyPenalty: 0,
+            presencePenalty: 0,
+          },
+        },
+        functionName: 'LLMgenerateResponse',
+      },
     };
 
-    // Send the message and apply filters to the observable stream
-    const response$ = this.kafkaClient.send('manuos-ob1-agentService', {
-      key: messageKey,
-      value: messageInput,
-      headers: messageHeader,
-    }).pipe(
-      filter((response) => response !== null && response !== undefined), // Filter out null/undefined responses
-      take(1), // Take the first valid response
-      timeout(5000), // Optional: Set a timeout to prevent waiting indefinitely
-    );
+    const messageInputAdd = {
+      messageType: 'REQUEST',
+      ...messageInput,
+    };
 
-    try {
-      const validResponse = await lastValueFrom(response$);
-      console.log('Received valid response:', validResponse);
-      return validResponse;
-    } catch (error) {
-      console.error('Error or timeout waiting for a valid response:', error);
-      return null; // Handle as needed, e.g., return null or throw an error
-    }
+    const response = await this.kafkaOb1Service.sendRequest(
+        messageKey,
+        messageHeaders.instanceName,
+        "agent-services",
+        "getOrderForm",
+        "service",
+        messageInputAdd,
+        messageHeaders.userRole,
+        messageKey,
+      );
+      return response;
+
   }
-
 
 }

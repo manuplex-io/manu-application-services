@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KafkaOb1Controller } from './kafka-ob1.controller';
 
 import { KafkaOb1ProcessingService } from './services/kafka-ob1-processing/kafka-ob1-processing.service';
+import { KafkaOb1Service } from './kafka-ob1.service';
 
 @Module({
   imports: [
@@ -31,7 +32,9 @@ import { KafkaOb1ProcessingService } from './services/kafka-ob1-processing/kafka
   ],
   providers: [
     KafkaOb1ProcessingService,
+    KafkaOb1Service
   ],
   controllers: [KafkaOb1Controller],
+  exports:[KafkaOb1Service]
 })
 export class KafkaOb1Module { }

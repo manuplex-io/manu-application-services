@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { KafkaOb1Module } from './kafka-ob1/kafka-ob1.module';
 import { ConfigModule } from '@nestjs/config';
-
+import { OrderFormService } from './services/orderform.service';
 
 @Module({
   imports: [
@@ -14,7 +14,9 @@ import { ConfigModule } from '@nestjs/config';
 
   ],
   providers: [
+    OrderFormService
 
   ],
+  exports:[OrderFormService]
 })
 export class AppModule { }

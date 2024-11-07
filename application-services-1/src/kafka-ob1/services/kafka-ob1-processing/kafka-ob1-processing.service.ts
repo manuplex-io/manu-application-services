@@ -2,7 +2,6 @@
 import { Injectable, Logger, ValidationPipe, BadRequestException } from '@nestjs/common';
 import { OB1MessageValue, OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaContext } from '@nestjs/microservices';
-import { LLMRequest, LLMResponse } from 'src/llm/interfaces/llm.interfaces';
 import { OrderFormService } from 'src/services/orderform.service';
 
 
@@ -25,17 +24,17 @@ export class KafkaOb1ProcessingService {
             let functionInput = message.messageContent.functionInput;
 
             // Validate functionInput as LLMRequest
-            try {
-                functionInput = await this.validationPipe.transform(functionInput, { metatype: LLMRequest, type: 'body' });
-            } catch (validationError) {
-                this.logger.error(`Validation failed for functionInput: ${validationError.message}`, validationError.stack);
-                throw new BadRequestException('Invalid functionInput format');
-            }
+            // try {
+            //     functionInput = await this.validationPipe.transform(functionInput, { metatype: LLMRequest, type: 'body' });
+            // } catch (validationError) {
+            //     this.logger.error(`Validation failed for functionInput: ${validationError.message}`, validationError.stack);
+            //     throw new BadRequestException('Invalid functionInput format');
+            // }
 
             // Check if the function exists and call it
             // Check if the function is CRUDUserfunction and handle accordingly
             if (functionName === 'getOrderForm') {
-                return await this.orderFormService.getOrderForm(functionInput);
+                return await this.orderFormService.getOrderForm(functionInput,context);
             }
             else if (functionName === 'CRUDInstancesfunction') {
                 return { errorMessage: 'CRUDInstancesfunction not implemented' };
