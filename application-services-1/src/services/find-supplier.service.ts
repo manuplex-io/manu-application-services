@@ -40,7 +40,7 @@ export class FindSupplierService implements OnModuleInit {
     const partDescription = orderForm.orderSummary;
     const messageInput = {
       messageContent: {
-        functionName: 'generateLLMResponse',
+        functionName: 'LLMgenerateResponse',
         functionInput: partDescription,
       },
     };
