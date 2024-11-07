@@ -48,8 +48,8 @@ export class FindSupplierService implements OnModuleInit {
       messageType: 'REQUEST',
       ...messageInput,
     };
-    const userRole = context.getMessage().userRole.toString();
-    const userEmail = context.getMessage().userEmail.toString();
+    const userRole = context.getMessage().headers.userRole.toString();
+    const userEmail = context.getMessage().headers.userEmail.toString();
 
     const systemPrompt =
       'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
