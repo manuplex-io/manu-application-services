@@ -16,6 +16,8 @@ import {
 export class FindSupplierService implements OnModuleInit {
   constructor(private readonly kafkaService: KafkaOb1Service) {}
 
+  async onModuleInit() {}
+
   async findSupplier(
     message: OB1MessageValue,
     context: KafkaContext,
