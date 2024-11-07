@@ -18,10 +18,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async findSupplier(
-    message: OB1MessageValue,
-    context: KafkaContext,
-  ): Promise<void> {
+  async findSupplier(functionInput, context: KafkaContext): Promise<void> {
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key.toString();
@@ -29,7 +26,7 @@ export class FindSupplierService implements OnModuleInit {
     const destinationService = 'agent-services';
     const sourceFunction = 'findSupplier';
     const sourceType = 'service';
-    const orderForm = message.messageContent.orderForm;
+    const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
     const systemPrompt =
       'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
