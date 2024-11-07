@@ -18,7 +18,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async findSupplier(functionInput, context: KafkaContext): Promise<void> {
+  async findSupplier(functionInput, context: KafkaContext) {
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key.toString();
