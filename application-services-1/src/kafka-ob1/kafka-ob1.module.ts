@@ -5,6 +5,7 @@ import { KafkaOb1Controller } from './kafka-ob1.controller';
 
 import { KafkaOb1ProcessingService } from './services/kafka-ob1-processing/kafka-ob1-processing.service';
 import { KafkaOb1Service } from './kafka-ob1.service';
+import { ServicesModule } from 'src/services/services.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { KafkaOb1Service } from './kafka-ob1.service';
         inject: [ConfigService],
       },
     ]),
+    ServicesModule
   ],
   providers: [
     KafkaOb1ProcessingService,
