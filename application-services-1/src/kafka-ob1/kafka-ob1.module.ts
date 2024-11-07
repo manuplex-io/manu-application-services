@@ -1,4 +1,4 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module, Logger, forwardRef } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KafkaOb1Controller } from './kafka-ob1.controller';
@@ -30,7 +30,7 @@ import { ServicesModule } from 'src/services/services.module';
         inject: [ConfigService],
       },
     ]),
-    ServicesModule
+    forwardRef(() => ServicesModule)
   ],
   providers: [
     KafkaOb1ProcessingService,
