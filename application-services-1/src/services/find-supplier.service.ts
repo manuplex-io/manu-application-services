@@ -31,10 +31,27 @@ export class FindSupplierService implements OnModuleInit {
     const sourceType = 'service';
     const orderForm = message.messageContent.orderForm;
     const partDescription = orderForm.orderSummary;
+    const systemPrompt =
+      'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
+
+    const userPrompt = 'What Aluminum grades are commonly used for casting?';
+
     const messageInput = {
       messageContent: {
         functionName: 'LLMgenerateResponse',
-        functionInput: partDescription,
+        functionInput: {
+          systemPrompt: systemPrompt,
+          userPrompt: userPrompt,
+          config: {
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+            maxTokens: 4096,
+            topP: 1,
+            frequencyPenalty: 0,
+            presencePenalty: 0,
+          },
+        },
       },
     };
     const messageInputAdd = {
@@ -43,11 +60,6 @@ export class FindSupplierService implements OnModuleInit {
     };
     const userRole = context.getMessage().headers.userRole.toString();
     const userEmail = context.getMessage().headers.userEmail.toString();
-
-    const systemPrompt =
-      'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
-
-    const userPrompt = 'What Aluminum grades are commonly used for casting?';
 
     const response = await this.kafkaService.sendRequest(
       messageKey,
