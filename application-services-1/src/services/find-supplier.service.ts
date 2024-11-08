@@ -30,7 +30,8 @@ export class FindSupplierService implements OnModuleInit {
       query,
       {},
     );
-    return supplierRawData;
+    const response = { messageContent: supplierRawData };
+    return response;
   }
 
   async findSupplier(functionInput: any, context: KafkaContext) {
