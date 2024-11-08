@@ -43,7 +43,7 @@ export class FindSupplierService implements OnModuleInit {
     const sourceFunction = 'findSupplier';
     const sourceType = 'service';
     const supplierRawData = await this.getSupplierInfo(functionInput);
-    const supplierList = supplierRawData.results;
+    const supplierList = JSON.stringify(supplierRawData.results);
     console.log(typeof supplierList);
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
