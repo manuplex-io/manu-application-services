@@ -24,7 +24,7 @@ export class KafkaOb1ProcessingService {
   constructor(
     private readonly orderFormService: OrderFormService,
     private readonly findSupplierService: FindSupplierService,
-    private readonly suggestionService: SuggestionService
+    private readonly suggestionService: SuggestionService,
   ) {}
 
   async processRequest(message: OB1MessageValue, context: KafkaContext) {
@@ -47,18 +47,17 @@ export class KafkaOb1ProcessingService {
       // Check if the function is CRUDUserfunction and handle accordingly
       if (functionName === 'getOrderForm') {
         return await this.orderFormService.getOrderForm(functionInput, context);
-      } else if (functionName === 'findSupplier') {
-        return await this.findSupplierService.findSupplier(
+      } else if (functionName === 'getSupplierInfo') {
+        return await this.findSupplierService.getSupplierInfo(
           functionInput,
           context,
         );
-      }  else if (functionName === 'getSuggestions') {
+      } else if (functionName === 'getSuggestions') {
         return await this.suggestionService.getSuggestions(
           functionInput,
           context,
         );
-    }
-      else if (functionName === 'CRUDInstancesfunction') {
+      } else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
         this.logger.error(`Function ${functionName} not found`);

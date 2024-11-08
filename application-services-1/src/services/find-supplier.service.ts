@@ -5,6 +5,7 @@ import { filter, timeout, take } from 'rxjs/operators';
 import { lastValueFrom } from 'rxjs';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
+import { TavilySearchService } from './tavily-search.service';
 
 import {
   OB1MessageHeader,
@@ -14,9 +15,23 @@ import {
 
 @Injectable()
 export class FindSupplierService implements OnModuleInit {
-  constructor(private readonly kafkaService: KafkaOb1Service) {}
+  constructor(
+    private readonly kafkaService: KafkaOb1Service,
+    private readonly tavilySearchService: TavilySearchService,
+  ) {}
 
   async onModuleInit() {}
+
+  async getSupplierInfo(functionInput: any, context: KafkaContext) {
+    const orderForm = functionInput.orderForm;
+    const partDescription = orderForm.orderSummary;
+    const query = 'Find me 10 Indian suppliers for ${partDescription}';
+    const supplierRawData = await this.tavilySearchService.tavilySearch(
+      query,
+      {},
+    );
+    return supplierRawData;
+  }
 
   async findSupplier(functionInput: any, context: KafkaContext) {
     const headers: OB1MessageHeader = context.getMessage()
