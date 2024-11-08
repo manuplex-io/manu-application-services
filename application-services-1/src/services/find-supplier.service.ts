@@ -30,6 +30,7 @@ export class FindSupplierService implements OnModuleInit {
       query,
       {},
     );
+    console.log(supplierRawData.results);
     return supplierRawData;
   }
 
