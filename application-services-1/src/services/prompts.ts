@@ -17,7 +17,7 @@ const json_schema1 = {
         required: ['message'],
       },
     },
-    required: ['orderSummary'],
+    required: ['order_summary'],
   },
 };
 
@@ -25,13 +25,13 @@ const json_schema2 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_material_types',
-    description:
-      "Schema for processing the response for type of material based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description:
+            "A list of suggested material types based on procurement manager's requirements.",
           items: {
             type: 'object',
             properties: {
@@ -41,11 +41,14 @@ const json_schema2 = {
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -53,27 +56,29 @@ const json_schema3 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_manufacturing_processes',
-    description:
-      "Schema for processing the response for type of manufacturing process based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'A list of suggested manufacturing processes.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'The label of the manufacturing process',
+                description: 'The label of the manufacturing process.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -81,9 +86,7 @@ const json_schema4 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_secondary_operations',
-    description:
-      "Schema for processing the response for type of secondary operations based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
@@ -97,11 +100,14 @@ const json_schema4 = {
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -109,27 +115,29 @@ const json_schema5 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_finishing_process',
-    description:
-      "Schema for processing the response with finishing process based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'A list of suggested finishing processes.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'The label of the finishing process',
+                description: 'The label of the finishing process.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -137,27 +145,29 @@ const json_schema6 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_product_certifications',
-    description:
-      "Schema for processing the response with product certifications based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'List of suggested product certifications.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'Name of product certifications',
+                description: 'Name of product certifications.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -165,27 +175,29 @@ const json_schema7 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_certifications',
-    description:
-      "Schema for processing the response with supplier certifications based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'A list of certification suggestions.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'Name of certification',
+                description: 'Name of certification.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -193,27 +205,29 @@ const json_schema8 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_facilities_infrastructure',
-    description:
-      "Schema for processing the response with facilities infrastructure based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'List of suggested facilities infrastructures.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'Name of facilties infrastructure',
+                description: 'Name of facilities infrastructure.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -221,27 +235,29 @@ const json_schema9 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_inspection_techniques',
-    description:
-      "Schema for processing the response with inspection techniques based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description: 'A list of suggested inspection techniques.',
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'Name of inspection techniques',
+                description: 'Name of inspection techniques.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
@@ -249,27 +265,30 @@ const json_schema10 = {
   type: 'json_schema',
   json_schema: {
     name: 'get_regions',
-    description:
-      "Schema for processing the response with countries based on procurement manager's requirement.",
-    parameters: {
+    schema: {
       type: 'object',
       properties: {
         suggestions: {
           type: 'array',
+          description:
+            "List of country suggestions based on procurement manager's requirement.",
           items: {
             type: 'object',
             properties: {
               label: {
                 type: 'string',
-                description: 'Name of Country',
+                description: 'Name of Country.',
               },
             },
             required: ['label'],
+            additionalProperties: false,
           },
         },
       },
       required: ['suggestions'],
+      additionalProperties: false,
     },
+    strict: true,
   },
 };
 
