@@ -47,8 +47,8 @@ export class KafkaOb1ProcessingService {
       // Check if the function is CRUDUserfunction and handle accordingly
       if (functionName === 'getOrderForm') {
         return await this.orderFormService.getOrderForm(functionInput, context);
-      } else if (functionName === 'getSupplierInfo') {
-        return await this.findSupplierService.getSupplierInfo(
+      } else if (functionName === 'findSupplier') {
+        return await this.findSupplierService.findSupplier(
           functionInput,
           context,
         );

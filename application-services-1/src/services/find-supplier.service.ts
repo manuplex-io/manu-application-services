@@ -22,7 +22,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async getSupplierInfo(functionInput: any, context: KafkaContext) {
+  async getSupplierInfo(functionInput: any) {
     const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
     const query = `Find me 10 Indian suppliers for ${partDescription}`;
@@ -30,8 +30,7 @@ export class FindSupplierService implements OnModuleInit {
       query,
       {},
     );
-    const response = { messageContent: supplierRawData };
-    return response;
+    return supplierRawData;
   }
 
   async findSupplier(functionInput: any, context: KafkaContext) {
@@ -42,18 +41,17 @@ export class FindSupplierService implements OnModuleInit {
     const destinationService = 'agent-services';
     const sourceFunction = 'findSupplier';
     const sourceType = 'service';
-    const orderForm = functionInput.orderForm;
-    const partDescription = orderForm.orderSummary;
-    const systemPrompt =
-      'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
+    const supplierRawData = await this.getSupplierInfo(functionInput);
+    const supplierList = supplierRawData.results.toString();
+    // const systemPrompt =
+    //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
-    const userPrompt = 'What Aluminum grades are commonly used for casting?';
+    const userPrompt = `Given the following list of search results from the web, identify and give valid supplier names. Here is the list:${supplierList}`;
 
     const messageInput = {
       messageContent: {
         functionName: 'LLMgenerateResponse',
         functionInput: {
-          systemPrompt: systemPrompt,
           userPrompt: userPrompt,
           config: {
             provider: 'openai',
