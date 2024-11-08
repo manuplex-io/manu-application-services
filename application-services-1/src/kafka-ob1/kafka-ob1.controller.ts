@@ -98,7 +98,9 @@ export class KafkaOb1Controller implements OnModuleInit {
         responseId: `RE-${SERVICE_NAME}-${Date.now()}`, // Unique response Id
       };
 
-      const messageContent = { ...result };
+      const content = result.messageContent
+
+      const messageContent = { ...content };
 
       const responseValue: OB1MessageValue = {
         messageContent,
