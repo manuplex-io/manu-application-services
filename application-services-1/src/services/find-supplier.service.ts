@@ -25,7 +25,7 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierInfo(functionInput: any, context: KafkaContext) {
     const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
-    const query = 'Find me 10 Indian suppliers for ${partDescription}';
+    const query = `Find me 10 Indian suppliers for ${partDescription}`;
     const supplierRawData = await this.tavilySearchService.tavilySearch(
       query,
       {},
