@@ -6,6 +6,7 @@ import { lastValueFrom } from 'rxjs';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { TavilySearchService } from './tavily-search.service';
+import { schemas } from './prompts';
 
 import {
   OB1MessageHeader,
@@ -49,12 +50,14 @@ export class FindSupplierService implements OnModuleInit {
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
     const userPrompt = `Given the following list of search results from the web, identify and give valid supplier names. Here is the list:${supplierList}`;
+    const responseFormat = schemas['get_supplier_names'];
 
     const messageInput = {
       messageContent: {
         functionName: 'LLMgenerateResponse',
         functionInput: {
           userPrompt: userPrompt,
+          responseFormat: responseFormat,
           config: {
             provider: 'openai',
             model: 'gpt-4o-mini',
