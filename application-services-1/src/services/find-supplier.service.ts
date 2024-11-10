@@ -35,23 +35,34 @@ export class FindSupplierService implements OnModuleInit {
     return supplierRawData;
   }
 
-  async findSupplier(functionInput: any, context: KafkaContext) {
-    const headers: OB1MessageHeader = context.getMessage()
-      .headers as unknown as OB1MessageHeader;
-    const messageKey = context.getMessage().key.toString();
-    const instanceName = context.getMessage().headers.instanceName.toString();
+  async getSupplierRevenue(supplierName: string) {
+    const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency.`;
+    const supplierRevenue = await this.tavilySearchService.tavilySearch(
+      query,
+      {},
+    );
+    return supplierRevenue;
+  }
+
+  async addRevenueToCompanies(companies) {
+    return companies.map((company) => {
+      return {
+        ...company,
+        revenue: this.getSupplierRevenue(company.name),
+      };
+    });
+  }
+
+  async callLLM(
+    userPrompt,
+    responseFormat,
+    userRole,
+    userEmail,
+    messageKey,
+    instanceName,
+  ) {
     const destinationService = 'agent-services';
     const sourceFunction = 'findSupplier';
-    const sourceType = 'service';
-    const supplierRawData = await this.getSupplierInfo(functionInput);
-    const supplierList = JSON.stringify(supplierRawData.results);
-    console.log(typeof supplierList);
-    // const systemPrompt =
-    //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
-
-    const userPrompt = `Given the following list of search results from the web, identify and give valid supplier names. Here is the list:${supplierList}`;
-    const responseFormat = schemas['get_supplier_names'];
-
     const messageInput = {
       messageContent: {
         functionName: 'LLMgenerateResponse',
@@ -70,12 +81,11 @@ export class FindSupplierService implements OnModuleInit {
         },
       },
     };
+
     const messageInputAdd = {
       messageType: 'REQUEST',
       ...messageInput,
     };
-    const userRole = context.getMessage().headers.userRole.toString();
-    const userEmail = context.getMessage().headers.userEmail.toString();
 
     const response = await this.kafkaService.sendRequest(
       messageKey,
@@ -87,6 +97,69 @@ export class FindSupplierService implements OnModuleInit {
       userRole,
       userEmail,
     );
+    return response;
+  }
+
+  async findSupplier(functionInput: any, context: KafkaContext) {
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const destinationService = 'agent-services';
+    const sourceFunction = 'findSupplier';
+    const sourceType = 'service';
+    const supplierRawData = await this.getSupplierInfo(functionInput);
+    const supplierList = JSON.stringify(supplierRawData.results);
+    console.log(typeof supplierList);
+    // const systemPrompt =
+    //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
+
+    const userPrompt = `Given the following list of search results from the web, identify and give valid supplier names. Here is the list:${supplierList}`;
+    const responseFormat = schemas['get_supplier_names'];
+    const response = await this.callLLM(
+      userPrompt,
+      responseFormat,
+      headers.userRole.toString(),
+      headers.userEmail.toString(),
+      messageKey,
+      instanceName,
+    );
+
+    // const messageInput = {
+    //   messageContent: {
+    //     functionName: 'LLMgenerateResponse',
+    //     functionInput: {
+    //       userPrompt: userPrompt,
+    //       responseFormat: responseFormat,
+    //       config: {
+    //         provider: 'openai',
+    //         model: 'gpt-4o-mini',
+    //         temperature: 0.7,
+    //         maxTokens: 4096,
+    //         topP: 1,
+    //         frequencyPenalty: 0,
+    //         presencePenalty: 0,
+    //       },
+    //     },
+    //   },
+    // };
+    // const messageInputAdd = {
+    //   messageType: 'REQUEST',
+    //   ...messageInput,
+    // };
+    // const userRole = context.getMessage().headers.userRole.toString();
+    // const userEmail = context.getMessage().headers.userEmail.toString();
+
+    // const response = await this.kafkaService.sendRequest(
+    //   messageKey,
+    //   instanceName,
+    //   destinationService,
+    //   sourceFunction,
+    //   sourceType,
+    //   messageInputAdd,
+    //   userRole,
+    //   userEmail,
+    // );
     return response;
   }
 }
