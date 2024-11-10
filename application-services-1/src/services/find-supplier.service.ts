@@ -41,14 +41,26 @@ export class FindSupplierService implements OnModuleInit {
       query,
       {},
     );
-    return supplierRevenue;
+
+    const userPrompt = `Given the following list of search results from the web, identify and give revenue of the supplier in USD. Here is the list:${supplierRevenue.results}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_supplier_revenue'],
+      'user',
+      'abc@xyz.com',
+      'abhishek@manuplex.io',
+      'consultant',
+    );
+
+    return response.messageContent.content.revenue;
   }
 
   async addRevenueToCompanies(companies) {
     return companies.map((company) => {
       return {
         ...company,
-        revenue: this.getSupplierRevenue(company.name),
+        revenue: this.getSupplierRevenue(company.label),
       };
     });
   }
@@ -106,9 +118,6 @@ export class FindSupplierService implements OnModuleInit {
       .headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key.toString();
     const instanceName = context.getMessage().headers.instanceName.toString();
-    const destinationService = 'agent-services';
-    const sourceFunction = 'findSupplier';
-    const sourceType = 'service';
     const supplierRawData = await this.getSupplierInfo(functionInput);
     const supplierList = JSON.stringify(supplierRawData.results);
     console.log(typeof supplierList);
@@ -126,41 +135,9 @@ export class FindSupplierService implements OnModuleInit {
       instanceName,
     );
 
-    // const messageInput = {
-    //   messageContent: {
-    //     functionName: 'LLMgenerateResponse',
-    //     functionInput: {
-    //       userPrompt: userPrompt,
-    //       responseFormat: responseFormat,
-    //       config: {
-    //         provider: 'openai',
-    //         model: 'gpt-4o-mini',
-    //         temperature: 0.7,
-    //         maxTokens: 4096,
-    //         topP: 1,
-    //         frequencyPenalty: 0,
-    //         presencePenalty: 0,
-    //       },
-    //     },
-    //   },
-    // };
-    // const messageInputAdd = {
-    //   messageType: 'REQUEST',
-    //   ...messageInput,
-    // };
-    // const userRole = context.getMessage().headers.userRole.toString();
-    // const userEmail = context.getMessage().headers.userEmail.toString();
+    const supplierNames = JSON.parse(response.messageContent.content);
 
-    // const response = await this.kafkaService.sendRequest(
-    //   messageKey,
-    //   instanceName,
-    //   destinationService,
-    //   sourceFunction,
-    //   sourceType,
-    //   messageInputAdd,
-    //   userRole,
-    //   userEmail,
-    // );
-    return response;
+    const responseWithRevenue = this.addRevenueToCompanies(supplierNames.names);
+    return responseWithRevenue;
   }
 }
