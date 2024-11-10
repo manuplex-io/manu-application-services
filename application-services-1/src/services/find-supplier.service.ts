@@ -63,6 +63,7 @@ export class FindSupplierService implements OnModuleInit {
   ) {
     const destinationService = 'agent-services';
     const sourceFunction = 'findSupplier';
+    const sourceType = 'service';
     const messageInput = {
       messageContent: {
         functionName: 'LLMgenerateResponse',
