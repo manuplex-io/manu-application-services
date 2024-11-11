@@ -54,7 +54,9 @@ export class FindSupplierService implements OnModuleInit {
       'consultant',
     );
 
-    return response.messageContent.content.revenue;
+    const result = JSON.parse(response.messageContent.content);
+
+    return result.revenue;
   }
 
   async addRevenueToCompanies(companies) {
