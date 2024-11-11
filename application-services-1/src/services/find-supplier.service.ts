@@ -60,12 +60,16 @@ export class FindSupplierService implements OnModuleInit {
   }
 
   async addRevenueToCompanies(companies) {
-    return companies.map(async (company) => {
-      return {
-        ...company,
-        revenue: await this.getSupplierRevenue(company.label),
-      };
-    });
+    const companiesWithRevenue = await Promise.all(
+      companies.map(async (company) => {
+        const revenue = await this.getSupplierRevenue(company.name);
+        return {
+          ...company,
+          revenue: revenue,
+        };
+      }),
+    );
+    return companiesWithRevenue;
   }
 
   async callLLM(
