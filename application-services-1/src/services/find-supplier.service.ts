@@ -60,10 +60,10 @@ export class FindSupplierService implements OnModuleInit {
   }
 
   async addRevenueToCompanies(companies) {
-    return companies.map((company) => {
+    return companies.map(async (company) => {
       return {
         ...company,
-        revenue: this.getSupplierRevenue(company.label),
+        revenue: await this.getSupplierRevenue(company.label),
       };
     });
   }
