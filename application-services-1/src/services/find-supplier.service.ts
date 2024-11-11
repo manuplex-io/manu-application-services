@@ -35,7 +35,7 @@ export class FindSupplierService implements OnModuleInit {
     return supplierRawData;
   }
 
-  async getSupplierRevenue(supplierName: string) {
+  async getSupplierRevenue(supplierName: string, context: KafkaContext) {
     const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency.`;
     const supplierRevenue = await this.tavilySearchService.tavilySearch(
       query,
@@ -48,10 +48,10 @@ export class FindSupplierService implements OnModuleInit {
     const response = await this.callLLM(
       userPrompt,
       schemas['get_supplier_revenue'],
-      'user',
-      'abc@xyz.com',
-      'abhishek@manuplex.io',
-      'consultant',
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
     );
 
     const result = JSON.parse(response.messageContent.content);
@@ -59,10 +59,36 @@ export class FindSupplierService implements OnModuleInit {
     return result.revenue;
   }
 
-  async addRevenueToCompanies(companies) {
+  async getSupplierCertification(supplierName: string, context: KafkaContext) {
+    const query = `Find and give the quality certifications of ${supplierName} from their website and other sources.`;
+    const supplierCertification = await this.tavilySearchService.tavilySearch(
+      query,
+      {},
+    );
+    const supplierCertificationList = JSON.stringify(
+      supplierCertification.results,
+    );
+
+    const userPrompt = `Given the following list of search results from the web, identify and give certifications of the supplier. Here is the list:${supplierCertificationList}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_supplier_certifications'],
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
+    );
+
+    const result = JSON.parse(response.messageContent.content);
+
+    return result.certifications;
+  }
+
+  async addRevenueToCompanies(companies, context: KafkaContext) {
     const companiesWithRevenue = await Promise.all(
       companies.map(async (company) => {
-        const revenue = await this.getSupplierRevenue(company.name);
+        const revenue = await this.getSupplierRevenue(company.name, context);
         return {
           ...company,
           revenue: revenue,
@@ -70,6 +96,22 @@ export class FindSupplierService implements OnModuleInit {
       }),
     );
     return companiesWithRevenue;
+  }
+
+  async addCertificationToCompanies(companies, context: KafkaContext) {
+    const companiesWithCertification = await Promise.all(
+      companies.map(async (company) => {
+        const certifications = await this.getSupplierCertification(
+          company.name,
+          context,
+        );
+        return {
+          ...company,
+          certifications: certifications,
+        };
+      }),
+    );
+    return companiesWithCertification;
   }
 
   async callLLM(
@@ -146,11 +188,19 @@ export class FindSupplierService implements OnModuleInit {
 
     const responseWithRevenue = await this.addRevenueToCompanies(
       supplierNames.names,
+      context,
     );
+
     console.log('Response with revenue', responseWithRevenue);
-    const supplierWithRevenue = {
-      messageContent: { content: JSON.stringify(responseWithRevenue) },
+    const responseWithCertification = await this.addCertificationToCompanies(
+      responseWithRevenue,
+      context,
+    );
+    console.log('Response with certification', responseWithCertification);
+
+    const supplierWithRevenueCertification = {
+      messageContent: { content: JSON.stringify(responseWithCertification) },
     };
-    return supplierWithRevenue;
+    return supplierWithRevenueCertification;
   }
 }
