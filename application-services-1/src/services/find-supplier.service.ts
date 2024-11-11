@@ -41,8 +41,9 @@ export class FindSupplierService implements OnModuleInit {
       query,
       {},
     );
+    const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
-    const userPrompt = `Given the following list of search results from the web, identify and give revenue of the supplier in USD. Here is the list:${supplierRevenue.results}`;
+    const userPrompt = `Given the following list of search results from the web, identify and give revenue of the supplier in USD. Here is the list:${supplierRevenueList}`;
 
     const response = await this.callLLM(
       userPrompt,
