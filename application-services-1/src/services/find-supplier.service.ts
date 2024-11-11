@@ -37,6 +37,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async getSupplierRevenue(supplierName: string, context: KafkaContext) {
     const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency.`;
+    console.log('Query', query);
     const supplierRevenue = await this.tavilySearchService.tavilySearch(
       query,
       {},
@@ -61,6 +62,7 @@ export class FindSupplierService implements OnModuleInit {
 
   async getSupplierCertification(supplierName: string, context: KafkaContext) {
     const query = `Find and give the quality certifications of ${supplierName} from their website and other sources.`;
+    console.log('Query', query);
     const supplierCertification = await this.tavilySearchService.tavilySearch(
       query,
       {},
