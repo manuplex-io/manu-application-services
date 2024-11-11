@@ -142,7 +142,7 @@ export class FindSupplierService implements OnModuleInit {
 
     const responseWithRevenue = this.addRevenueToCompanies(supplierNames.names);
     const supplierWithRevenue = {
-      messageContent: { content: responseWithRevenue },
+      messageContent: { content: JSON.stringify(responseWithRevenue) },
     };
     return supplierWithRevenue;
   }
