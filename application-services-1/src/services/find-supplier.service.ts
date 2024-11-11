@@ -59,15 +59,6 @@ export class FindSupplierService implements OnModuleInit {
     return result.revenue;
   }
 
-  // async addRevenueToCompanies(companies) {
-  //   return companies.map((company) => {
-  //     return {
-  //       ...company,
-  //       revenue: this.getSupplierRevenue(company.label),
-  //     };
-  //   });
-  // }
-
   async addRevenueToCompanies(companies) {
     const companiesWithRevenue = await Promise.all(
       companies.map(async (company) => {
@@ -158,7 +149,7 @@ export class FindSupplierService implements OnModuleInit {
     );
     console.log('Response with revenue', responseWithRevenue);
     const supplierWithRevenue = {
-      messageContent: { content: JSON.stringify(responseWithRevenue) },
+      messageContent: JSON.stringify(responseWithRevenue),
     };
     return supplierWithRevenue;
   }
