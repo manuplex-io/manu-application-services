@@ -23,7 +23,7 @@ import { ServicesModule } from 'src/services/services.module';
             },
             consumer: {
               groupId: `${configService.get<string>('SERVICE_NAME')}-group`,
-              'session.timeout.ms': 300000,
+              'session.timeout.ms': 30000,
               allowAutoTopicCreation: false,
             },
           },
