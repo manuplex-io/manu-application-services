@@ -90,7 +90,7 @@ export class FindSupplierService implements OnModuleInit {
   async addRevenueToCompanies(companies: any, context: KafkaContext) {
     const companiesWithRevenue = await Promise.all(
       companies.map(async (company: any) => {
-        const revenue = await this.getSupplierRevenue(company.name, context);
+        const revenue = await this.getSupplierRevenue(company.label, context);
         return {
           ...company,
           revenue: revenue,
@@ -104,7 +104,7 @@ export class FindSupplierService implements OnModuleInit {
     const companiesWithCertification = await Promise.all(
       companies.map(async (company: any) => {
         const certifications = await this.getSupplierCertification(
-          company.name,
+          company.label,
           context,
         );
         return {
