@@ -38,13 +38,13 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierRevenue(supplierName: string, context: KafkaContext) {
     const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency.`;
     console.log('Query', query);
-    const supplierRevenue = await this.tavilySearchService.tavilySearch(
+    const supplierRevenue = await this.tavilySearchService.tavilySearchShort(
       query,
       {},
     );
-    const supplierRevenueList = JSON.stringify(supplierRevenue.results);
+    //const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
-    const userPrompt = `Given the following list of search results from the web, identify and give revenue of the supplier. Here is the list:${supplierRevenueList}`;
+    const userPrompt = `Given the following string, identify and give revenue of the supplier. Here is the string:${supplierRevenue}`;
 
     const response = await this.callLLM(
       userPrompt,

@@ -13,4 +13,9 @@ export class TavilySearchService implements OnModuleInit {
     const response = await this.tavilyClient.search(input, options);
     return response;
   }
+
+  async tavilySearchShort(input: any, options: any) {
+    const response = await this.tavilyClient.searchQNA(input, options);
+    return response;
+  }
 }
