@@ -38,10 +38,9 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierRevenue(supplierName: string, context: KafkaContext) {
     const query = `What is the annual revenue of ${supplierName}`;
     console.log('Query', query);
-    const supplierRevenue = await this.tavilySearchService.tavilySearch(
-      query,
-      {},
-    );
+    const supplierRevenue = await this.tavilySearchService.tavilySearch(query, {
+      search_depth: 'advanced',
+    });
     const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
     const userPrompt = `Given the following search result from the web, identify and give annuaul revenue of the supplier ${supplierName}. Here is the search result:${supplierRevenueList}`;
@@ -65,7 +64,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierCertification = await this.tavilySearchService.tavilySearch(
       query,
-      {},
+      { search_depth: 'advanced' },
     );
 
     const supplierCertificationList = JSON.stringify(
@@ -91,10 +90,9 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierContact(supplierName: string, context: KafkaContext) {
     const query = `What are the contact details of ${supplierName}.`;
     console.log('Query', query);
-    const supplierContact = await this.tavilySearchService.tavilySearch(
-      query,
-      {},
-    );
+    const supplierContact = await this.tavilySearchService.tavilySearch(query, {
+      search_depth: 'advanced',
+    });
 
     const supplierContactList = JSON.stringify(supplierContact.results);
 
