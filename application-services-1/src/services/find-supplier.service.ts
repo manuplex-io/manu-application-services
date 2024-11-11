@@ -124,7 +124,7 @@ export class FindSupplierService implements OnModuleInit {
       supplierCapabilities.results,
     );
 
-    const userPrompt = `Given the following search results from the web, identify and give manufacturing processes and capabilities of the supplier ${supplierName}. Here is the search result:${supplierCapabilitiesList}`;
+    const userPrompt = `Given the following search results from the web, identify and give capabalities in terms of  manufacturing processes for the supplier ${supplierName}. Ensure you only give manufacturing processes. Here is the search result:${supplierCapabilitiesList}`;
 
     const response = await this.callLLM(
       userPrompt,
@@ -138,6 +138,53 @@ export class FindSupplierService implements OnModuleInit {
     const result = JSON.parse(response.messageContent.content);
 
     return result.capabilities;
+  }
+
+  async getSupplierExportCountries(
+    supplierName: string,
+    context: KafkaContext,
+  ) {
+    const query = `Which countries does ${supplierName} export to?`;
+    console.log('Query', query);
+    const supplierExportCountries = await this.tavilySearchService.tavilySearch(
+      query,
+      { search_depth: 'advanced' },
+    );
+
+    const supplierExportCountriesList = JSON.stringify(
+      supplierExportCountries.results,
+    );
+
+    const userPrompt = `Given the following search results from the web, identify and give the countries that the supplier ${supplierName} exports to. Here is the search result:${supplierExportCountriesList}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_supplier_export_countries'],
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
+    );
+
+    const result = JSON.parse(response.messageContent.content);
+
+    return result.export_countries;
+  }
+
+  async addExportCountriesToCompanies(companies: any, context: KafkaContext) {
+    const companiesWithExportCountries = await Promise.all(
+      companies.map(async (company: any) => {
+        const exportCountries = await this.getSupplierExportCountries(
+          company.label,
+          context,
+        );
+        return {
+          ...company,
+          export_countries: exportCountries,
+        };
+      }),
+    );
+    return companiesWithExportCountries;
   }
 
   async addCapabilitiesToCompanies(companies: any, context: KafkaContext) {
@@ -293,10 +340,16 @@ export class FindSupplierService implements OnModuleInit {
       context,
     );
     console.log('Response with capabilities', responseWithCapabilities);
+    const responseWithExportCountries =
+      await this.addExportCountriesToCompanies(
+        responseWithCapabilities,
+        context,
+      );
+    console.log('Response with export countries', responseWithExportCountries);
 
-    const supplierWithRevenueCertificationContactCapabilities = {
-      messageContent: { content: JSON.stringify(responseWithCapabilities) },
+    const supplierWithRevenueCertificationContactCapabilitiesExport = {
+      messageContent: { content: JSON.stringify(responseWithExportCountries) },
     };
-    return supplierWithRevenueCertificationContactCapabilities;
+    return supplierWithRevenueCertificationContactCapabilitiesExport;
   }
 }
