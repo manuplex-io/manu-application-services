@@ -23,6 +23,7 @@ import { ServicesModule } from 'src/services/services.module';
             },
             consumer: {
               groupId: `${configService.get<string>('SERVICE_NAME')}-group`,
+              'session.timeout.ms': 300000,
               allowAutoTopicCreation: false,
             },
           },
@@ -30,13 +31,10 @@ import { ServicesModule } from 'src/services/services.module';
         inject: [ConfigService],
       },
     ]),
-    forwardRef(() => ServicesModule)
+    forwardRef(() => ServicesModule),
   ],
-  providers: [
-    KafkaOb1ProcessingService,
-    KafkaOb1Service
-  ],
+  providers: [KafkaOb1ProcessingService, KafkaOb1Service],
   controllers: [KafkaOb1Controller],
-  exports:[KafkaOb1Service]
+  exports: [KafkaOb1Service],
 })
-export class KafkaOb1Module { }
+export class KafkaOb1Module {}
