@@ -112,6 +112,50 @@ export class FindSupplierService implements OnModuleInit {
     return result.contact;
   }
 
+  async getSupplierCapabilities(supplierName: string, context: KafkaContext) {
+    const query = `What are the manufacturing capabilities and processes of ${supplierName}`;
+    console.log('Query', query);
+    const supplierCapabilities = await this.tavilySearchService.tavilySearch(
+      query,
+      { search_depth: 'advanced' },
+    );
+
+    const supplierCapabilitiesList = JSON.stringify(
+      supplierCapabilities.results,
+    );
+
+    const userPrompt = `Given the following search results from the web, identify and give manufacturing processes and capabilities of the supplier ${supplierName}. Here is the search result:${supplierCapabilitiesList}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_supplier_manufacturing_capabilities'],
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
+    );
+
+    const result = JSON.parse(response.messageContent.content);
+
+    return result.capabilities;
+  }
+
+  async addCapabilitiesToCompanies(companies: any, context: KafkaContext) {
+    const companiesWithCapabilities = await Promise.all(
+      companies.map(async (company: any) => {
+        const capabilities = await this.getSupplierCapabilities(
+          company.label,
+          context,
+        );
+        return {
+          ...company,
+          capabilities: capabilities,
+        };
+      }),
+    );
+    return companiesWithCapabilities;
+  }
+
   async addRevenueToCompanies(companies: any, context: KafkaContext) {
     const companiesWithRevenue = await Promise.all(
       companies.map(async (company: any) => {
@@ -244,10 +288,15 @@ export class FindSupplierService implements OnModuleInit {
       context,
     );
     console.log('Response with contact', responseWithContact);
+    const responseWithCapabilities = await this.addCapabilitiesToCompanies(
+      responseWithContact,
+      context,
+    );
+    console.log('Response with capabilities', responseWithCapabilities);
 
-    const supplierWithRevenueCertificationContact = {
-      messageContent: { content: JSON.stringify(responseWithContact) },
+    const supplierWithRevenueCertificationContactCapabilities = {
+      messageContent: { content: JSON.stringify(responseWithCapabilities) },
     };
-    return supplierWithRevenueCertificationContact;
+    return supplierWithRevenueCertificationContactCapabilities;
   }
 }
