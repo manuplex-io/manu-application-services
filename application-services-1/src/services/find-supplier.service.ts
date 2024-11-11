@@ -81,6 +81,30 @@ export class FindSupplierService implements OnModuleInit {
     return result.certifications;
   }
 
+  async getSupplierContact(supplierName: string, context: KafkaContext) {
+    const query = `Find me the contact details of ${supplierName}.`;
+    console.log('Query', query);
+    const supplierContact = await this.tavilySearchService.tavilySearchShort(
+      query,
+      {},
+    );
+
+    const userPrompt = `Given the following string, identify and give contact details of the supplier. Contact details should include phone, address, and email.  Here is the string:${supplierContact}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_supplier_contact'],
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
+    );
+
+    const result = JSON.parse(response.messageContent.content);
+
+    return result.contact;
+  }
+
   async addRevenueToCompanies(companies: any, context: KafkaContext) {
     const companiesWithRevenue = await Promise.all(
       companies.map(async (company: any) => {
@@ -108,6 +132,19 @@ export class FindSupplierService implements OnModuleInit {
       }),
     );
     return companiesWithCertification;
+  }
+
+  async addContactToCompanies(companies: any, context: KafkaContext) {
+    const companiesWithContact = await Promise.all(
+      companies.map(async (company: any) => {
+        const contact = await this.getSupplierContact(company.label, context);
+        return {
+          ...company,
+          contact: contact,
+        };
+      }),
+    );
+    return companiesWithContact;
   }
 
   async callLLM(
@@ -195,10 +232,15 @@ export class FindSupplierService implements OnModuleInit {
       context,
     );
     console.log('Response with certification', responseWithCertification);
+    const responseWithContact = await this.addContactToCompanies(
+      responseWithCertification,
+      context,
+    );
+    console.log('Response with contact', responseWithContact);
 
-    const supplierWithRevenueCertification = {
-      messageContent: { content: JSON.stringify(responseWithCertification) },
+    const supplierWithRevenueCertificationContact = {
+      messageContent: { content: JSON.stringify(responseWithContact) },
     };
-    return supplierWithRevenueCertification;
+    return supplierWithRevenueCertificationContact;
   }
 }
