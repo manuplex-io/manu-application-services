@@ -36,13 +36,12 @@ export class FindSupplierService implements OnModuleInit {
   }
 
   async getSupplierRevenue(supplierName: string, context: KafkaContext) {
-    const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency.`;
+    const query = `Find me the annual revenue of ${supplierName}. The revenue should be in USD. Convert it into USD if it is in any other currency. Exchage rate is 1 USD = 83 INR`;
     console.log('Query', query);
     const supplierRevenue = await this.tavilySearchService.tavilySearchShort(
       query,
       {},
     );
-    //const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
     const userPrompt = `Given the following string, identify and give revenue of the supplier. Here is the string:${supplierRevenue}`;
 
@@ -63,15 +62,10 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierCertification(supplierName: string, context: KafkaContext) {
     const query = `Find and give the quality certifications of ${supplierName} from their website and other sources.`;
     console.log('Query', query);
-    const supplierCertification = await this.tavilySearchService.tavilySearch(
-      query,
-      {},
-    );
-    const supplierCertificationList = JSON.stringify(
-      supplierCertification.results,
-    );
+    const supplierCertification =
+      await this.tavilySearchService.tavilySearchShort(query, {});
 
-    const userPrompt = `Given the following list of search results from the web, identify and give certifications of the supplier. Here is the list:${supplierCertificationList}`;
+    const userPrompt = `Given the following string, identify, extract, and give certifications of the supplier. Here is the list:${supplierCertification}`;
 
     const response = await this.callLLM(
       userPrompt,
