@@ -211,19 +211,25 @@ export class OrderFormService implements OnModuleInit {
       messageContent: {
         functionInput: {
             systemPrompt: `
-            A procurement manager has provided you with a requirement for placing an order. Extract and provide information based on below guidelines:
-    
-                Guidelines for extraction:
-                - order_summary: A well articulated summary of the procurement manager's requirement in a maximum of 50 words
-                - material_type: Extract ONLY if specific material type is mentioned 
-                - manufacturing_process: Extract ONLY if specific manufacturing methods are mentioned
-                - secondary_operations: Extract ONLY if specific secondary operations are explicitly stated
-                - finishing: Extract ONLY if specific finishing processes are mentioned
-                - product_certifications: Extract ONLY if specific product certifications are listed
-                - certifications: Extract ONLY if specific company/quality certifications are mentioned
-                - facilities_infrastructure: Extract ONLY if specific facility requirements are stated
-                - inspection_techniques: Extract ONLY if specific inspection methods are mentioned
-                - region: Extract ONLY if location is explicitly specified
+            A procurement manager has provided you with a requirement for placing an order. Follow these guidelines to **extract relevant information** and **suggest suitable values** for all fields, even if some details are already mentioned. Your responses should follow the provided JSON schema.
+
+            Guidelines:
+            1. **EXTRACT EXPLICITLY MENTIONED INFORMATION**:
+                - **order_summary**: A well articulated summary of the procurement manager's requirement in a maximum of 50 words
+                - **material_type**: Extract if a specific material type is mentioned.
+                - **manufacturing_process**: Extract if a specific manufacturing method is mentioned.
+                - **secondary_operations**: Extract if specific secondary operations are explicitly stated.
+                - **finishing**: Extract if specific finishing processes are mentioned.
+                - **product_certifications**: Extract if specific product certifications are listed.
+                - **certifications**: Extract if specific company/quality certifications are mentioned.
+                - **facilities_infrastructure**: Extract if specific facility requirements are stated.
+                - **inspection_techniques**: Extract if specific inspection methods are mentioned.
+                - **region**: Extract if a location is explicitly specified.
+
+            2. **ALWAYS SUGGEST ADDITIONAL SUITABLE VALUES**:
+                - For each field defined above, **even if information is already provided**, suggest additional relevant and commercially viable values. These suggestions should be contextually appropriate to the requirements.
+                
+            Structure your response according to the JSON schema, providing both extracted values and additional suggestions for each field, ensuring all properties are populated as specified.
             `,
           userPrompt: userInput,
           responseFormat:responseFormat,
