@@ -430,6 +430,23 @@ const json_schema16 = {
   },
 };
 
+const json_schema17 = {
+  type: 'json_schema',
+  json_schema: {
+    name: 'get_part_description',
+    schema: {
+      type: 'object',
+      properties: {
+        part_description: {
+          type: 'string',
+          description: 'Part description from user input.',
+        },
+      },
+      required: ['part_description'],
+    },
+  },
+};
+
 const materialTypeSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial materials.
 Your role is to analyze the procurement manager's requirements and provide intelligent material recommendations.
 Only include material type with each word capitalized (Title Case) and without any extra information or explanations.
@@ -586,4 +603,5 @@ export const schemas = {
   get_supplier_contact: json_schema14,
   get_supplier_manufacturing_capabilities: json_schema15,
   get_supplier_export_countries: json_schema16,
+  get_part_description: json_schema17,
 };

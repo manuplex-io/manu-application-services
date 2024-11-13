@@ -21,9 +21,21 @@ export class FindSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async getSupplierInfo(functionInput: any) {
-    const orderForm = functionInput.orderForm;
-    const partDescription = orderForm.orderSummary;
+  async getSupplierInfo(functionInput: any, context: KafkaContext) {
+    const userInput = functionInput.userInput;
+    const userPrompt = `Given the following user input, identify and give the name of the part that the user is looking for. Examples of part names could be sheet metal stampings, crankshafts, plastic injection molded cups, etc. Here is the user input:${userInput}`;
+
+    const response = await this.callLLM(
+      userPrompt,
+      schemas['get_part_description'],
+      context.getMessage().headers.userRole.toString(),
+      context.getMessage().headers.userEmail.toString(),
+      context.getMessage().key.toString(),
+      context.getMessage().headers.instanceName.toString(),
+    );
+
+    const result = JSON.parse(response.messageContent.content);
+    const partDescription = result.part_description;
     const query = `Find me Indian suppliers for ${partDescription}`;
     const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
       max_results: 5,
@@ -295,7 +307,7 @@ export class FindSupplierService implements OnModuleInit {
       .headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key.toString();
     const instanceName = context.getMessage().headers.instanceName.toString();
-    const supplierRawData = await this.getSupplierInfo(functionInput);
+    const supplierRawData = await this.getSupplierInfo(functionInput, context);
     const supplierList = JSON.stringify(supplierRawData.results);
     const destinationService = 'database-service';
     const sourceFunction = 'findSupplier';
