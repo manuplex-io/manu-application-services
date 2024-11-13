@@ -19,6 +19,11 @@ export class ShortlistSupplierService implements OnModuleInit {
     return arr.filter((element: any) => element.assetName === assetName);
   }
 
+  async filterByExportCountry(supplierListInitial: any) {
+    const supplierList = supplierListInitial[0].assetdata.supplierListV1;
+    return supplierList;
+  }
+
   async shortListSupplier(functionInput: any, context: KafkaContext) {
     const criteria = functionInput.criteria;
     const projectName = functionInput.projectName;
@@ -64,9 +69,14 @@ export class ShortlistSupplierService implements OnModuleInit {
       'SupplierListv1',
     );
 
+    const initialSupplierList = this.filterByExportCountry(supplierListInitial);
+    console.log('initialSupplierList', initialSupplierList);
+
     const orderFormInitial = this.filterByAssetName(
       supplierListV1.messageContent,
       'orderForm',
     );
+
+    return supplierListV1;
   }
 }
