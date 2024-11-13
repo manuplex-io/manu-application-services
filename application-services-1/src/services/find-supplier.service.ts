@@ -22,11 +22,10 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierInfo(functionInput: any) {
     const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
-    const query = `Find me 10 Indian suppliers for ${partDescription}`;
-    const supplierRawData = await this.tavilySearchService.tavilySearch(
-      query,
-      {},
-    );
+    const query = `Find me 5 Indian suppliers for ${partDescription}`;
+    const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
+      max_results: 5,
+    });
     console.log(supplierRawData.results);
     return supplierRawData;
   }
