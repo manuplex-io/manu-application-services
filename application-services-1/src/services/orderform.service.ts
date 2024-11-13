@@ -24,79 +24,120 @@ export class OrderFormService implements OnModuleInit {
   }
 
   async getOrderForm(userInput: string, context: KafkaContext) {
-    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader
+    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key?.toString();
     const systemPrompt = prompts.orderFormPrompt;
     const responseFormat = schemas.order_form_schema;
+
+    // Initial response based on order form prompt
     const response = await this.callLLM(
-      systemPrompt,
-      userInput,
-      responseFormat,
-      messageHeaders.userRole,
-      messageHeaders.userEmail,
-      messageKey,
-      messageHeaders.instanceName,
+        systemPrompt,
+        userInput,
+        responseFormat,
+        messageHeaders.userRole,
+        messageHeaders.userEmail,
+        messageKey,
+        messageHeaders.instanceName,
     );
 
-    const userPrompt1 = JSON.stringify(response.messageContent.content)
-    const materialTypeSuggestedForm = await this.materialSuggestions(
-      prompts.material_type,
-      userPrompt1,
-      responseFormat,
-      context
-    )
+    // Material Type Suggestion
+    const userPrompt1 = JSON.stringify(response.messageContent.content);
+    const materialTypeSuggestedForm = await this.generateSuggestion(
+        prompts.material_type,
+        userPrompt1,
+        responseFormat,
+        context
+    );
 
-    const materialTypeResp = JSON.stringify(materialTypeSuggestedForm.messageContent.content)
+    // Manufacturing Process Suggestion
+    const materialTypeResp = JSON.stringify(materialTypeSuggestedForm.messageContent.content);
+    const manufacturingSuggestedForm = await this.generateSuggestion(
+        prompts.manufacturing_process,
+        materialTypeResp,
+        responseFormat,
+        context
+    );
 
-    const manufacturingSuggestedForm = await this.manufacturingSuggestions(
-      prompts.manufacturing_process,
-      materialTypeResp,
-      responseFormat,
-      context
-    )
+    // Secondary Process Suggestion
+    const manufacturingResp = JSON.stringify(manufacturingSuggestedForm.messageContent.content);
+    const secondarySuggestedForm = await this.generateSuggestion(
+        prompts.secondary_operations,
+        manufacturingResp,
+        responseFormat,
+        context
+    );
 
-    return manufacturingSuggestedForm
+    // Finishing Process Suggestion
+    const secondaryResp = JSON.stringify(secondarySuggestedForm.messageContent.content);
+    const finishingSuggestedForm = await this.generateSuggestion(
+        prompts.finishing,
+        secondaryResp,
+        responseFormat,
+        context
+    );
 
-  }
+    // Product Certification Suggestion
+    const finishingResp = JSON.stringify(finishingSuggestedForm.messageContent.content);
+    const productCertificationForm = await this.generateSuggestion(
+        prompts.product_certifications,
+        finishingResp,
+        responseFormat,
+        context
+    );
 
-  async materialSuggestions(systemPrompt:string,userPrompt:string,responseFormat:any,context: KafkaContext){
+    // Certification Suggestion
+    const productCertResp = JSON.stringify(productCertificationForm.messageContent.content);
+    const certificationForm = await this.generateSuggestion(
+        prompts.certifications,
+        productCertResp,
+        responseFormat,
+        context
+    );
 
-    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader
+    // Facilities Suggestion
+    const certificationResp = JSON.stringify(certificationForm.messageContent.content);
+    const facilitiesForm = await this.generateSuggestion(
+        prompts.facilities_infrastructure,
+        certificationResp,
+        responseFormat,
+        context
+    );
+
+    // Inspection Suggestion
+    const facilitiesResp = JSON.stringify(facilitiesForm.messageContent.content);
+    const inspectionForm = await this.generateSuggestion(
+        prompts.inspection_techniques,
+        facilitiesResp,
+        responseFormat,
+        context
+    );
+
+    return inspectionForm;
+}
+
+async generateSuggestion(
+    systemPrompt: string,
+    userPrompt: string,
+    responseFormat: any,
+    context: KafkaContext
+) {
+    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key?.toString();
 
     const response = await this.callLLM(
-      systemPrompt,
-      userPrompt,
-      responseFormat,
-      messageHeaders.userRole,
-      messageHeaders.userEmail,
-      messageKey,
-      messageHeaders.instanceName,
+        systemPrompt,
+        userPrompt,
+        responseFormat,
+        messageHeaders.userRole,
+        messageHeaders.userEmail,
+        messageKey,
+        messageHeaders.instanceName,
     );
 
-    return response
+    return response;
+}
 
-  }
-
-
-  async manufacturingSuggestions(systemPrompt:string,userPrompt:string,responseFormat:any,context: KafkaContext){
-
-    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader
-    const messageKey = context.getMessage().key?.toString();
-
-    const response = await this.callLLM(
-      systemPrompt,
-      userPrompt,
-      responseFormat,
-      messageHeaders.userRole,
-      messageHeaders.userEmail,
-      messageKey,
-      messageHeaders.instanceName,
-    );
-
-    return response
-
-  }
+  
 
 
 
