@@ -32,7 +32,7 @@ export class ShortlistSupplierService implements OnModuleInit {
         functionInput: {
           CRUDName: 'GET',
           CRUDInput: {
-            tableEntity: 'ob1-assets',
+            tableEntity: 'OB1-assets',
             projectName: projectName,
           },
         },
