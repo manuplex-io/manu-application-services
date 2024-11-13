@@ -447,6 +447,190 @@ const json_schema17 = {
   },
 };
 
+
+const order_form_schema = {
+  "type":"json_schema",
+  "json_schema":{
+      "name": "OrderForm",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "order_summary": {
+            "type": "string",
+            "description": "Summary message regarding the order"
+          },
+          "material_type": {
+            "type": "array",
+            "description": "List of material types.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the material type"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "manufacturing_process": {
+            "type": "array",
+            "description": "List of manufacturing processes.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the manufacturing process"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "secondary_operations": {
+            "type": "array",
+            "description": "List of secondary operations.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the secondary operation"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "finishing": {
+            "type": "array",
+            "description": "List of finishing types.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the finishing type"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "product_certifications": {
+            "type": "array",
+            "description": "List of product certifications.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the product certification"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "certifications": {
+            "type": "array",
+            "description": "List of certifications.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the certification"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "facilities_infrastructure": {
+            "type": "array",
+            "description": "List of facilities or infrastructure.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the facility or infrastructure"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "inspection_techniques": {
+            "type": "array",
+            "description": "List of inspection techniques.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the inspection technique"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "region": {
+            "type": "array",
+            "description": "List of regions.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The label of the region"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "order_summary",
+          "material_type",
+          "manufacturing_process",
+          "secondary_operations",
+          "finishing",
+          "product_certifications",
+          "certifications",
+          "facilities_infrastructure",
+          "inspection_techniques",
+          "region"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+}
+
 const materialTypeSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial materials.
 Your role is to analyze the procurement manager's requirements and provide intelligent material recommendations.
 Only include material type with each word capitalized (Title Case) and without any extra information or explanations.
@@ -575,6 +759,22 @@ Based on your analysis, provide 3-5 tailored inspection technique recommendation
 Inspection Technique Selection Criteria:
 - Effectiveness: The technique must accurately detect and measure the relevant quality attributes.`;
 
+
+const orderFormPrompt: string = `
+A procurement manager has provided you with a requirement for placing an order. Extract and provide information based on below guidelines:
+    
+                Guidelines for extraction:
+                - order_summary: A well articulated summary of the procurement manager's requirement in a maximum of 50 words
+                - material_type: Extract ONLY if specific material type is mentioned 
+                - manufacturing_process: Extract ONLY if specific manufacturing methods are mentioned
+                - secondary_operations: Extract ONLY if specific secondary operations are explicitly stated
+                - finishing: Extract ONLY if specific finishing processes are mentioned
+                - product_certifications: Extract ONLY if specific product certifications are listed
+                - certifications: Extract ONLY if specific company/quality certifications are mentioned
+                - facilities_infrastructure: Extract ONLY if specific facility requirements are stated
+                - inspection_techniques: Extract ONLY if specific inspection methods are mentioned
+                - region: Extract ONLY if location is explicitly specified`
+
 export const prompts = {
   material_type: materialTypeSuggestionsSystem,
   manufacturing_process: manufacturingProcessSuggestionsSystem,
@@ -585,6 +785,7 @@ export const prompts = {
   facilities_infrastructure: facilitiesInfrastructureSuggestionsSystem,
   inspection_techniques: inspectionTechniquesSuggestionsSystem,
   regions: regionSuggestionsSystem,
+  orderFormPrompt:orderFormPrompt
 };
 
 export const schemas = {
@@ -604,4 +805,5 @@ export const schemas = {
   get_supplier_manufacturing_capabilities: json_schema15,
   get_supplier_export_countries: json_schema16,
   get_part_description: json_schema17,
+  order_form_schema:order_form_schema
 };
