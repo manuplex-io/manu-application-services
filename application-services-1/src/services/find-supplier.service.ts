@@ -361,14 +361,8 @@ export class FindSupplierService implements OnModuleInit {
       );
     console.log('Response with export countries', responseWithExportCountries);
 
-    const supplierWithRevenueCertificationContactCapabilitiesExport = {
-      messageContent: {
-        content: JSON.stringify(responseWithExportCountries),
-      },
-    };
-
     const supplierListV1 = {
-      supplierListV1: JSON.stringify(responseWithExportCountries),
+      supplierListV1: responseWithExportCountries,
     };
 
     const messageInput = {
@@ -415,7 +409,7 @@ export class FindSupplierService implements OnModuleInit {
 
     return {
       messageContent: {
-        content: supplierWithRevenueCertificationContactCapabilitiesExport,
+        content: responseWithExportCountries,
         url: googleSheetURL,
       },
     };
