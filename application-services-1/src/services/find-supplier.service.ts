@@ -22,11 +22,10 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierInfo(functionInput: any) {
     const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
-    const query = `Find me 10 Indian suppliers for ${partDescription}`;
-    const supplierRawData = await this.tavilySearchService.tavilySearch(
-      query,
-      {},
-    );
+    const query = `Find me 5 Indian suppliers for ${partDescription}`;
+    const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
+      max_results: 5,
+    });
     console.log(supplierRawData.results);
     return supplierRawData;
   }
@@ -168,76 +167,71 @@ export class FindSupplierService implements OnModuleInit {
   }
 
   async addExportCountriesToCompanies(companies: any, context: KafkaContext) {
-    const companiesWithExportCountries = await Promise.all(
-      companies.map(async (company: any) => {
-        const exportCountries = await this.getSupplierExportCountries(
-          company.label,
-          context,
-        );
-        return {
-          ...company,
-          export_countries: exportCountries,
-        };
-      }),
-    );
+    const companiesWithExportCountries = [];
+    for (const company of companies) {
+      const exportCountries = await this.getSupplierExportCountries(
+        company.label,
+        context,
+      );
+      companiesWithExportCountries.push({
+        ...company,
+        export_countries: exportCountries,
+      });
+    }
     return companiesWithExportCountries;
   }
 
   async addCapabilitiesToCompanies(companies: any, context: KafkaContext) {
-    const companiesWithCapabilities = await Promise.all(
-      companies.map(async (company: any) => {
-        const capabilities = await this.getSupplierCapabilities(
-          company.label,
-          context,
-        );
-        return {
-          ...company,
-          capabilities: capabilities,
-        };
-      }),
-    );
+    const companiesWithCapabilities = [];
+    for (const company of companies) {
+      const capabilities = await this.getSupplierCapabilities(
+        company.label,
+        context,
+      );
+      companiesWithCapabilities.push({
+        ...company,
+        capabilities: capabilities,
+      });
+    }
     return companiesWithCapabilities;
   }
 
   async addRevenueToCompanies(companies: any, context: KafkaContext) {
-    const companiesWithRevenue = await Promise.all(
-      companies.map(async (company: any) => {
-        const revenue = await this.getSupplierRevenue(company.label, context);
-        return {
-          ...company,
-          revenue: revenue,
-        };
-      }),
-    );
+    const companiesWithRevenue = [];
+    for (const company of companies) {
+      const revenue = await this.getSupplierRevenue(company.label, context);
+      companiesWithRevenue.push({
+        ...company,
+        revenue: revenue,
+      });
+    }
     return companiesWithRevenue;
   }
 
   async addCertificationToCompanies(companies: any, context: KafkaContext) {
-    const companiesWithCertification = await Promise.all(
-      companies.map(async (company: any) => {
-        const certifications = await this.getSupplierCertification(
-          company.label,
-          context,
-        );
-        return {
-          ...company,
-          certifications: certifications,
-        };
-      }),
-    );
+    const companiesWithCertification = [];
+    for (const company of companies) {
+      const certifications = await this.getSupplierCertification(
+        company.label,
+        context,
+      );
+      companiesWithCertification.push({
+        ...company,
+        certifications: certifications,
+      });
+    }
     return companiesWithCertification;
   }
 
   async addContactToCompanies(companies: any, context: KafkaContext) {
-    const companiesWithContact = await Promise.all(
-      companies.map(async (company: any) => {
-        const contact = await this.getSupplierContact(company.label, context);
-        return {
-          ...company,
-          contact: contact,
-        };
-      }),
-    );
+    const companiesWithContact = [];
+    for (const company of companies) {
+      const contact = await this.getSupplierContact(company.label, context);
+      companiesWithContact.push({
+        ...company,
+        contact: contact,
+      });
+    }
     return companiesWithContact;
   }
 
