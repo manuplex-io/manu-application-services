@@ -19,12 +19,12 @@ export class ShortlistSupplierService implements OnModuleInit {
     const criteria = functionInput.criteria;
     const projectName = functionInput.projectName;
     const messageKey = context.getMessage().key.toString();
-    const instanceName = context.getInstance().name;
+    const instanceName = context.getMessage().headers.instanceName.toString();
     const destinationService = 'database-service';
     const sourceFunction = 'shortlistSupplier';
     const sourceType = 'service';
-    const userRole = context.getHeaders().userRole.toString();
-    const userEmail = context.getHeaders().userEmail.toString();
+    const userRole = context.getMessage().headers.userRole.toString();
+    const userEmail = context.getMessage().headers.userEmail.toString();
 
     const messageInput = {
       messageContent: {
