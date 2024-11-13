@@ -1,8 +1,4 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { filter, timeout, take } from 'rxjs/operators';
-import { lastValueFrom } from 'rxjs';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { TavilySearchService } from './tavily-search.service';

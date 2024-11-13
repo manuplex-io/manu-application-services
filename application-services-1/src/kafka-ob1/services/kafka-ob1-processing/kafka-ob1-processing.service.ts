@@ -13,6 +13,7 @@ import { KafkaContext } from '@nestjs/microservices';
 import { OrderFormService } from 'src/services/orderform.service';
 import { FindSupplierService } from 'src/services/find-supplier.service';
 import { SuggestionService } from 'src/services/suggestion.service';
+import { ShortlistSupplierService } from 'src/services/shortlist-supplier.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -25,6 +26,7 @@ export class KafkaOb1ProcessingService {
     private readonly orderFormService: OrderFormService,
     private readonly findSupplierService: FindSupplierService,
     private readonly suggestionService: SuggestionService,
+    private readonly shortlistSupplierService: ShortlistSupplierService,
   ) {}
 
   async processRequest(message: OB1MessageValue, context: KafkaContext) {
@@ -54,6 +56,11 @@ export class KafkaOb1ProcessingService {
         );
       } else if (functionName === 'getSuggestions') {
         return await this.suggestionService.getSuggestions(
+          functionInput,
+          context,
+        );
+      } else if (functionName === 'shortlistSupplier') {
+        return await this.shortlistSupplierService.shortListSupplier(
           functionInput,
           context,
         );
