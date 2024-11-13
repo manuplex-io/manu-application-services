@@ -202,7 +202,7 @@ export class GoogleSheetService {
     function calculateColumnWidth(colIndex: number): number {
       const longestCell = rows.reduce((maxWidth, row) => {
         const cell = row.values[colIndex]?.userEnteredValue?.stringValue || '';
-        return Math.max(maxWidth, cell.length * 7); // Approximate 7 pixels per character
+        return Math.max(maxWidth, cell.length * 8); // Approximate 7 pixels per character
       }, 50); // Set a minimum width of 50
       return longestCell;
     }
@@ -247,4 +247,276 @@ export class GoogleSheetService {
     console.log('Sheet populated successfully!', spreadsheetUrl);
     return spreadsheetUrl;
   }
+
+  async addNewTabAndPopulateData(spreadsheetId: string, sheetName: string, data: any): Promise<string> {
+    const sheetsApi = new sheets_v4.Sheets({ auth: this.oauth2Client });
+  
+    // Add a new sheet
+    const addSheetRequest = {
+      addSheet: {
+        properties: {
+            title: sheetName,
+            gridProperties: {
+                frozenRowCount: 1, // Freeze the first row
+                frozenColumnCount: 1 // Freeze the first column
+            },
+        // properties: { title: sheetName }
+       }
+    }
+    };
+  
+    const supplierData = data.Summary.suppliers;
+
+    const formattedData = supplierData.map(supplier => [
+        supplier.name || "",
+        supplier.revenue || "",  // Joining revenue data as a comma-separated string
+        formatCertifications(supplier.certifications) || "",
+        formatContactDetails(supplier.contactDetails) || "",  // Handle contactDetails, check if it's an object
+        formatCapabilities(supplier.capabilities) || "",
+        supplier.exports ? supplier.exports.join(", ") : ""  // Handle null/undefined values for exports
+        ]);
+
+    const headers = [
+           ["Supplier Name", "Revenue", "Certifications", "Contact Details", "Capabilities", "Export Countries"]
+        ];
+
+    const rows = headers.concat(formattedData).map(row => ({
+          values: row.map(cell => ({ userEnteredValue: { stringValue: cell } }))
+        }));
+
+    // Populate the new tab
+    const populateDataRequest = {
+        updateCells: {
+        rows,
+        start: { sheetId: null /* This will be set dynamically */, rowIndex: 0, columnIndex: 0 },
+        fields: 'userEnteredValue'
+        }
+    };
+        
+    // Send batch update request
+    const { data: batchResponse } = await sheetsApi.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests: [addSheetRequest] }
+    });
+  
+    const newSheetId = batchResponse.replies[0].addSheet.properties.sheetId;
+    populateDataRequest.updateCells.start.sheetId = newSheetId;
+  
+    // Populate data in the new tab
+    await sheetsApi.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests: [populateDataRequest] }
+    });
+
+    // Define a maximum width limit (in pixels)
+    const maxWidth = 275;
+
+    // Set column widths with a maximum limit and enable text wrapping
+    const dimensionRequests = headers[0].map((_, colIndex) => ({
+        updateDimensionProperties: {
+            range: {
+                sheetId: newSheetId,
+                dimension: "COLUMNS",
+                startIndex: colIndex,
+                endIndex: colIndex + 1
+            },
+            properties: {
+                pixelSize: Math.min(calculateColumnWidth(colIndex), maxWidth)
+            },
+            fields: "pixelSize"
+        }
+    }));
+
+    // Enable text wrap for all cells in the new tab
+    const wrapTextRequest = {
+        repeatCell: {
+            range: {
+                sheetId: newSheetId
+            },
+            cell: {
+                userEnteredFormat: {
+                    wrapStrategy: "WRAP"
+                }
+            },
+            fields: "userEnteredFormat.wrapStrategy"
+        }
+    };
+
+    const revenueValues = rows.slice(1).map(row => {
+        const revenue = parseFloat(row.values[1]?.userEnteredValue?.stringValue || "NaN");
+        return isNaN(revenue) ? 0 : revenue;  // Fallback to 0 if not a valid number
+    });
+    const minRevenue = Math.min(...revenueValues);
+    const maxRevenue = Math.max(...revenueValues);
+    const midpointRevenue = (minRevenue + maxRevenue) / 2;
+
+    console.log('Min Revenue:', minRevenue);
+    console.log('Max Revenue:', maxRevenue);
+
+    // Conditional Formatting Requests
+    const conditionalFormattingRequests = [
+    // Revenue column (B): apply green for highest, yellow for lowest, and gradient for in-between
+        {
+            addConditionalFormatRule: {
+                rule: {
+                    ranges: [
+                    {
+                        sheetId: newSheetId,
+                        startRowIndex: 1, // Start from the second row (after the header)
+                        endRowIndex: rows.length,
+                        startColumnIndex: 1, // Revenue column index (B)
+                        endColumnIndex: 2
+                    },
+                   ],
+                    gradientRule: {
+                        minpoint: {
+                            color: { red: 1, green: 1, blue: 0 }, // Yellow for the lowest
+                            type: "MIN",
+                        },
+                        maxpoint: {
+                            color: { red: 0, green: 1, blue: 0 }, // Green for the highest
+                            type: "MAX",
+                        },
+                        // midpoint: {
+                        //     color: { red: 0, green: 0, blue: 1 }, // Blue for in-between values
+                        //     type: "NUMBER",
+                        //     value: midpointRevenue.toString()
+                        // }
+                    }
+                },
+                index: 0
+            },
+        },
+        // Certifications column (C): apply green for ISO 9001
+        {
+            addConditionalFormatRule: {
+                rule: {
+                    ranges: [
+                    {
+                        sheetId: newSheetId,
+                        startRowIndex: 1,
+                        endRowIndex: rows.length,
+                        startColumnIndex: 2, // Certifications column index (C)
+                        endColumnIndex: 3
+                    },
+                ],
+                    booleanRule: {
+                        condition: {
+                            type: "TEXT_CONTAINS",
+                            values: [
+                                { userEnteredValue: "ISO 9001" } // Green if contains ISO 9001
+                            ]
+                        },
+                        format: {
+                            backgroundColor: { red: 0.7, green: 1, blue: 0.7 } // Green color
+                        }
+                    }
+                },
+                index: 1
+            }
+        }
+    ];
+
+
+    await sheetsApi.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+            requests: [
+                ...dimensionRequests,
+                wrapTextRequest,
+                ...conditionalFormattingRequests,
+                {
+                    // Bold headers
+                    updateCells: {
+                        rows: [
+                            {
+                                values: headers[0].map(cell => ({
+                                    userEnteredFormat: {
+                                        textFormat: { bold: true },
+                                        backgroundColor: { red: 0.4, green: 0.7, blue: 1 } // Light blue color
+                                    },
+                                    userEnteredValue: { stringValue: cell }
+                                }))
+                            }
+                        ],
+                        start: { sheetId: newSheetId, rowIndex: 0, columnIndex: 0 },
+                        fields: "userEnteredFormat.textFormat, userEnteredFormat.backgroundColor"
+                    }
+                },
+                // Add borders to all filled cells
+                {
+                    updateBorders: {
+                        range: {
+                            sheetId: newSheetId,
+                            startRowIndex: 0, // Start from row 0 for headers
+                            endRowIndex: rows.length, // End at the last row
+                            startColumnIndex: 0, // Start at the first column
+                            endColumnIndex: 6 // End at the 6th column (since there are 6 columns)
+                        },
+                        top: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } }, // Black border for top
+                        bottom: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } }, // Black border for bottom
+                        left: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } }, // Black border for left
+                        right: { style: "SOLID", width: 1, color: { red: 0, green: 0, blue: 0 } }, // Black border for right
+                        innerHorizontal: { style: "SOLID", width: 1 },
+                        innerVertical: { style: "SOLID", width: 1 }
+                    }
+                }
+            ]
+        }
+        // requestBody: { requests: [...dimensionRequests, wrapTextRequest] }
+    });
+
+    // Helper to calculate width based on the longest cell in the column
+    function calculateColumnWidth(colIndex: number): number {
+        const longestCell = rows.reduce((maxWidth, row) => {
+            const cell = row.values[colIndex]?.userEnteredValue?.stringValue || '';
+            const width = cell.length * 7; // Estimate: 7 pixels per character
+            return Math.max(maxWidth, width);
+        }, 50); // Set a minimum width of 50
+        return longestCell;
+    }
+
+    function formatContactDetails(contactDetails: any): string {
+        if (typeof contactDetails === 'string') {
+          return contactDetails;  // If it's a string, return as is
+        }
+      
+        if (contactDetails && typeof contactDetails === 'object') {
+          const { phone, address, email } = contactDetails;
+          // Concatenate phone, address, and email into a single string
+          return [
+            phone ? `Phone - ${phone}` : "",
+            address ? `Address - ${address}` : "",
+            email ? `Email - ${email}` : ""
+          ].filter(Boolean).join("\n");  // Filter out any empty fields
+        }
+      
+        return "";  // Return an empty string if no contactDetails
+    }
+
+    // Helper function to format certifications with newlines
+    function formatCertifications(certifications: any[]): string {
+        if (Array.isArray(certifications)) {
+        // Join certifications with newline characters
+        return certifications.join("\n");
+        }
+        return "";  // Return an empty string if no certifications
+    }
+
+    function formatCapabilities(capabilities: any[]): string {
+        if (Array.isArray(capabilities)) {
+        // Join certifications with newline characters
+        return capabilities.join("\n");
+        }
+        return "";  // Return an empty string if no certifications
+    }
+  
+    console.log(`New tab '${sheetName}' created, populated and column widths set with wrap formatting.`);
+
+    const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit#gid=${newSheetId}`;
+    console.log(`Spreadsheet URL with direct access to new tab: ${spreadsheetUrl}`);
+
+    return spreadsheetUrl;
+  }
+
 }
