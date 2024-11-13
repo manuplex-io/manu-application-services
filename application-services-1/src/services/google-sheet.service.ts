@@ -67,12 +67,12 @@ export class GoogleSheetService {
 
     // Format supplier data for each column in the sheet
     const sheetData = supplierData.map(supplier => [
-    supplier.name || "",
+    supplier.label || "",
     supplier.revenue || "",  // Joining revenue data as a comma-separated string
     formatCertifications(supplier.certifications) || "",
-    formatContactDetails(supplier.contactDetails) || "",  // Handle contactDetails, check if it's an object
+    formatContactDetails(supplier.contact) || "",  // Handle contactDetails, check if it's an object
     formatCapabilities(supplier.capabilities) || "",
-    supplier.exports ? supplier.exports.join(", ") : ""  // Handle null/undefined values for exports
+    supplier.export_countries ? supplier.export_countries.join(", ") : ""  // Handle null/undefined values for exports
     ]);
 
     const requests = [
@@ -110,13 +110,13 @@ export class GoogleSheetService {
       requestBody: { requests }
     });
 
-    function formatContactDetails(contactDetails: any): string {
-        if (typeof contactDetails === 'string') {
-          return contactDetails;  // If it's a string, return as is
+    function formatContactDetails(contact: any): string {
+        if (typeof contact === 'string') {
+          return contact;  // If it's a string, return as is
         }
       
-        if (contactDetails && typeof contactDetails === 'object') {
-          const { phone, address, email } = contactDetails;
+        if (contact && typeof contact === 'object') {
+          const { phone, address, email } = contact;
           // Concatenate phone, address, and email into a single string
           return [
             phone ? `phone - ${phone}` : "",
