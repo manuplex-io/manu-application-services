@@ -363,7 +363,8 @@ export class FindSupplierService implements OnModuleInit {
 
     const supplierWithRevenueCertificationContactCapabilitiesExport = {
       messageContent: {
-        content: JSON.stringify(responseWithExportCountries),
+        // content: JSON.stringify(responseWithExportCountries),
+        content: responseWithExportCountries,
       },
     };
 
