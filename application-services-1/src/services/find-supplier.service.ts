@@ -388,8 +388,6 @@ export class FindSupplierService implements OnModuleInit {
       headers.userEmail.toString(),
     );
 
-    console.log('Response1', response1);
-
     return supplierWithRevenueCertificationContactCapabilitiesExport;
   }
 }

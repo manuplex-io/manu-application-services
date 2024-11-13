@@ -65,6 +65,8 @@ export class ShortlistSupplierService implements OnModuleInit {
       userEmail,
     );
 
+    console.log('Supplier List V1:', supplierListV1);
+
     return supplierListV1;
   }
 }
