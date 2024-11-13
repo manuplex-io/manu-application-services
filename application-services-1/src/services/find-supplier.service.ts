@@ -407,6 +407,8 @@ export class FindSupplierService implements OnModuleInit {
       googleSheetInput,
     );
 
+    console.log('Google sheet URL', googleSheetURL);
+
     return {
       messageContent: {
         content: responseWithExportCountries,
