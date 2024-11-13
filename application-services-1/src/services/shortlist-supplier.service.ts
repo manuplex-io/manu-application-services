@@ -54,7 +54,7 @@ export class ShortlistSupplierService implements OnModuleInit {
       ...messageInput,
     };
 
-    const assets = this.kafkaService.sendRequestSystem(
+    const supplierListV1 = this.kafkaService.sendRequestSystem(
       messageKey,
       instanceName,
       destinationService,
@@ -65,8 +65,6 @@ export class ShortlistSupplierService implements OnModuleInit {
       userEmail,
     );
 
-    const supplierListV1 = this.findAssetByName(assets, 'SupplierListv1');
-
-    return { messageContent: { content: supplierListV1 } };
+    return supplierListV1;
   }
 }
