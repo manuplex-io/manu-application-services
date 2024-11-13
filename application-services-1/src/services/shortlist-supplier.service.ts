@@ -15,14 +15,8 @@ export class ShortlistSupplierService implements OnModuleInit {
 
   async onModuleInit() {}
 
-  async findAssetByName(data: any, assetName: string) {
-    for (const key in data.messageContent) {
-      const asset = data.messageContent[key];
-      if (asset.assetName === assetName) {
-        return { key, asset };
-      }
-    }
-    return null;
+  async filterByAssetName(arr: any, assetName: string) {
+    return arr.filter((element: any) => element.assetName === assetName);
   }
 
   async shortListSupplier(functionInput: any, context: KafkaContext) {
@@ -54,7 +48,7 @@ export class ShortlistSupplierService implements OnModuleInit {
       ...messageInput,
     };
 
-    const supplierListV1 = this.kafkaService.sendRequestSystem(
+    const supplierListV1 = await this.kafkaService.sendRequestSystem(
       messageKey,
       instanceName,
       destinationService,
@@ -65,8 +59,14 @@ export class ShortlistSupplierService implements OnModuleInit {
       userEmail,
     );
 
-    console.log('Supplier List V1:', supplierListV1);
+    const supplierListInitial = this.filterByAssetName(
+      supplierListV1.messageContent,
+      'SupplierListv1',
+    );
 
-    return supplierListV1;
+    const orderFormInitial = this.filterByAssetName(
+      supplierListV1.messageContent,
+      'orderForm',
+    );
   }
 }

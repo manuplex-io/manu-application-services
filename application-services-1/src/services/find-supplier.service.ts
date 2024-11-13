@@ -2,6 +2,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { TavilySearchService } from './tavily-search.service';
+import { GoogleSheetService } from './google-sheet.service';
 import { schemas } from './prompts';
 
 import {
@@ -15,6 +16,7 @@ export class FindSupplierService implements OnModuleInit {
   constructor(
     private readonly kafkaService: KafkaOb1Service,
     private readonly tavilySearchService: TavilySearchService,
+    private readonly googleSheetService: GoogleSheetService,
   ) {}
 
   async onModuleInit() {}
@@ -388,6 +390,22 @@ export class FindSupplierService implements OnModuleInit {
       headers.userEmail.toString(),
     );
 
-    return supplierWithRevenueCertificationContactCapabilitiesExport;
+    const googleSheetInput = {
+      Summary: {
+        suppliers: supplierWithRevenueCertificationContactCapabilitiesExport,
+      },
+    };
+
+    const googleSheetURL = this.googleSheetService.createAndPopulateGoogleSheet(
+      headers.userEmail.toString(),
+      googleSheetInput,
+    );
+
+    return {
+      messageContent: {
+        content: supplierWithRevenueCertificationContactCapabilitiesExport,
+        url: googleSheetURL,
+      },
+    };
   }
 }
