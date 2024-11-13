@@ -163,7 +163,7 @@ export class FindSupplierService implements OnModuleInit {
 
     const result = JSON.parse(response.messageContent.content);
 
-    return result.export_countries;
+    return result.countries;
   }
 
   async addExportCountriesToCompanies(companies: any, context: KafkaContext) {
