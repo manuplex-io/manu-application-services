@@ -75,40 +75,117 @@ export class GoogleSheetService {
     supplier.export_countries ? supplier.export_countries.join(", ") : ""  // Handle null/undefined values for exports
     ]);
 
+    const rows = headers.concat(sheetData).map(row => ({
+        values: row.map(cell => ({ userEnteredValue: { stringValue: cell } }))
+      }));
+  
+    // Requests array with new formatting requests
     const requests = [
-      // Set headers in the first row
-      {
-        updateCells: {
-          rows: headers.map(values => ({
-            values: values.map(value => ({ userEnteredValue: { stringValue: value } }))
-          })),
-          start: { sheetId: 0, rowIndex: 0, columnIndex: 0 },
-          fields: 'userEnteredValue'
-        }
-      },
-      // Populate data starting from the second row
-      {
-        updateCells: {
-          rows: sheetData.map(values => ({
-            values: values.map(value => ({ userEnteredValue: { stringValue: value } }))
-          })),
-          start: { sheetId: 0, rowIndex: 1, columnIndex: 0 },
-          fields: 'userEnteredValue'
-        }
-      },
-      {
-        autoResizeDimensions: {
-        dimensions: { sheetId: 0, dimension: 'COLUMNS', startIndex: 0, endIndex: 6 }
-        }
-      }
-
+        // Set headers in the first row
+        {
+          updateCells: {
+            rows: headers.map(values => ({
+              values: values.map(value => ({
+                userEnteredValue: { stringValue: value },
+                userEnteredFormat: { textFormat: { bold: true }, backgroundColor: { red: 0.4, green: 0.4, blue: 0.6 } }
+              }))
+            })),
+            start: { sheetId: 0, rowIndex: 0, columnIndex: 0 },
+            fields: 'userEnteredValue,userEnteredFormat(textFormat,backgroundColor)'
+          }
+        },
+        // Populate data starting from the second row
+        {
+          updateCells: {
+            rows: sheetData.map(values => ({
+              values: values.map(value => ({ userEnteredValue: { stringValue: value } }))
+            })),
+            start: { sheetId: 0, rowIndex: 1, columnIndex: 0 },
+            fields: 'userEnteredValue'
+          }
+        },
+        // Set borders for all filled cells
+        {
+          updateBorders: {
+            range: {
+              sheetId: 0,
+              startRowIndex: 0,
+              endRowIndex: rows.length,
+              startColumnIndex: 0,
+              endColumnIndex: 6
+            },
+            top: { style: "SOLID" },
+            bottom: { style: "SOLID" },
+            left: { style: "SOLID" },
+            right: { style: "SOLID" },
+            innerHorizontal: { style: "SOLID" },
+            innerVertical: { style: "SOLID" }
+          }
+        },
+        // Set max width for columns, apply wrapping, and fit to max width of 275 pixels
+        ...headers[0].map((_, colIndex) => ({
+          updateDimensionProperties: {
+            range: { sheetId: 0, dimension: "COLUMNS", startIndex: colIndex, endIndex: colIndex + 1 },
+            properties: { pixelSize: Math.min(calculateColumnWidth(colIndex), 275) },
+            fields: "pixelSize"
+          }
+        })),
+        // Enable text wrap for all cells
+        {
+          repeatCell: {
+            range: { sheetId: 0 },
+            cell: { userEnteredFormat: { wrapStrategy: "WRAP" } },
+            fields: "userEnteredFormat.wrapStrategy"
+          }
+        },
+        // Conditional formatting requests
+        // Assuming similar conditions to addNewTabAndPopulateData
+        // Add conditional formatting rules as needed...
     ];
+
+    // const requests = [
+    //   // Set headers in the first row
+    //   {
+    //     updateCells: {
+    //       rows: headers.map(values => ({
+    //         values: values.map(value => ({ userEnteredValue: { stringValue: value } }))
+    //       })),
+    //       start: { sheetId: 0, rowIndex: 0, columnIndex: 0 },
+    //       fields: 'userEnteredValue'
+    //     }
+    //   },
+    //   // Populate data starting from the second row
+    //   {
+    //     updateCells: {
+    //       rows: sheetData.map(values => ({
+    //         values: values.map(value => ({ userEnteredValue: { stringValue: value } }))
+    //       })),
+    //       start: { sheetId: 0, rowIndex: 1, columnIndex: 0 },
+    //       fields: 'userEnteredValue'
+    //     }
+    //   },
+    //   {
+    //     autoResizeDimensions: {
+    //     dimensions: { sheetId: 0, dimension: 'COLUMNS', startIndex: 0, endIndex: 6 }
+    //     }
+    //   }
+
+    // ];
 
     // Execute batchUpdate request to populate the sheet and auto adjust widths
     await sheetsApi.spreadsheets.batchUpdate({
       spreadsheetId,
       requestBody: { requests }
     });
+
+    // Helper functions for formatting
+    function calculateColumnWidth(colIndex: number): number {
+        const longestCell = rows.reduce((maxWidth, row) => {
+        const cell = row.values[colIndex]?.userEnteredValue?.stringValue || '';
+        return Math.max(maxWidth, cell.length * 7); // Approximate 7 pixels per character
+        }, 50); // Set a minimum width of 50
+        return longestCell;
+    }
 
     function formatContactDetails(contact: any): string {
         if (typeof contact === 'string') {
