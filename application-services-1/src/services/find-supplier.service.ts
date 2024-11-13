@@ -300,6 +300,11 @@ export class FindSupplierService implements OnModuleInit {
     const instanceName = context.getMessage().headers.instanceName.toString();
     const supplierRawData = await this.getSupplierInfo(functionInput);
     const supplierList = JSON.stringify(supplierRawData.results);
+    const destinationService = 'database-service';
+    const sourceFunction = 'findSupplier';
+    const sourceType = 'service';
+    const projectName = functionInput.projectName;
+
     console.log(typeof supplierList);
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
@@ -348,8 +353,46 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Response with export countries', responseWithExportCountries);
 
     const supplierWithRevenueCertificationContactCapabilitiesExport = {
-      messageContent: { content: JSON.stringify(responseWithExportCountries) },
+      messageContent: {
+        content: JSON.stringify(responseWithExportCountries),
+      },
     };
+
+    const supplierListV1 = {
+      supplierListV1: JSON.stringify(responseWithExportCountries),
+    };
+
+    const messageInput = {
+      messageContent: {
+        functionName: 'CRUDUserfunction',
+        functionInput: {
+          CRUDName: 'POST',
+          CRUDInput: {
+            tableEntity: 'OB1-assets',
+            assetName: 'SupplierListv1',
+            projectName: projectName,
+            assetData: supplierListV1,
+            assetType: 'SupplierList',
+          },
+        },
+      },
+    };
+    const messageInputAdd = {
+      messageType: 'REQUEST',
+      ...messageInput,
+    };
+
+    const response1 = this.kafkaService.sendRequestSystem(
+      messageKey,
+      instanceName,
+      destinationService,
+      sourceFunction,
+      sourceType,
+      messageInputAdd,
+      headers.userRole.toString(),
+      headers.userEmail.toString(),
+    );
+
     return supplierWithRevenueCertificationContactCapabilitiesExport;
   }
 }
