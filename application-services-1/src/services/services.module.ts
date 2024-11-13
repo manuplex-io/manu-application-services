@@ -5,6 +5,7 @@ import { FindSupplierService } from './find-supplier.service';
 import { SuggestionService } from './suggestion.service';
 import { TavilySearchService } from './tavily-search.service';
 import { ShortlistSupplierService } from './shortlist-supplier.service';
+import { GoogleSheetService } from './google-sheet.service';
 
 @Module({
   imports: [forwardRef(() => KafkaOb1Module)],
@@ -14,6 +15,7 @@ import { ShortlistSupplierService } from './shortlist-supplier.service';
     SuggestionService,
     TavilySearchService,
     ShortlistSupplierService,
+    GoogleSheetService,
   ],
   exports: [
     OrderFormService,
@@ -21,6 +23,7 @@ import { ShortlistSupplierService } from './shortlist-supplier.service';
     SuggestionService,
     TavilySearchService,
     ShortlistSupplierService,
+    GoogleSheetService,
   ],
 })
 export class ServicesModule {}
