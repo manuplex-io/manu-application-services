@@ -39,7 +39,7 @@ export class FindSupplierService implements OnModuleInit {
     });
     const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
-    const userPrompt = `Given the following search result from the web, identify and give annuaul revenue of the supplier ${supplierName}. Here is the search result:${supplierRevenueList}`;
+    const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier ${supplierName}. Perform two steps to give the revenue. Step1: Convert the revenue to USD. Use exchange rate 1 USD = 83 INR if required. Step 2: Give the output as a number.  Here is the search result:${supplierRevenueList}`;
 
     const response = await this.callLLM(
       userPrompt,
