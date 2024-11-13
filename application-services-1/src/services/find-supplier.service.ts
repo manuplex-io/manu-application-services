@@ -22,7 +22,7 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierInfo(functionInput: any) {
     const orderForm = functionInput.orderForm;
     const partDescription = orderForm.orderSummary;
-    const query = `Find me 5 Indian suppliers for ${partDescription}`;
+    const query = `Find me Indian suppliers for ${partDescription}`;
     const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
       max_results: 5,
     });
@@ -304,7 +304,7 @@ export class FindSupplierService implements OnModuleInit {
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
-    const userPrompt = `Given the following list of search results from the web, identify and give valid supplier names. Here is the list:${supplierList}`;
+    const userPrompt = `Given the following list of search results from the web, identify and give three valid supplier names. Ensure you only give three names. Here is the list:${supplierList}`;
     const responseFormat = schemas['get_supplier_names'];
     const response = await this.callLLM(
       userPrompt,
