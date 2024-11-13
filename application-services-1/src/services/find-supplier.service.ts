@@ -402,10 +402,11 @@ export class FindSupplierService implements OnModuleInit {
       },
     };
 
-    const googleSheetURL = this.googleSheetService.createAndPopulateGoogleSheet(
-      headers.userEmail.toString(),
-      googleSheetInput,
-    );
+    const googleSheetURL =
+      await this.googleSheetService.createAndPopulateGoogleSheet(
+        headers.userEmail.toString(),
+        googleSheetInput,
+      );
 
     console.log('Google sheet URL', googleSheetURL);
 
