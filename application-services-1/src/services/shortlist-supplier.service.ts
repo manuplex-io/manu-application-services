@@ -34,6 +34,20 @@ export class ShortlistSupplierService implements OnModuleInit {
     );
   }
 
+  async filterByCertification(supplierListInitial: any, orderFormInitial: any) {
+    const supplierList = supplierListInitial[0].assetData.supplierListV1;
+    const orderForm = orderFormInitial[0].assetData;
+    const certificationList = orderForm.certifications;
+    const certifications = certificationList.map((item: any) => item.label);
+    const filteredSupplierList = supplierList.filter((supplier: any) => {
+      // Check if any certification of the supplier matches any label in `certification`
+      return supplier.certifications.some((cert: any) =>
+        certifications.includes(cert),
+      );
+    });
+    return filteredSupplierList;
+  }
+
   async shortListSupplier(functionInput: any, context: KafkaContext) {
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
@@ -93,11 +107,20 @@ export class ShortlistSupplierService implements OnModuleInit {
       'supplierGoogleSheet',
     );
     console.log('initialGoogleSheet', initialGoogleSheet);
+    let shortlistedSupplierList = [];
 
-    const shortlistedSupplierList = await this.filterByExportCountry(
-      supplierListInitial,
-      ['USA', 'United States', 'US', 'United States of America'],
-    );
+    if (criteria[0] === 'certification') {
+      shortlistedSupplierList = await this.filterByCertification(
+        supplierListInitial,
+        orderFormInitial,
+      );
+    } else if (criteria[0] === 'export') {
+      shortlistedSupplierList = await this.filterByExportCountry(
+        supplierListInitial,
+        ['USA', 'United States', 'US', 'United States of America'],
+      );
+    }
+
     console.log('shortListedSupplierList', shortlistedSupplierList);
 
     const initialGoogleSheetUrl = initialGoogleSheet[0].assetExternalUrl;
