@@ -667,8 +667,11 @@ Follow these steps in your response:
     * Identify suitable manufacturing process based on part analysis above
 
 2. RECOMMENDATION STEP:
-Based on your analysis from step-1, provide 3-5 process recommendations with the following details for each:
-- Process name and any relevant sub-types`;
+Based on your analysis from step-1, provide 2-4 process recommendations with the following details for each:
+- Process name and any relevant sub-types
+- Each suggestion must be unique and not mentioned in the original requirement
+`
+
 
 const secondaryOperationsSuggestionsSystem: string = `You are an expert manufacturing consultant specializing in secondary operations and post-processing.
 Your role is to analyze the manufacturing requirements and provide intelligent recommendations for secondary operations.
@@ -688,10 +691,9 @@ Follow these steps in your response:
         - Material properties
 
 2. RECOMMENDATION STEP:
-Based on your analysis from step 1, provide 3-5 recommendations for secondary operations.
-
-For each recommended operation, provide:
+Based on your analysis from step 1, provide 3-5 recommendations for secondary operations with the following details for each:
 - Operation name
+- Each recommendation must be unique and not mentioned in the original requirement
 
 Selection Criteria:
 - Process Compatibility: Ensure compatibility with the base material and primary manufacturing process.`;
@@ -711,6 +713,7 @@ Follow these steps in your response:
 2. RECOMMENDATION STEP:
 Based on your analysis from step-1, provide a recommendation ONLY if you identify a finishing process that can adequately fulfill the requirements. Include the following details:
 - Finish name
+- Each recommendation must be unique and not mentioned in the original requirement
 
 Finishing Process Selection Criteria:
 - Compatibility with base material and previous manufacturing steps`;
@@ -718,14 +721,13 @@ Finishing Process Selection Criteria:
 const productCertificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and provide the following: 
 Suggest product certifications that are suitable and relevant for the procurement manager's requirement based on the details provided in the requirement. 
 Product certifications are certifications like CE, UL, or CSA that validate the safety and compliance of specific products.
-Only include the product certification names without any extra information or explanations.`;
-
-const regionSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form, and Suggest countries that would be suitable for the procurement manager's requirement based on the details provided in the requirement.
-Only include the country names with each word capitalized (Title Case) and without any extra information or explanations.`;
+Only include the product certification names without any extra information or explanations.
+Each suggestion must be unique and not mentioned in the original requirement.`;
 
 const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and Suggest company certifications names that are suitable and relevant for the procurement manager's requirement based on the details provided in the requirement. 
 Company certifications include standards like ISO and IATF that signify a company's adherence to quality and operational excellence.
-Only include the certification names without any extra information or explanations.`;
+Only include the certification names without any extra information or explanations.
+Each suggestion must be unique and not mentioned in the original requirement.`;
 
 const facilitiesInfrastructureSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial facilities and infrastructure.
 
@@ -741,7 +743,9 @@ Follow these steps in your response:
 
 2. RECOMMENDATION STEP:
 Based on your analysis from Step 1, provide 3-5 manufacturing facility infrastructure suggestions with the following details for each:
-- Full facility/infrastructure name`;
+- Full facility/infrastructure name
+- Each suggestion must be unique and not mentioned in the original requirement
+`
 
 const inspectionTechniquesSuggestionsSystem: string = `You are an expert manufacturing quality control specialist with extensive knowledge of various inspection techniques.
 Your task is to analyze the user's requirements and provide intelligent recommendations on the most suitable inspection techniques to ensure product quality and compliance.
@@ -756,9 +760,10 @@ Follow these steps in your response:
 2. RECOMMENDATION STEP:
 Based on your analysis, provide 3-5 tailored inspection technique recommendations that include the following details for each technique:
 - Name of the Inspection Technique
+- Each recommendation must be unique and not mentioned in the original requirement
 
 Inspection Technique Selection Criteria:
-- Effectiveness: The technique must accurately detect and measure the relevant quality attributes.`;
+- Effectiveness: The technique must accurately detect and measure the relevant quality attributes.`
 
 
 const orderFormPrompt: string = `
@@ -775,6 +780,10 @@ A procurement manager has provided you with a requirement for placing an order. 
                 - facilities_infrastructure: Extract ONLY if specific facility requirements are stated
                 - inspection_techniques: Extract ONLY if specific inspection methods are mentioned
                 - region: Extract ONLY if location is explicitly specified`
+
+const regionSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form, and Suggest countries that would be suitable for the procurement manager's requirement based on the details provided in the requirement.
+Only include the country names with each word capitalized (Title Case) and without any extra information or explanations.`;
+
 
 export const prompts = {
   material_type: materialTypeSuggestionsSystem,
