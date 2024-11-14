@@ -64,9 +64,11 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    const result = JSON.parse(response.messageContent.content);
-
-    return result.revenue;
+    try {const result = JSON.parse(response.messageContent.content);
+      return result.revenue;
+    } catch {
+      return {revenue : "Not found"}
+    }
   }
 
   async getSupplierCertification(supplierName: string, context: KafkaContext) {
