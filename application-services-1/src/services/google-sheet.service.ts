@@ -504,7 +504,7 @@ export class GoogleSheetService {
     function calculateColumnWidth(colIndex: number): number {
       const longestCell = rows.reduce((maxWidth, row) => {
         const cell = row.values[colIndex]?.userEnteredValue?.stringValue || '';
-        const width = cell.length * 7; // Estimate: 7 pixels per character
+        const width = cell.length * 8; // Estimate: 7 pixels per character
         return Math.max(maxWidth, width);
       }, 50); // Set a minimum width of 50
       return longestCell;
