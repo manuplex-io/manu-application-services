@@ -1,6 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
+import { GoogleSheetService } from 'src/google-sheet/google-sheet.service';
 import { schemas } from './prompts';
 
 import {
@@ -11,7 +12,10 @@ import {
 
 @Injectable()
 export class ShortlistSupplierService implements OnModuleInit {
-  constructor(private readonly kafkaService: KafkaOb1Service) {}
+  constructor(
+    private readonly kafkaService: KafkaOb1Service,
+    private readonly googleSheetService: GoogleSheetService,
+  ) {}
 
   async onModuleInit() {}
 
@@ -59,7 +63,7 @@ export class ShortlistSupplierService implements OnModuleInit {
       ...messageInput,
     };
 
-    const supplierListV1 = await this.kafkaService.sendRequestSystem(
+    const assetList = await this.kafkaService.sendRequestSystem(
       messageKey,
       instanceName,
       destinationService,
@@ -71,16 +75,22 @@ export class ShortlistSupplierService implements OnModuleInit {
     );
 
     const supplierListInitial = await this.filterByAssetName(
-      supplierListV1.messageContent,
+      assetList.messageContent,
       'SupplierListv1',
     );
     console.log('supplierListInitial', supplierListInitial);
 
     const orderFormInitial = await this.filterByAssetName(
-      supplierListV1.messageContent,
+      assetList.messageContent,
       'orderForm',
     );
     console.log('orderFormInitial', orderFormInitial);
+
+    const initialGoogleSheet = await this.filterByAssetName(
+      assetList.messageContent,
+      'supplierGoogleSheet',
+    );
+    console.log('initialGoogleSheet', initialGoogleSheet);
 
     const shortlistedSupplierList = await this.filterByExportCountry(
       supplierListInitial,
@@ -88,6 +98,18 @@ export class ShortlistSupplierService implements OnModuleInit {
     );
     console.log('shortListedSupplierList', shortlistedSupplierList);
 
-    return supplierListV1;
+    const googleSheetInput = {
+      Summary: {
+        suppliers: shortlistedSupplierList,
+      },
+    };
+
+    // const googleSheetURL =
+    //   await this.googleSheetService.addNewTabAndPopulateData(
+    //     headers.userEmail.toString(),
+    //     googleSheetInput,
+    //   );
+
+    return assetList;
   }
 }
