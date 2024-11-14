@@ -739,7 +739,7 @@ Follow these steps in your response:
 - If a specific facility need is mentioned (e.g., "paint room"):
   * Focus ONLY on related infrastructure or facility requirements that would complement or support that specific need.
 - If no specific facility is mentioned:
-  * Analyze the procurement manager's requirements and suggest commonly necessary manufacturing facilties and infrastructure for similar manufacturing operations.
+  * Analyze the procurement manager's requirements and suggest necessary manufacturing facilties and infrastructure for similar manufacturing operations.
 
 2. RECOMMENDATION STEP:
 Based on your analysis from Step 1, provide 3-5 manufacturing facility infrastructure suggestions with the following details for each:
