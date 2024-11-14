@@ -143,6 +143,10 @@ export class ShortlistSupplierService implements OnModuleInit {
         googleSheetInput,
       );
 
-    return assetList;
+      return {
+        messageContent: {
+          content: shortlistedSupplierList,
+          url: newGoogleSheetUrl,
+        },
   }
 }
