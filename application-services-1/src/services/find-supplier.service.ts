@@ -52,7 +52,7 @@ export class FindSupplierService implements OnModuleInit {
     });
     const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
-    const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier ${supplierName}. Perform two steps to give the revenue. Step1: Convert the revenue to USD. Use exchange rate 1 USD = 83 INR if required. Step 2: Give the output as a number. Here is the search result:${supplierRevenueList}`;
+    const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier ${supplierName}. Perform the following steps to give the revenue. Step1: Convert the revenue into a number if it is mentioned in millions, crores, or other such measures. Step 2: Check if the number is in US dollars or in Indian currency like INR and Rs. Step 3: If it is in INR or Rs, convert the revenue to US dollars use exchange rate 1 USD = 83 INR. Step 4: Give the output in US dollars as a number. Here is the search result:${supplierRevenueList}`;
 
     const response = await this.callLLM(
       userPrompt,
