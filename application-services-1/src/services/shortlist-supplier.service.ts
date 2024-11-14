@@ -145,8 +145,8 @@ export class ShortlistSupplierService implements OnModuleInit {
 
     return {
       messageContent: {
-        content: responseWithExportCountries,
-        url: googleSheetURL,
+        content: shortlistedSupplierList,
+        url: newGoogleSheetUrl,
       },
     };
   }
