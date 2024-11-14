@@ -118,6 +118,49 @@ export class GoogleSheetService {
           fields: 'userEnteredValue',
         },
       },
+      // Center and vertical align the 'Supplier Name' and 'Revenue' columns
+      {
+        repeatCell: {
+            range: { sheetId: 0, startRowIndex: 1, endRowIndex: 1 + sheetData.length, startColumnIndex: 0, endColumnIndex: 2 },
+            cell: {
+                userEnteredFormat: {
+                    horizontalAlignment: 'CENTER',
+                    verticalAlignment: 'MIDDLE'
+                }
+            },
+            fields: 'userEnteredFormat(horizontalAlignment,verticalAlignment)'
+        }
+      },
+      // Freeze first row and first column
+      {
+        updateSheetProperties: {
+            properties: {
+                sheetId: 0,
+                gridProperties: {
+                    frozenRowCount: 1,
+                    frozenColumnCount: 1
+                }
+            },
+            fields: 'gridProperties.frozenRowCount, gridProperties.frozenColumnCount'
+        }
+      },
+      // Vertical alignment for specific columns
+      {
+        repeatCell: {
+            range: {
+                sheetId: 0,
+                startRowIndex: 1,  // Start from data rows, skipping headers
+                startColumnIndex: 2,  // Start with the 'Certifications' column
+                endColumnIndex: 6     // End at 'Export Countries' column
+            },
+            cell: {
+                userEnteredFormat: {
+                    verticalAlignment: "MIDDLE"  // Vertical alignment to the middle
+                }
+            },
+            fields: 'userEnteredFormat.verticalAlignment'
+        }
+      },
       // Set borders for all filled cells
       {
         updateBorders: {
@@ -240,7 +283,7 @@ export class GoogleSheetService {
     function formatCapabilities(capabilities: any[]): string {
       if (Array.isArray(capabilities)) {
         // Join certifications with newline characters
-        return capabilities.join('\n');
+        return capabilities.map(item => `• ${item}`).join("\n");
       }
       return ''; // Return an empty string if no certifications
     }
@@ -542,7 +585,7 @@ export class GoogleSheetService {
     function formatCapabilities(capabilities: any[]): string {
       if (Array.isArray(capabilities)) {
         // Join certifications with newline characters
-        return capabilities.join('\n');
+        return capabilities.map(item => `• ${item}`).join("\n");
       }
       return ''; // Return an empty string if no certifications
     }
