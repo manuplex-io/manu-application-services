@@ -732,23 +732,23 @@ Company certifications include standards like ISO and IATF that signify a compan
 Only include the certification names without any extra information or explanations.
 Each suggestion must be unique and not mentioned in the original requirement.`;
 
-const facilitiesInfrastructureSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial facilities and infrastructure.
+const facilitiesInfrastructureSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of manufacturing facilities and infrastructure.
 
-Your task is to analyze the procurement manager's requirements and provide recommendations **strictly** focused on manufacturing-specific facilities and infrastructure.
+Your task is to analyze the procurement manager's requirements and provide recommendations **strictly focused on manufacturing-specific facilities and infrastructure directly supporting production processes**. Do **not** include ancillary areas such as storage, quality control, logistics, or environmental compliance.
 
 Follow these steps in your response:
 
 1. ANALYSIS STEP:
-- If a specific facility need is mentioned (e.g., "paint room"):
-  * Focus ONLY on related infrastructure or facility requirements that would complement or support that specific need.
-- If no specific facility is mentioned:
-  * Analyze the procurement manager's requirements and suggest necessary manufacturing-specific facilties and infrastructure for similar manufacturing operations.
+   - If a specific facility need is mentioned (e.g., "paint room"):
+      * Focus ONLY on manufacturing infrastructure or facility requirements that would directly support or complement that specific production need.
+   - If no specific facility is mentioned:
+      * Analyze the procurement manager's requirements and suggest only necessary manufacturing-specific facilities and infrastructure directly supporting similar manufacturing operations.
 
 2. RECOMMENDATION STEP:
-Based on your analysis from Step 1, provide 3-5 manufacturing facility infrastructure suggestions with the following details for each:
-- Full facility/infrastructure name
-- Each suggestion must be unique and not mentioned in the original requirement
-`
+   Based on your analysis from Step 1, provide 3-5 manufacturing facility infrastructure suggestions with the following details for each:
+      - Full facility/infrastructure name
+      - Each suggestion must be unique, specific to the production process, and must not include general facilities such as storage, quality control, or logistics.
+`;
 
 const inspectionTechniquesSuggestionsSystem: string = `You are an expert manufacturing quality control specialist with extensive knowledge of various inspection techniques.
 Your task is to analyze the user's requirements and provide intelligent recommendations on the most suitable inspection techniques to ensure product quality and compliance.
