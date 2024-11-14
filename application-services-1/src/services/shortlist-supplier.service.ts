@@ -68,15 +68,17 @@ export class ShortlistSupplierService implements OnModuleInit {
       supplierListV1.messageContent,
       'SupplierListv1',
     );
-
-    const initialSupplierList =
-      await this.filterByExportCountry(supplierListInitial);
-    console.log('initialSupplierList', initialSupplierList);
+    console.log('supplierListInitial', supplierListInitial);
 
     const orderFormInitial = this.filterByAssetName(
       supplierListV1.messageContent,
       'orderForm',
     );
+    console.log('orderFormInitial', orderFormInitial);
+
+    const initialSupplierList =
+      await this.filterByExportCountry(supplierListInitial);
+    console.log('initialSupplierList', initialSupplierList);
 
     return supplierListV1;
   }
