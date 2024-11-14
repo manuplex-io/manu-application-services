@@ -146,6 +146,37 @@ export class ShortlistSupplierService implements OnModuleInit {
         googleSheetInput,
       );
 
+    const messageInput1 = {
+      messageContent: {
+        functionName: 'CRUDUserfunction',
+        functionInput: {
+          CRUDName: 'POST',
+          CRUDInput: {
+            tableEntity: 'OB1-assets',
+            assetName: 'supplierGoogleSheet',
+            projectName: projectName,
+            assetExternalUrl: newGoogleSheetUrl,
+            assetType: 'googleSheet',
+          },
+        },
+      },
+    };
+    const messageInputAdd1 = {
+      messageType: 'REQUEST',
+      ...messageInput1,
+    };
+
+    const response2 = this.kafkaService.sendRequestSystem(
+      messageKey,
+      instanceName,
+      destinationService,
+      sourceFunction,
+      sourceType,
+      messageInputAdd1,
+      headers.userRole.toString(),
+      headers.userEmail.toString(),
+    );
+
     return {
       messageContent: {
         content: shortlistedSupplierList,
