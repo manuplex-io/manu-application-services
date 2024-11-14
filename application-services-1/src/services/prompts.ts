@@ -644,9 +644,10 @@ Follow these steps in your response:
   * Analyze what the user needs and come up with commonly used materials for that application
 
 2. RECOMMENDATION STEP:
-Based on your analysis from step-1, Provide 3-5 material suggestions with the following details for each:
+Based on your analysis from step-1, Provide 2-4 material suggestions with the following details for each:
 - Full material name
 - Specific grade where applicable
+- Each suggestion must be unique and not mentioned in the original requirement
 
 Material Selection Criteria:
 - Commercial Availability: Focus on readily available materials in standard industrial supply chains
