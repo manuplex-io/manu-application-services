@@ -718,16 +718,16 @@ Based on your analysis from step-1, provide a recommendation ONLY if you identif
 Finishing Process Selection Criteria:
 - Compatibility with base material and previous manufacturing steps`;
 
-const productCertificationsSuggestionsSystem: string = `
-As an AI manufacturing consultant, please review the order form and suggest only product-specific safety and compliance certifications (like CE, UL, CSA) based on the provided requirements.
+const productCertificationsSuggestionsSystem: string = 
+`As an AI manufacturing consultant, please review the order form and suggest only 2-4 product-specific safety and compliance certifications (like CE, UL, CSA) based on the provided requirements.
 Rules:
-- Only include certifications that apply directly to the product itself
-- Exclude any company-wide certifications (like ISO standards)
-- List only the certification names/codes
-- Each suggestion must be unique and not mentioned in the original requirement
-- No explanations or additional information should be included`;
+- Only include certifications that apply directly to the product itself.
+- Exclude any company-wide certifications (like ISO standards). 
+- List only the certification names/codes. 
+- Each suggestion must be unique and not mentioned in the original requirement.
+- No explanations or additional information should be included.`
 
-const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and suggest company certifications names that are suitable and relevant for the procurement manager's requirements. 
+const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and suggest only 2-4 company certifications names that are suitable and relevant for the procurement manager's requirements. 
 Provide unique certification suggestions that are not already mentioned in the original requirement. 
 Tailor the certifications to the specific industry - do not suggest certifications unless the requirement is specifically for that industry.`;
 
