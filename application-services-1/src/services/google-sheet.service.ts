@@ -260,9 +260,9 @@ export class GoogleSheetService {
         const { phone, address, email } = contact;
         // Concatenate phone, address, and email into a single string
         return [
-          phone ? `phone - ${phone}` : '',
-          address ? `address - ${address}` : '',
-          email ? `email - ${email}` : '',
+          phone ? `Phone - ${phone}` : '',
+          address ? `Address - ${address}` : '',
+          email ? `Email - ${email}` : '',
         ]
           .filter(Boolean)
           .join('\n'); // Filter out any empty fields
@@ -401,6 +401,45 @@ export class GoogleSheetService {
       },
     };
 
+    // Formatting requests for alignment
+    const alignmentRequests = [
+      {
+          repeatCell: {
+              range: {
+                  sheetId: newSheetId,
+                  startRowIndex: 1,
+                  endRowIndex: rows.length,
+                  startColumnIndex: 0, // Supplier Name column
+                  endColumnIndex: 2   // Revenue column
+              },
+              cell: {
+                  userEnteredFormat: {
+                      horizontalAlignment: "CENTER",
+                      verticalAlignment: "MIDDLE"
+                  }
+              },
+              fields: "userEnteredFormat.horizontalAlignment,userEnteredFormat.verticalAlignment"
+          }
+      },
+      {
+          repeatCell: {
+              range: {
+                  sheetId: newSheetId,
+                  startRowIndex: 1,
+                  endRowIndex: rows.length,
+                  startColumnIndex: 2, // Certifications column
+                  endColumnIndex: 6    // Export Countries column
+              },
+              cell: {
+                  userEnteredFormat: {
+                      verticalAlignment: "MIDDLE"
+                  }
+              },
+              fields: "userEnteredFormat.verticalAlignment"
+          }
+      }
+    ];
+
     const revenueValues = rows.slice(1).map((row) => {
       const revenue = parseFloat(
         row.values[1]?.userEnteredValue?.stringValue || 'NaN',
@@ -484,6 +523,7 @@ export class GoogleSheetService {
         requests: [
           ...dimensionRequests,
           wrapTextRequest,
+          ...alignmentRequests,
           ...conditionalFormattingRequests,
           {
             // Bold headers
