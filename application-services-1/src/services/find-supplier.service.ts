@@ -38,7 +38,7 @@ export class FindSupplierService implements OnModuleInit {
     const partDescription = result.part_description;
     const query = `Find me Indian suppliers for ${partDescription}`;
     const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
-      max_results: 5,
+      max_results: 20,
     });
     console.log(supplierRawData.results);
     return supplierRawData;
@@ -49,6 +49,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierRevenue = await this.tavilySearchService.tavilySearch(query, {
       search_depth: 'advanced',
+      max_results: 20,
     });
     const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
@@ -73,7 +74,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierCertification = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced' },
+      { search_depth: 'advanced',max_results: 20 },
     );
 
     const supplierCertificationList = JSON.stringify(
@@ -101,6 +102,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierContact = await this.tavilySearchService.tavilySearch(query, {
       search_depth: 'advanced',
+      max_results: 20
     });
 
     const supplierContactList = JSON.stringify(supplierContact.results);
@@ -126,7 +128,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierCapabilities = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced' },
+      { search_depth: 'advanced',max_results: 20 },
     );
 
     const supplierCapabilitiesList = JSON.stringify(
@@ -157,7 +159,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierExportCountries = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced' },
+      { search_depth: 'advanced',max_results: 20 },
     );
 
     const supplierExportCountriesList = JSON.stringify(
@@ -318,7 +320,7 @@ export class FindSupplierService implements OnModuleInit {
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
-    const userPrompt = `Given the following list of search results from the web, identify and give three valid supplier names. Ensure you only give three names. Here is the list:${supplierList}`;
+    const userPrompt = `Given the following list of search results from the web, identify and give 10 valid supplier names. Ensure you only give ten names. Here is the list:${supplierList}`;
     const responseFormat = schemas['get_supplier_names'];
     const response = await this.callLLM(
       userPrompt,
