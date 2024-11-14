@@ -722,7 +722,7 @@ const productCertificationsSuggestionsSystem: string =
 `As an AI manufacturing consultant, please review the order form and suggest only 2-4 product-specific safety and compliance certifications (like CE, UL, CSA) based on the provided requirements.
 Rules:
 - Only include certifications that apply directly to the product itself.
-- Exclude any company-wide certifications (like ISO standards). 
+- Exclude any company-wide certifications or process standards (such as ISO standards). 
 - List only the certification names/codes. 
 - Each suggestion must be unique and not mentioned in the original requirement.
 - No explanations or additional information should be included.`
