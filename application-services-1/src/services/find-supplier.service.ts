@@ -64,10 +64,11 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    try {const result = JSON.parse(response.messageContent.content);
+    try {
+      const result = JSON.parse(response.messageContent.content);
       return result.revenue;
     } catch {
-      return {revenue : "Not found"}
+      return { revenue: 'Not found' };
     }
   }
 
@@ -76,7 +77,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierCertification = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced',max_results: 20 },
+      { search_depth: 'advanced', max_results: 20 },
     );
 
     const supplierCertificationList = JSON.stringify(
@@ -94,9 +95,12 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    const result = JSON.parse(response.messageContent.content);
-
-    return result.certifications;
+    try {
+      const result = JSON.parse(response.messageContent.content);
+      return result.certifications;
+    } catch {
+      return { certifications: 'Not found' };
+    }
   }
 
   async getSupplierContact(supplierName: string, context: KafkaContext) {
@@ -104,7 +108,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierContact = await this.tavilySearchService.tavilySearch(query, {
       search_depth: 'advanced',
-      max_results: 20
+      max_results: 20,
     });
 
     const supplierContactList = JSON.stringify(supplierContact.results);
@@ -120,9 +124,12 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    const result = JSON.parse(response.messageContent.content);
-
-    return result.contact;
+    try {
+      const result = JSON.parse(response.messageContent.content);
+      return result.contact;
+    } catch {
+      return { contact: 'Not found' };
+    }
   }
 
   async getSupplierCapabilities(supplierName: string, context: KafkaContext) {
@@ -130,7 +137,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierCapabilities = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced',max_results: 20 },
+      { search_depth: 'advanced', max_results: 20 },
     );
 
     const supplierCapabilitiesList = JSON.stringify(
@@ -148,9 +155,12 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    const result = JSON.parse(response.messageContent.content);
-
-    return result.capabilities;
+    try {
+      const result = JSON.parse(response.messageContent.content);
+      return result.capabilities;
+    } catch {
+      return { capabilities: 'Not found' };
+    }
   }
 
   async getSupplierExportCountries(
@@ -161,7 +171,7 @@ export class FindSupplierService implements OnModuleInit {
     console.log('Query', query);
     const supplierExportCountries = await this.tavilySearchService.tavilySearch(
       query,
-      { search_depth: 'advanced',max_results: 20 },
+      { search_depth: 'advanced', max_results: 20 },
     );
 
     const supplierExportCountriesList = JSON.stringify(
@@ -179,9 +189,12 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.instanceName.toString(),
     );
 
-    const result = JSON.parse(response.messageContent.content);
-
-    return result.countries;
+    try {
+      const result = JSON.parse(response.messageContent.content);
+      return result.countries;
+    } catch {
+      return { countries: 'Not found' };
+    }
   }
 
   async addExportCountriesToCompanies(companies: any, context: KafkaContext) {
