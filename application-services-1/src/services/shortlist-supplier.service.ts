@@ -38,6 +38,9 @@ export class ShortlistSupplierService implements OnModuleInit {
     const supplierList = supplierListInitial[0].assetData.supplierListV1;
     const orderForm = orderFormInitial[0].assetData;
     const certificationList = orderForm.certifications;
+    if (certificationList.length === 0) {
+      return supplierListInitial;
+    }
     const certifications = certificationList.map((item: any) => item.label);
     const filteredSupplierList = supplierList.filter((supplier: any) => {
       // Check if any certification of the supplier matches any label in `certification`

@@ -24,8 +24,8 @@ import { ServicesModule } from 'src/services/services.module';
             consumer: {
               groupId: `${configService.get<string>('SERVICE_NAME')}-group`,
               sessionTimeout: 120000,
-              heartbeatInterval:5000, // Changed from 1s to 5s
-              rebalanceTimeout:120000,
+              heartbeatInterval: 5000, // Changed from 1s to 5s
+              rebalanceTimeout: 120000,
               allowAutoTopicCreation: false,
             },
           },
