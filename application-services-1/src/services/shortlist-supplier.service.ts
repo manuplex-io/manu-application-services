@@ -103,18 +103,22 @@ export class ShortlistSupplierService implements OnModuleInit {
     const initialGoogleSheetUrl = initialGoogleSheet[0].assetExternalUrl;
     console.log('initialGoogleSheetUrl', initialGoogleSheetUrl);
 
+    const spreadsheetId = initialGoogleSheetUrl.match(
+      /\/d\/([a-zA-Z0-9-_]+)/,
+    )[1];
+
     const googleSheetInput = {
       Summary: {
         suppliers: shortlistedSupplierList,
       },
     };
 
-    // const newGoogleSheetUrl =
-    //   await this.googleSheetService.addNewTabAndPopulateData(
-    //     initialGoogleSheetUrl,
-    //     'shortlistedSuppliers',
-    //     googleSheetInput,
-    //   );
+    const newGoogleSheetUrl =
+      await this.googleSheetService.addNewTabAndPopulateData(
+        spreadsheetId,
+        'shortlistedSuppliers',
+        googleSheetInput,
+      );
 
     return assetList;
   }
