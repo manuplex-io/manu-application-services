@@ -19,10 +19,10 @@ async function bootstrap() {
       },
       consumer: {
         groupId: `${SERVICE_NAME}-group`, // Consumer group ID
-        // sessionTimeout: 15000,
-        // heartbeatInterval: 5000,
+        sessionTimeout: 120000,
+        heartbeatInterval: 5000,
         // maxWaitTimeInMs: 10000,
-        // rebalanceTimeout: 90000,
+        rebalanceTimeout: 120000,
       },
       producer: {
         allowAutoTopicCreation: false, // Optional: Prevents auto-creation of topics if they don't exist
