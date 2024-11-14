@@ -101,6 +101,7 @@ export class ShortlistSupplierService implements OnModuleInit {
     console.log('shortListedSupplierList', shortlistedSupplierList);
 
     const initialGoogleSheetUrl = initialGoogleSheet[0].assetExternalUrl;
+    console.log('initialGoogleSheetUrl', initialGoogleSheetUrl);
 
     const googleSheetInput = {
       Summary: {
