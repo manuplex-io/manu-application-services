@@ -718,11 +718,14 @@ Based on your analysis from step-1, provide a recommendation ONLY if you identif
 Finishing Process Selection Criteria:
 - Compatibility with base material and previous manufacturing steps`;
 
-const productCertificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and provide the following: 
-Suggest product certifications that are suitable and relevant for the procurement manager's requirement based on the details provided in the requirement. 
-Product certifications are certifications like CE, UL, or CSA that validate the safety and compliance of specific products.
-Only include the product certification names without any extra information or explanations.
-Each suggestion must be unique and not mentioned in the original requirement.`;
+const productCertificationsSuggestionsSystem: string = `
+As an AI manufacturing consultant, please review the order form and suggest only product-specific safety and compliance certifications (like CE, UL, CSA) based on the provided requirements.
+Rules:
+- Only include certifications that apply directly to the product itself
+- Exclude any company-wide certifications (like ISO standards)
+- List only the certification names/codes
+- Each suggestion must be unique and not mentioned in the original requirement
+- No explanations or additional information should be included`;
 
 const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and Suggest company certifications names that are suitable and relevant for the procurement manager's requirement based on the details provided in the requirement. 
 Company certifications include standards like ISO and IATF that signify a company's adherence to quality and operational excellence.
