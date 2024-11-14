@@ -109,12 +109,12 @@ export class ShortlistSupplierService implements OnModuleInit {
       },
     };
 
-    const newGoogleSheetUrl =
-      await this.googleSheetService.addNewTabAndPopulateData(
-        initialGoogleSheetUrl,
-        'shortlistedSuppliers',
-        googleSheetInput,
-      );
+    // const newGoogleSheetUrl =
+    //   await this.googleSheetService.addNewTabAndPopulateData(
+    //     initialGoogleSheetUrl,
+    //     'shortlistedSuppliers',
+    //     googleSheetInput,
+    //   );
 
     return assetList;
   }
