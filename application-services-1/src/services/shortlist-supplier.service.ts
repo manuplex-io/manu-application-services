@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
-import { GoogleSheetService } from 'src/google-sheet/google-sheet.service';
+import { GoogleSheetService } from './google-sheet.service';
 import { schemas } from './prompts';
 
 import {
