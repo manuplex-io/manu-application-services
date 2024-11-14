@@ -20,7 +20,7 @@ export class ShortlistSupplierService implements OnModuleInit {
   }
 
   async filterByExportCountry(supplierListInitial: any) {
-    const supplierList = supplierListInitial[0].assetdata.supplierListV1;
+    const supplierList = supplierListInitial[0].assetData.supplierListV1;
     return supplierList;
   }
 
@@ -70,7 +70,7 @@ export class ShortlistSupplierService implements OnModuleInit {
     );
     console.log('supplierListInitial', supplierListInitial);
 
-    const orderFormInitial = this.filterByAssetName(
+    const orderFormInitial = await this.filterByAssetName(
       supplierListV1.messageContent,
       'orderForm',
     );
