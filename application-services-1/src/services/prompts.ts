@@ -731,7 +731,7 @@ Each suggestion must be unique and not mentioned in the original requirement.`;
 
 const facilitiesInfrastructureSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial facilities and infrastructure.
 
-Your task is to analyze the procurement manager's requirements and provide recommendations specifically focused on manufacturing-related facilities and infrastructure.
+Your task is to analyze the procurement manager's requirements and provide recommendations **strictly** focused on manufacturing-related facilities and infrastructure.
 
 Follow these steps in your response:
 
