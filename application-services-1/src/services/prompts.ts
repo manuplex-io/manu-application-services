@@ -727,10 +727,9 @@ Rules:
 - Each suggestion must be unique and not mentioned in the original requirement
 - No explanations or additional information should be included`;
 
-const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and Suggest company certifications names that are suitable and relevant for the procurement manager's requirement based on the details provided in the requirement. 
-Company certifications include standards like ISO and IATF that signify a company's adherence to quality and operational excellence.
-Only include the certification names without any extra information or explanations.
-Each suggestion must be unique and not mentioned in the original requirement.`;
+const certificationsSuggestionsSystem: string = `As an AI manufacturing consultant, please review the order form and suggest company certifications names that are suitable and relevant for the procurement manager's requirements. 
+Provide unique certification suggestions that are not already mentioned in the original requirement. 
+Tailor the certifications to the specific industry - do not suggest certifications unless the requirement is specifically for that industry.`;
 
 const facilitiesInfrastructureSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of manufacturing facilities and infrastructure.
 
