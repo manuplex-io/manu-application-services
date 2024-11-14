@@ -35,6 +35,8 @@ export class ShortlistSupplierService implements OnModuleInit {
   }
 
   async shortListSupplier(functionInput: any, context: KafkaContext) {
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
     const criteria = functionInput.criteria;
     const projectName = functionInput.projectName;
     const messageKey = context.getMessage().key.toString();
@@ -98,17 +100,20 @@ export class ShortlistSupplierService implements OnModuleInit {
     );
     console.log('shortListedSupplierList', shortlistedSupplierList);
 
+    const initialGoogleSheetUrl = initialGoogleSheet[0].assetExternalUrl;
+
     const googleSheetInput = {
       Summary: {
         suppliers: shortlistedSupplierList,
       },
     };
 
-    // const googleSheetURL =
-    //   await this.googleSheetService.addNewTabAndPopulateData(
-    //     headers.userEmail.toString(),
-    //     googleSheetInput,
-    //   );
+    const newGoogleSheetUrl =
+      await this.googleSheetService.addNewTabAndPopulateData(
+        initialGoogleSheetUrl,
+        'shortlistedSuppliers',
+        googleSheetInput,
+      );
 
     return assetList;
   }
