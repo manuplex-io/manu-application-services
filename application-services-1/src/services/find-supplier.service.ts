@@ -37,7 +37,7 @@ export class FindSupplierService implements OnModuleInit {
 
     const result = JSON.parse(response.messageContent.content);
     const partDescription = result.part_description;
-    const query = `Find me Indian suppliers for ${partDescription}`;
+    const query = `Who are the best Indian manufacturers of ${partDescription}`;
     const supplierRawData = await this.tavilySearchService.tavilySearch(query, {
       max_results: 20,
     });
