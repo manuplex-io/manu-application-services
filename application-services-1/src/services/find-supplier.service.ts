@@ -32,6 +32,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o-mini',
     );
 
     const result = JSON.parse(response.messageContent.content);
@@ -62,6 +63,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o',
     );
 
     try {
@@ -93,6 +95,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o-mini',
     );
 
     try {
@@ -122,6 +125,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o-mini',
     );
 
     try {
@@ -153,6 +157,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o-mini',
     );
 
     try {
@@ -187,6 +192,7 @@ export class FindSupplierService implements OnModuleInit {
       context.getMessage().headers.userEmail.toString(),
       context.getMessage().key.toString(),
       context.getMessage().headers.instanceName.toString(),
+      'gpt-4o-mini',
     );
 
     try {
@@ -278,6 +284,7 @@ export class FindSupplierService implements OnModuleInit {
     userEmail,
     messageKey,
     instanceName,
+    model,
   ) {
     const destinationService = 'agent-services';
     const sourceFunction = 'findSupplier';
@@ -290,7 +297,7 @@ export class FindSupplierService implements OnModuleInit {
           responseFormat: responseFormat,
           config: {
             provider: 'openai',
-            model: 'gpt-4o-mini',
+            model: model,
             temperature: 0.7,
             maxTokens: 4096,
             topP: 1,
@@ -344,6 +351,7 @@ export class FindSupplierService implements OnModuleInit {
       headers.userEmail.toString(),
       messageKey,
       instanceName,
+      'gpt-4o-mini',
     );
 
     const supplierNames = JSON.parse(response.messageContent.content);
