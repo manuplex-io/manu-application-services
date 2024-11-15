@@ -48,14 +48,17 @@ export class FindSupplierService implements OnModuleInit {
   async getSupplierRevenue(supplierName: string, context: KafkaContext) {
     const query = `What is the annual revenue of ${supplierName}`;
     console.log('Query', query);
-    const supplierRevenue = await this.tavilySearchService.tavilySearch(query, {
-      search_depth: 'advanced',
-      max_results: 20,
-    });
-    const supplierRevenueList = JSON.stringify(supplierRevenue.results);
+    const supplierRevenue = await this.tavilySearchService.tavilySearchShort(
+      query,
+      {
+        search_depth: 'advanced',
+        max_results: 20,
+      },
+    );
+    // const supplierRevenueList = JSON.stringify(supplierRevenue.results);
 
-    const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier ${supplierName}. Perform the following steps to give the revenue. Step1: Convert the revenue into a number if it is mentioned in millions, crores, or other such measures. Step 2: Check if the number is in US dollars or in Indian currency like INR and Rs. Step 3: If it is in INR or Rs, convert the revenue to US dollars use exchange rate 1 USD = 83 INR. Step 4: Give the output in US dollars as a number. Ensure you only give the final revenue number as the output. Don't give the steps you performed in the output. Here is the search result:${supplierRevenueList}`;
-
+    // const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier ${supplierName}. Perform the following steps to give the revenue. Step1: Convert the revenue into a number if it is mentioned in millions, crores, or other such measures. Step 2: Check if the number is in US dollars or in Indian currency like INR and Rs. Step 3: If it is in INR or Rs, convert the revenue to US dollars use exchange rate 1 USD = 83 INR. Step 4: Give the output in US dollars as a number. Ensure you only give the final revenue number as the output. Don't give the steps you performed in the output. Here is the search result:${supplierRevenueList}`;
+    const userPrompt = `Given the following search result from the web, identify and give annual revenue of the supplier.Ensure you only give the revenuu as the output.Here is the search result:${supplierRevenue}`;
     const response = await this.callLLM(
       userPrompt,
       schemas['get_supplier_revenue'],
