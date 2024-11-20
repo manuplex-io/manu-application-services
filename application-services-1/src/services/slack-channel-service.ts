@@ -64,6 +64,7 @@ export class SlackChannelService {
           this.logger.log(`Channel ${channel} joined successfully ${joinResponse}`);
           console.log("channel",createdChannel)
           console.log("token",token)
+          console.log("joinResponse",joinResponse)
           if (!joinResponse.ok) {
             throw new Error(`Failed to join newly created channel: ${joinResponse.error}`);
           }
