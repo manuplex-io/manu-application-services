@@ -15,6 +15,7 @@ import { FindSupplierService } from 'src/services/find-supplier.service';
 import { SuggestionService } from 'src/services/suggestion.service';
 import { ShortlistSupplierService } from 'src/services/shortlist-supplier.service';
 import { SlackChannelService } from 'src/services/slack-channel-service';
+import { SlackEventHandlingService } from 'src/services/slack-event-handling.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -28,7 +29,8 @@ export class KafkaOb1ProcessingService {
     private readonly findSupplierService: FindSupplierService,
     private readonly suggestionService: SuggestionService,
     private readonly shortlistSupplierService: ShortlistSupplierService,
-    private readonly slackChannelService: SlackChannelService
+    private readonly slackChannelService: SlackChannelService,
+    private readonly slackEventHandlingService: SlackEventHandlingService
   ) {}
 
   async processRequest(message: OB1MessageValue, context: KafkaContext) {
@@ -71,8 +73,12 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
-      }
-       else if (functionName === 'CRUDInstancesfunction') {
+      } else if (functionName === 'slackreply') {
+        return await this.slackEventHandlingService.slackreply(
+          functionInput,
+          context,
+        );
+      } else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
         this.logger.error(`Function ${functionName} not found`);
