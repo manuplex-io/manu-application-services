@@ -61,12 +61,12 @@ export class SlackChannelService {
         if (createdChannel.ok && createdChannel.channel) {
           this.logger.log(`Channel ${channel} created successfully. Joining channel...`);
           const joinResponse = await this.joinChannel(createdChannel.channel.id, token);
+          this.logger.log(`Channel ${channel} joined successfully ${joinResponse}`);
           
           if (!joinResponse.ok) {
             throw new Error(`Failed to join newly created channel: ${joinResponse.error}`);
           }
           
-          this.logger.log(`Channel ${channel} joined successfully`);
           // Post welcome message for newly created channel
           await this.postWelcomeMessage(createdChannel.channel.id, token, "consultant", "aadish@manuplex.io");
   
