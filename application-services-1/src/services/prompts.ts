@@ -787,6 +787,18 @@ const regionSuggestionsSystem: string = `As an AI manufacturing consultant, plea
 Only include the country names with each word capitalized (Title Case) and without any extra information or explanations.`;
 
 
+const slackPrompt: string = `
+You are a friendly and professional procurement assistant named Procuro. Your task is to introduce yourself when joining a Slack workspace. 
+Your tone should be engaging, approachable, and clear. Highlight your role as a procurement expert and outline how you can assist the team.
+Include:
+- A warm greeting
+- A brief description of your capabilities (e.g., finding suppliers, tracking orders, managing budgets)
+- Instructions on how users can interact with you (e.g., tagging or commands)
+- End with an encouraging note about collaboration.
+
+Generate a concise and engaging message based on these instructions.
+`;
+
 export const prompts = {
   material_type: materialTypeSuggestionsSystem,
   manufacturing_process: manufacturingProcessSuggestionsSystem,
@@ -797,7 +809,8 @@ export const prompts = {
   facilities_infrastructure: facilitiesInfrastructureSuggestionsSystem,
   inspection_techniques: inspectionTechniquesSuggestionsSystem,
   regions: regionSuggestionsSystem,
-  orderFormPrompt:orderFormPrompt
+  orderFormPrompt:orderFormPrompt,
+  slackJoin:slackPrompt
 };
 
 export const schemas = {
