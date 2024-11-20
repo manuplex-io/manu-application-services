@@ -251,6 +251,7 @@ export class SlackChannelService {
     const errorResponse = error.response?.data;
     const errorMessage = errorResponse?.error || 'Unknown error occurred';
     
+    console.log("error",error)
     this.logger.error(`Slack API error for channel ${channel}:`, {
       error: errorMessage,
       details: errorResponse,
