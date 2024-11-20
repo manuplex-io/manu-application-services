@@ -14,10 +14,10 @@ import {
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
+    private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
   constructor(
     private readonly kafkaService: KafkaOb1Service,
     // private readonly tavilySearchService: TavilySearchService,
-    private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
     // private readonly googleSheetService: GoogleSheetService,
   ) {}
 
