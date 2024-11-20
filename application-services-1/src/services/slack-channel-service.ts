@@ -65,7 +65,8 @@ export class SlackChannelService {
           if (!joinResponse.ok) {
             throw new Error(`Failed to join newly created channel: ${joinResponse.error}`);
           }
-  
+          
+          this.logger.log(`Channel ${channel} joined successfully`);
           // Post welcome message for newly created channel
           await this.postWelcomeMessage(createdChannel.channel.id, token, "consultant", "aadish@manuplex.io");
   
@@ -131,6 +132,7 @@ export class SlackChannelService {
   ): Promise<void> {
     try {
       // Call LLM to generate welcome message
+      this.logger.log(`calling llm`);
       const llmResponse = await this.callLLM(
         'You are a helpful assistant that generates welcome messages for Slack channels.',
         prompts.slackJoin,
@@ -140,7 +142,7 @@ export class SlackChannelService {
         userEmail,
         userRole,
       );
-
+      this.logger.log(`llmResponse ${llmResponse}`);
       // Post the message to the channel
       await this.postMessageToChannel(channel, llmResponse.messageContent.content, token);
 
