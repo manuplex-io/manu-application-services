@@ -224,7 +224,7 @@ export class SlackChannelService {
     try {
       const response = await axios.post<SlackResponse>(
         `${this.SLACK_BASE_URL}/conversations.join`,
-        { name: channel },
+        { channel: channel },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
