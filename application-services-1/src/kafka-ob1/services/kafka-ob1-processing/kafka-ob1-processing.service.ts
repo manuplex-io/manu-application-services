@@ -79,6 +79,12 @@ export class KafkaOb1ProcessingService {
           context,
         );
       }
+      else if (functionName === 'findProjects') {
+        return await this.slackChannelService.findProjects(
+          functionInput,
+          context,
+        );
+      }
       else if (functionName === 'slackreply') {
         return await this.slackEventHandlingService.slackreply(
           functionInput,

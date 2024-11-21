@@ -124,6 +124,53 @@ export class SlackChannelService {
       }
   }
 
+   async findProjects(functionInput:{text:string,channel:string,response_url:string}, context: KafkaContext){
+    try {
+      const token = process.env.slack_token
+    const {text,channel:channelId,response_url} = functionInput
+    const userRole = 'consultant';
+    const messageKey = 'aadish@manuplex.io';
+    const instanceId = 'consultant';
+    const destinationService = 'database-service';
+    const sourceFunction = 'back-end';
+    const sourceType = 'service';
+    const messageInput1 = {
+      messageContent: {
+        functionInput: {
+          CRUDName: 'GET',
+          CRUDInput: {
+            tableEntity: 'OB1-projects',
+          },
+        },
+        functionName: 'CRUDUserfunction',
+      },
+    };
+    const messageInputAdd = {
+      messageType: 'REQUEST',
+      ...messageInput1,
+    };
+
+    // Check if the user has access to the provided instanceId
+    const response = await this.kafkaOb1Service.sendRequestSystem(
+      messageKey,
+      instanceId,
+      destinationService,
+      sourceFunction,
+      sourceType,
+      messageInputAdd,
+      userRole,
+      messageKey,
+    );
+
+    const message  = response.messageContent
+    console.log("message",message)
+    await this.postMessageToChannel(channelId,message,token)
+    return response;
+    } catch (error) {
+      console.log("error in findProjects",error)
+    }
+  }
+
 
   async sendMessage(webhookUrl: string, message: string): Promise<void> {
     const webhook = new IncomingWebhook(webhookUrl);
