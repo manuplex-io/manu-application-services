@@ -4,6 +4,7 @@ import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { prompts } from './prompts';
 import { KafkaContext } from '@nestjs/microservices';
 import { IncomingWebhook } from '@slack/webhook';
+import { createProjectBlocks } from './slack-utils';
 
 interface SlackResponse {
   ok: boolean;
@@ -162,9 +163,17 @@ export class SlackChannelService {
       messageKey,
     );
 
-    const message  = response.messageContent
-    console.log("message",message)
-    await this.postMessageToChannel(channelId,message,token)
+    const projects = response.messageContent; // Assuming this is an array of projects
+    console.log("projects", projects);
+
+    // Generate Slack blocks using the utility function
+    const blocks = createProjectBlocks(projects);
+    const slackMessage = {
+      text: 'Here is the list of projects.', // Fallback text
+      blocks, // Richly formatted blocks
+    };
+
+    await this.postMessageToChannel(channelId, slackMessage, token);
     return response;
     } catch (error) {
       console.log("error in findProjects",error)
@@ -313,7 +322,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
       );
       this.logger.log(`llmResponse ${llmResponse}`);
       // Post the message to the channel
-      await this.postMessageToChannel(channel, llmResponse.messageContent.content, token);
+      await this.postMessageToChannel(channel, {text:llmResponse.messageContent.content}, token);
 
       this.logger.log(`Successfully posted welcome message to channel: ${channel}`);
     } catch (error) {
@@ -328,7 +337,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
    */
   private async postMessageToChannel(
     channel: string,
-    message: string,
+    message: { text: string; blocks?: any[] },
     token: string,
   ): Promise<void> {
     try {
@@ -336,7 +345,8 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
         `${this.SLACK_BASE_URL}/chat.postMessage`,
         {
           channel: channel,
-          text: message,
+          text: message.text, // Fallback text for notifications or unsupported clients
+          blocks: message.blocks, // Richly formatted blocks
         },
         {
           headers: {
