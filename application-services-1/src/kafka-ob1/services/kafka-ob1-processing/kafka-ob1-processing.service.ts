@@ -73,11 +73,11 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
-      } else if (functionName === 'slackreply') {
-        return await this.slackEventHandlingService.slackreply(
-          functionInput,
-          context,
-        );
+      // } else if (functionName === 'slackreply') {
+      //   return await this.slackEventHandlingService.slackreply(
+      //     functionInput,
+      //     context,
+      //   );
       } else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
