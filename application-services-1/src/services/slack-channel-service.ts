@@ -96,6 +96,7 @@ export class SlackChannelService {
         // First try to find if channel exists
           const joinResponse = await this.joinChannel(channelId, token);
           // Check if join was successful (even with warning)
+          console.log("joinResponse",joinResponse)
           if (joinResponse.ok) {
             if (joinResponse.warning !== 'already_in_channel') {
               await this.postWelcomeMessage(channelId, token, "consultant", "aadish@manuplex.io");
@@ -109,7 +110,7 @@ export class SlackChannelService {
       }
   }
 
-  
+
   /**
  * Invites a user to a Slack channel
  * @param channelId - The ID of the channel
