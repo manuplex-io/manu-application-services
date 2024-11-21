@@ -48,6 +48,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const instanceName = 'Dummy Instance Name' // Needs to be changed
     const channel = functionInput.fromChannel;
     const user = functionInput.fromUser;
+    const threadTs = functionInput.thread;
 
 
     const userPrompt = `Your name is Plex. You are a helpful assistant. Respond to user's question smartly. Here is user's question:${userInput}`;
@@ -67,7 +68,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const plexReply = response.messageContent.content;
     console.log('Response from Plex', plexReply);
 
-    await this.sendMessage(channel, plexReply);
+    await this.sendMessage(channel, plexReply, threadTs);
 
     // const messageInput = {
     //   messageContent: {
@@ -209,11 +210,15 @@ export class SlackEventHandlingService implements OnModuleInit {
     return response;
   }
 
-  private async sendMessage(channel: string, text: string) {
+  private async sendMessage(channel: string, text: string, threadTs: string) {
     try {
+        const payload: any = { channel, text };
+        if (threadTs) {
+          payload.thread_ts = threadTs; // Include thread_ts if provided
+        }
       await axios.post(
         'https://slack.com/api/chat.postMessage',
-        { channel, text },
+        payload,
         {
           headers: {
             Authorization: `Bearer ${this.slackBotToken}`,
