@@ -141,7 +141,11 @@ export class SlackEventHandlingService implements OnModuleInit {
 
   async slackNotification(functionInput: any, context: KafkaContext) {
     const userId = functionInput.fromUser;
-    const userObject = await this.slackService.findUser(userId,this.slackBotToken)
+    const userObject = await this.slackService.findUser(userId,this.slackBotToken).catch(error => {
+        console.error('Error fetching user:', error);
+        return null; // Return null to explicitly handle the fallback
+      });
+    console.log('Fetched userObject:', userObject);
     const userName = userObject.user.name
     const text = functionInput.userInput;
     const channelId = functionInput.fromChannel;
@@ -149,7 +153,6 @@ export class SlackEventHandlingService implements OnModuleInit {
     const channelName = channelobject.channel.name
     const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
     const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
-    console.log('Receieved message from user object', userObject)
     console.log('Received message in channel object', channelobject)
 
     try {
