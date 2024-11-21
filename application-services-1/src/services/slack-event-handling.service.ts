@@ -143,14 +143,11 @@ export class SlackEventHandlingService implements OnModuleInit {
     try {  
         const userId = functionInput.fromUser;
         const userObject = await this.slackService.findUser(userId,this.slackBotToken)
-        const userName = userObject.user.name
+        const userName = userObject.user.real_name
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
-        console.log('channel ID fetched', channelId)
         const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
-        console.log('Fetched channelObject:', channelobject);
         const channelName = channelobject.channel.name
-        console.log('channelname fetched', channelName)
         const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
         const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
 
