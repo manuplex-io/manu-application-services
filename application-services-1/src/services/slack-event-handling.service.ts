@@ -12,6 +12,7 @@ import {
   OB1MessageValue,
   CURRENT_SCHEMA_VERSION,
 } from 'src/interfaces/ob1-message.interfaces';
+import { SlackChannelService } from './slack-channel-service';
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
@@ -21,6 +22,7 @@ export class SlackEventHandlingService implements OnModuleInit {
 
   constructor(
     private readonly kafkaService: KafkaOb1Service,
+    private readonly slackService: SlackChannelService,
     // private readonly tavilySearchService: TavilySearchService,
     // private readonly googleSheetService: GoogleSheetService,
   ) {
@@ -138,11 +140,17 @@ export class SlackEventHandlingService implements OnModuleInit {
   }
 
   async slackNotification(functionInput: any, context: KafkaContext) {
-    const user = functionInput.fromUser;
+    const userId = functionInput.fromUser;
+    const userObject = await this.slackService.findUser(userId,this.slackBotToken)
+    const userName = userObject.user.name
     const text = functionInput.userInput;
-    const channelName = functionInput.fromChannel; 
+    const channelId = functionInput.fromChannel;
+    const channelobject = await this.slackService.findChannel(channelId,this.slackBotToken)
+    const channelName = channelobject.channel.name
     const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
-    const notificationMessage = `User @${user} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
+    const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
+    console.log('Receieved message from user object', userObject)
+    console.log('Received message in channel object', channelobject)
 
     try {
         await this.webhook.send({

@@ -16,6 +16,17 @@ interface SlackResponse {
   channels?: any
 }
 
+interface SlackUserResponse {
+  ok: boolean;
+  error?: string;
+  user?: any;
+  warning?: string;
+  response_metadata?: {
+    warnings: string[];
+  };
+  users?: any
+}
+
 @Injectable()
 export class SlackChannelService {
   private readonly logger = new Logger(SlackChannelService.name);
@@ -176,7 +187,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
    * Finds a channel by name
    * @private
    */
-  private async findChannel(channel: string, token: string): Promise<SlackResponse> {
+  async findChannel(channel: string, token: string): Promise<SlackResponse> {
     try {
       const response = await axios.get<SlackResponse>(
         `${this.SLACK_BASE_URL}/conversations.list`,
@@ -204,6 +215,27 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to find channel ${channel}:`, error.response?.data);
+      throw error;
+    }
+  }
+
+  async findUser(user: string, token: string): Promise<SlackUserResponse> {
+    try {
+      const response = await axios.get<SlackUserResponse>(
+        `${this.SLACK_BASE_URL}/users.info`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            user: user,
+          },
+        }
+      );
+       return response.data
+    } catch (error) {
+      this.logger.error(`Failed to find channel ${user}:`, error.response?.data);
       throw error;
     }
   }
