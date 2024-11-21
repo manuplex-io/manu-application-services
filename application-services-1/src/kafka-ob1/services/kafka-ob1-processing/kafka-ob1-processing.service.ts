@@ -84,6 +84,12 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
+      } 
+      else if (functionName === 'slackNotification') {
+        return await this.slackEventHandlingService.slackNotification(
+          functionInput,
+          context,
+        );
       } else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
