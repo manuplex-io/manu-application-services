@@ -168,6 +168,7 @@ export class SlackChannelService {
 
     // Generate Slack blocks using the utility function
     const blocks = createProjectBlocks(projects);
+    console.log("blocks", blocks);
     const slackMessage = {
       text: 'Here is the list of projects.', // Fallback text
       blocks, // Richly formatted blocks
