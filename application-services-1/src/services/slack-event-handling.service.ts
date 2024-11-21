@@ -140,28 +140,26 @@ export class SlackEventHandlingService implements OnModuleInit {
   }
 
   async slackNotification(functionInput: any, context: KafkaContext) {
-    const userId = functionInput.fromUser;
-    const userObject = await this.slackService.findUser(userId,this.slackBotToken).catch(error => {
-        console.error('Error fetching user:', error);
-        return null; // Return null to explicitly handle the fallback
-      });
-    console.log('Fetched userObject:', userObject);
-    const userName = userObject.user.name
-    const text = functionInput.userInput;
-    const channelId = functionInput.fromChannel;
-    const channelobject = await this.slackService.findChannel(channelId,this.slackBotToken)
-    const channelName = channelobject.channel.name
-    const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
-    const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
-    console.log('Received message in channel object', channelobject)
+    try {  
+        const userId = functionInput.fromUser;
+        const userObject = await this.slackService.findUser(userId,this.slackBotToken)
+        console.log('Fetched userObject:', userObject);
+        const userName = userObject.user.name
+        console.log('username fetached', userName)
+        const text = functionInput.userInput;
+        const channelId = functionInput.fromChannel;
+        const channelobject = await this.slackService.findChannel(channelId,this.slackBotToken)
+        const channelName = channelobject.channel.name
+        const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
+        const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
+        console.log('Received message in channel object', channelobject)
 
-    try {
-        await this.webhook.send({
-          text: notificationMessage,
-        });
-      } catch (error) {
-        console.error('Error sending message to Slack:', error);
-        throw new Error('Failed to send message to Slack');
+            await this.webhook.send({
+            text: notificationMessage,
+            });
+    } catch (error) {
+        console.error('Error in slackNotification:', error);
+        throw error; // Propagate the error to ensure visibility
       }
   }
 
