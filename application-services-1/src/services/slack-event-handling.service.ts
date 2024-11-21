@@ -45,7 +45,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const userInput = functionInput.userInput;
     const instanceName = 'Dummy Instance Name' // Needs to be changed
     const channel = functionInput.fromChannel;
-    const user = functionInput.fromUSer;
+    const user = functionInput.fromUser;
 
 
     const userPrompt = `Your name is Plex. You are a helpful assistant. Respond to user's question smartly. Here is user's question:${userInput}`;
@@ -138,10 +138,10 @@ export class SlackEventHandlingService implements OnModuleInit {
   }
 
   async slackNotification(functionInput: any, context: KafkaContext) {
-    const user = functionInput.user;
-    const text = functionInput.text;
-    const channelName = functionInput.channel; 
-    const timestamp = new Date(Number(functionInput.eventTs) * 1000).toLocaleString(); // Convert Slack timestamp
+    const user = functionInput.fromUser;
+    const text = functionInput.userInput;
+    const channelName = functionInput.fromChannel; 
+    const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
     const notificationMessage = `User @${user} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
 
     try {
