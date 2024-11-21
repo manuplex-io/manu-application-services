@@ -297,6 +297,28 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
     }
   }
 
+  async findChannelName(channel: string, token: string): Promise<SlackResponse> {
+    try {
+      const response = await axios.get<SlackResponse>(
+        `${this.SLACK_BASE_URL}/conversations.info`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            channel: channel,
+          },
+        }
+      );
+       console.log('Response received in channel', response.data)
+       return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to find channel ${channel}:`, error.response?.data);
+      throw error;
+    }
+  }
+
 
   /**
    * Posts welcome message to the channel using LLM

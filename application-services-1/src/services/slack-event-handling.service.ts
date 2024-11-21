@@ -143,13 +143,11 @@ export class SlackEventHandlingService implements OnModuleInit {
     try {  
         const userId = functionInput.fromUser;
         const userObject = await this.slackService.findUser(userId,this.slackBotToken)
-        console.log('Fetched userObject:', userObject);
         const userName = userObject.user.name
-        console.log('username fetched', userName)
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
         console.log('channel ID fetched', channelId)
-        const channelobject = await this.slackService.findChannel(channelId,this.slackBotToken)
+        const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
         console.log('Fetched channelObject:', channelobject);
         const channelName = channelobject.channel.name
         console.log('channelname fetched', channelName)
