@@ -73,7 +73,13 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
-      } else if (functionName === 'slackreply') {
+      } else if (functionName === 'joinChannel') {
+        return await this.slackChannelService.joinChannelBot(
+          functionInput,
+          context,
+        );
+      }
+      else if (functionName === 'slackreply') {
         return await this.slackEventHandlingService.slackreply(
           functionInput,
           context,

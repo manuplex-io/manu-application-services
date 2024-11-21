@@ -89,6 +89,27 @@ export class SlackChannelService {
   }
 
 
+  async joinChannelBot(functionInput:{text:string,channel:string,response_url:string}, context: KafkaContext) {
+    const token = process.env.slack_token
+    const channelId = functionInput.channel
+    try {
+        // First try to find if channel exists
+          const joinResponse = await this.joinChannel(channelId, token);
+          // Check if join was successful (even with warning)
+          if (joinResponse.ok) {
+            if (joinResponse.warning !== 'already_in_channel') {
+              await this.postWelcomeMessage(channelId, token, "consultant", "aadish@manuplex.io");
+            } else {
+              this.logger.log(`Bot is already in channel ${channelId}`);
+            }
+          }
+          return joinResponse;
+      } catch (error) {
+        this.handleError(error, channelId);
+      }
+  }
+
+  
   /**
  * Invites a user to a Slack channel
  * @param channelId - The ID of the channel
