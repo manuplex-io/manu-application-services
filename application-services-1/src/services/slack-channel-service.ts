@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { prompts } from './prompts';
 import { KafkaContext } from '@nestjs/microservices';
+import { IncomingWebhook } from '@slack/webhook';
 
 interface SlackResponse {
   ok: boolean;
@@ -90,8 +91,9 @@ export class SlackChannelService {
 
 
   async joinChannelBot(functionInput:{text:string,channel:string,response_url:string}, context: KafkaContext) {
+    
     const token = process.env.slack_token
-    const channelId = functionInput.channel
+    const {text,channel:channelId,response_url} = functionInput
     try {
         // First try to find if channel exists
           const joinResponse = await this.joinChannel(channelId, token);
@@ -101,6 +103,7 @@ export class SlackChannelService {
             if (joinResponse.warning !== 'already_in_channel') {
               await this.postWelcomeMessage(channelId, token, "consultant", "aadish@manuplex.io");
             } else {
+              this.sendMessage(response_url,"I am already here to assist you in your procurement process.")
               this.logger.log(`Bot is already in channel ${channelId}`);
             }
           }
@@ -108,6 +111,20 @@ export class SlackChannelService {
       } catch (error) {
         this.handleError(error, channelId);
       }
+  }
+
+
+  async sendMessage(webhookUrl: string, message: string): Promise<void> {
+    const webhook = new IncomingWebhook(webhookUrl);
+
+    try {
+      await webhook.send({
+        text: message,
+      });
+    } catch (error) {
+      console.error('Error sending message to Slack:', error);
+      throw new Error('Failed to send message to Slack');
+    }
   }
 
 
