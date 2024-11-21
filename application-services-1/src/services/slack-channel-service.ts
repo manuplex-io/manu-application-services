@@ -33,9 +33,10 @@ export class SlackChannelService {
    * @returns The created channel information
    * @throws HttpException if channel creation fails
    */
-  async createAndJoinChannel(functionInput:{token:string,channel:string}, context: KafkaContext) {
+  async createAndJoinChannel(functionInput:{token:string,channel:string,userId:string}, context: KafkaContext) {
     const token = functionInput.token
     const channel = functionInput.channel
+    const userId = functionInput.userId
     try {
         // First try to find if channel exists
         const existingChannel = await this.findChannel(channel, token);
@@ -47,6 +48,7 @@ export class SlackChannelService {
           // Check if join was successful (even with warning)
           if (joinResponse.ok) {
             if (joinResponse.warning !== 'already_in_channel') {
+              await this.inviteUserToChannel(existingChannel.channel.id, userId, token);
               await this.postWelcomeMessage(existingChannel.channel.id, token, "consultant", "aadish@manuplex.io");
             } else {
               this.logger.log(`Bot is already in channel ${channel}`);
@@ -62,12 +64,13 @@ export class SlackChannelService {
           this.logger.log(`Channel ${channel} created successfully. Joining channel...`);
           const joinResponse = await this.joinChannel(createdChannel.channel.id, token);
           this.logger.log(`Channel ${channel} joined successfully ${joinResponse}`);
-          console.log("channel",createdChannel)
-          console.log("token",token)
           console.log("joinResponse",joinResponse)
           if (!joinResponse.ok) {
             throw new Error(`Failed to join newly created channel: ${joinResponse.error}`);
           }
+
+          this.logger.log(`Inviting user ${userId} to newly created channel ${channel}...`);
+          await this.inviteUserToChannel(createdChannel.channel.id, userId, token);
           
           // Post welcome message for newly created channel
           await this.postWelcomeMessage(createdChannel.channel.id, token, "consultant", "aadish@manuplex.io");
@@ -84,6 +87,51 @@ export class SlackChannelService {
         this.handleError(error, channel);
       }
   }
+
+
+  /**
+ * Invites a user to a Slack channel
+ * @param channelId - The ID of the channel
+ * @param userId - The ID of the user to invite
+ * @param token - The Slack bot token
+ * @throws Error if the invite fails (except when user is already in the channel)
+ */
+async inviteUserToChannel(channelId: string, userId: string, token: string) {
+   
+    try {
+        const response = await axios.post<SlackResponse>(
+            `${this.SLACK_BASE_URL}/conversations.invite`,
+            {
+              channel: channelId,
+              users: userId,
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+      
+        // Check if response indicates the user is already in the channel
+        if (!response.data.ok) {
+          if (response.data.error === 'already_in_channel') {
+            this.logger.log(`User ${userId} is already in channel ${channelId}. No need to re-invite.`);
+            return; // Do not throw an error, simply return
+          }
+      
+          // Handle other errors
+          throw new Error(`Failed to invite user ${userId} to channel ${channelId}: ${response.data.error}`);
+        }
+        this.logger.log(`User ${userId} invited to channel ${channelId} successfully.`);
+        
+    } catch (error) {
+        this.logger.error(`Failed to invite to channel ${channelId}:`, error.response?.data);
+        throw error
+    }
+    
+  }
+  
 
   /**
    * Finds a channel by name
