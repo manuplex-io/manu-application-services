@@ -1,5 +1,5 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { prompts } from './prompts';
 import { KafkaContext } from '@nestjs/microservices';
@@ -292,16 +292,18 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
    */
   private async joinChannel(channel: string, token: string): Promise<SlackResponse> {
     try {
-      const response = await axios.post<SlackResponse>(
-        `${this.SLACK_BASE_URL}/conversations.join`,
-        { channel: channel },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const data = new URLSearchParams({ channel });
+
+    const config: AxiosRequestConfig = {
+      method: 'post',
+      url: `${this.SLACK_BASE_URL}/conversations.join`,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data,
+    };
+    const response = await axios.request(config);
 
       if (response.data.ok) {
         this.logger.log(`Successfully joined channel: ${channel}`);
