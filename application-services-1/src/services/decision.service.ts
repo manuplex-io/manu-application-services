@@ -63,7 +63,7 @@ export class DecisionService {
 
     // Parse and return the LLM's function decision
     const content =  JSON.parse(response.messageContent.content);
-    const functionName = content.functionName
+    const functionName = content.function
     let message:any
     console.log("functionName",functionName)
     if (functionName === 'findSupplier') {
