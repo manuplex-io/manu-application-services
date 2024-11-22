@@ -147,8 +147,19 @@ export class SlackEventHandlingService implements OnModuleInit {
         const userName = userObject.user.real_name
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
-        const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
-        const channelName = channelobject.channel.name
+
+        let channelName = '';
+
+        // Check if the message is from a direct message channel
+        if (channelId.startsWith('D')) {
+            channelName = 'Direct Message'; // Label direct message channels
+        } else {
+            const channelObject = await this.slackService.findChannelName(channelId, this.slackBotToken);
+            channelName = channelObject.channel.name;
+        }
+
+        // const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
+        // const channelName = channelobject.channel.name
         const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
         const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
 
