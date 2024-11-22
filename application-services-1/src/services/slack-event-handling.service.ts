@@ -51,7 +51,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const threadTs = functionInput.thread;
 
 
-    const userPrompt = `Your name is Plex. You are a helpful assistant. Respond to user's question smartly. Here is user's question:${userInput}`;
+    const userPrompt = `Your name is Plex. You are a helpful assistant with a good sense of humour. User has asked you for a joke. Respond to user's question with a unique and funny joke. Here is user's ask:${userInput}`;
     const responseFormat = ''; // Need to change
     const response = await this.callLLM(
       userPrompt,
