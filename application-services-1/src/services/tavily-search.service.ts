@@ -6,7 +6,7 @@ export class TavilySearchService implements OnModuleInit {
   async onModuleInit() {}
 
   tavilyClient = tavily({
-    apiKey: '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',
+    apiKey: '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',
   });
 
   async tavilySearch(input: any, options: any) {
