@@ -73,7 +73,7 @@ export class DecisionService {
           {...functionInput,projectName:"test1"},
           context,
         );
-        const message = "Here is a  <" + response.messageContent.url + "|Google Sheet>"+ "where I have prepared the results for you"
+        const message = "Here is a  <" + response.messageContent.url + "|Google Sheet>"+ " where I have prepared the results for you"
         await postMessageToSlackChannel(functionInput.fromChannel,{text:message},token,functionInput.thread)
       }
     else if(functionName=="getJoke"){
