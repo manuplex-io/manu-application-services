@@ -16,6 +16,7 @@ import { SuggestionService } from 'src/services/suggestion.service';
 import { ShortlistSupplierService } from 'src/services/shortlist-supplier.service';
 import { SlackChannelService } from 'src/services/slack-channel-service';
 import { SlackEventHandlingService } from 'src/services/slack-event-handling.service';
+import { DecisionService } from 'src/services/decision.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -30,7 +31,9 @@ export class KafkaOb1ProcessingService {
     private readonly suggestionService: SuggestionService,
     private readonly shortlistSupplierService: ShortlistSupplierService,
     private readonly slackChannelService: SlackChannelService,
-    private readonly slackEventHandlingService: SlackEventHandlingService
+    private readonly slackEventHandlingService: SlackEventHandlingService,
+    private readonly decisionService:DecisionService
+
   ) {}
 
   async processRequest(message: OB1MessageValue, context: KafkaContext) {
@@ -75,6 +78,12 @@ export class KafkaOb1ProcessingService {
         );
       } else if (functionName === 'joinChannel') {
         return await this.slackChannelService.joinChannelBot(
+          functionInput,
+          context,
+        );
+      }
+      else if (functionName === 'decisionFunction') {
+        return await this.decisionService.decideFunctionCall(
           functionInput,
           context,
         );

@@ -15,7 +15,7 @@ import {
 import { SlackChannelService } from './slack-channel-service';
 
 @Injectable()
-export class SlackEventHandlingService implements OnModuleInit {
+export class NoCapabilitiesService implements OnModuleInit {
     private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
     private readonly webhookURL = process.env.webhookURL //webhook URL
     // private readonly webhook : IncomingWebhook//webhook URL

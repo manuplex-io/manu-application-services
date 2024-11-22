@@ -8,6 +8,7 @@ import { ShortlistSupplierService } from './shortlist-supplier.service';
 import { GoogleSheetService } from './google-sheet.service';
 import { SlackChannelService } from './slack-channel-service';
 import { SlackEventHandlingService } from './slack-event-handling.service';
+import { DecisionService } from './decision.service';
 
 @Module({
   imports: [forwardRef(() => KafkaOb1Module)],
@@ -19,7 +20,8 @@ import { SlackEventHandlingService } from './slack-event-handling.service';
     ShortlistSupplierService,
     GoogleSheetService,
     SlackChannelService,
-    SlackEventHandlingService
+    SlackEventHandlingService,
+    DecisionService
   ],
   exports: [
     OrderFormService,
@@ -29,7 +31,8 @@ import { SlackEventHandlingService } from './slack-event-handling.service';
     ShortlistSupplierService,
     GoogleSheetService,
     SlackChannelService,
-    SlackEventHandlingService
+    SlackEventHandlingService,
+    DecisionService
   ],
 })
 export class ServicesModule {}

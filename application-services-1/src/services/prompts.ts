@@ -631,6 +631,37 @@ const order_form_schema = {
     }
 }
 
+const decisionSchema = {
+  type: 'json_schema',
+  json_schema: {
+    name: 'get_material_types',
+    schema: {
+      type: 'object',
+      properties: {
+        function: {
+          type: 'string',
+          description: 'The function name to call: findSupplier, getJoke, or noCapabilities.',
+        },
+      },
+      required: ['function'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+};
+
+const decisionPrompt = `
+      You are an intelligent assistant. Your job is to decide the most suitable function to call based on the user's query. 
+      You have the following options:
+        1. **findSupplier**: For queries about finding suppliers or anything related to manufacturing parts.
+        2. **getJoke**: For queries asking for jokes, humor, or light-hearted responses.
+        3. **noCapabilities**: For anything else that is outside your defined scope.
+
+      Respond with a JSON object in the specified response format that includes the function name.
+    `;
+
+    
+
 const materialTypeSuggestionsSystem: string = `You are an expert manufacturing consultant with extensive knowledge of industrial materials.
 Your role is to analyze the procurement manager's requirements and provide intelligent material recommendations.
 Only include material type with each word capitalized (Title Case) and without any extra information or explanations.
@@ -810,7 +841,8 @@ export const prompts = {
   inspection_techniques: inspectionTechniquesSuggestionsSystem,
   regions: regionSuggestionsSystem,
   orderFormPrompt:orderFormPrompt,
-  slackJoin:slackPrompt
+  slackJoin:slackPrompt,
+  decisionPrompt:decisionPrompt
 };
 
 export const schemas = {
@@ -830,5 +862,6 @@ export const schemas = {
   get_supplier_manufacturing_capabilities: json_schema15,
   get_supplier_export_countries: json_schema16,
   get_part_description: json_schema17,
-  order_form_schema:order_form_schema
+  order_form_schema:order_form_schema,
+  decisionSchema:decisionSchema
 };

@@ -4,7 +4,7 @@ import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { prompts } from './prompts';
 import { KafkaContext } from '@nestjs/microservices';
 import { IncomingWebhook } from '@slack/webhook';
-import { createProjectBlocks } from './slack-utils';
+import { createProjectMessageBlocks as createProjectBlocks } from './slack-utils';
 
 interface SlackResponse {
   ok: boolean;
