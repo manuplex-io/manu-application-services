@@ -64,6 +64,7 @@ export class DecisionService {
     // Parse and return the LLM's function decision
     const functionName =  response.messageContent.content.function;
     let message:any
+    console.log("functionName",functionName)
     if (functionName === 'findSupplier') {
         const response =  await this.findSupplierService.findSupplier(
           {...functionInput,projectName:"test1"},
