@@ -43,7 +43,7 @@ export class DecisionService {
         functionName: 'LLMgenerateResponse',
       },
     };
-    postMessageToSlackChannel(functionInput.fromChannel,{text:"sure on it"},token,functionInput.thread)
+    
 
 
     const messageInputAdd = {
@@ -68,6 +68,7 @@ export class DecisionService {
     let message:any
     console.log("functionName",functionName)
     if (functionName === 'findSupplier') {
+        postMessageToSlackChannel(functionInput.fromChannel,{text:"sure on it"},token,functionInput.thread)
         const response =  await this.findSupplierService.findSupplier(
           {...functionInput,projectName:"test1"},
           context,
