@@ -20,8 +20,7 @@ export class DecisionService {
   async decideFunctionCall(functionInput: any,context:KafkaContext): Promise<any> {
     
     try {
-
-        const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
+    const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key?.toString();
     const userQuery = functionInput.userInput
     const token = process.env.slack_token
@@ -44,6 +43,8 @@ export class DecisionService {
         functionName: 'LLMgenerateResponse',
       },
     };
+    postMessageToSlackChannel(functionInput.fromChannel,{text:"sure on it"},token,functionInput.thread)
+
 
     const messageInputAdd = {
       messageType: 'REQUEST',
@@ -71,7 +72,7 @@ export class DecisionService {
           {...functionInput,projectName:"test1"},
           context,
         );
-        message = response.messageContent.url
+        const message = "Here is a  <" + response.messageContent.url + "|Google Sheet>"+ "where I have prepared the results for you"
         await postMessageToSlackChannel(functionInput.fromChannel,{text:message},token,functionInput.thread)
       }
     else if(functionName=="getJoke"){
