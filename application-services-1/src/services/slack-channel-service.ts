@@ -310,7 +310,6 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           },
         }
       );
-       console.log('Response received in channel', response.data)
        return response.data;
     } catch (error) {
       this.logger.error(`Failed to find channel ${channel}:`, error.response?.data);
