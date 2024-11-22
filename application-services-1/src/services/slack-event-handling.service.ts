@@ -175,7 +175,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const sourceType = 'service';
     const messageInput = {
       messageContent: {
-        functionName: 'LLMgenerateResponse',
+        functionName: 'LLMgenerateResponse-V1',
         functionInput: {
           userPrompt: userPrompt,
           responseFormat: responseFormat,

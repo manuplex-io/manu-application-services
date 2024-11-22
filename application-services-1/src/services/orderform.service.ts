@@ -156,7 +156,7 @@ async generateSuggestion(
     const sourceType = 'service';
     const messageInput = {
       messageContent: {
-        functionName: 'LLMgenerateResponse',
+        functionName: 'LLMgenerateResponse-V1',
         functionInput: {
           systemPrompt:systemPrompt,
           userPrompt: userPrompt,

@@ -33,7 +33,7 @@ export class SuggestionService implements OnModuleInit {
             presencePenalty: 0,
           },
         },
-        functionName: 'LLMgenerateResponse',
+        functionName: 'LLMgenerateResponse-V1',
       },
     };
 
