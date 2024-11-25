@@ -13,7 +13,7 @@ import {
   CURRENT_SCHEMA_VERSION,
 } from 'src/interfaces/ob1-message.interfaces';
 import { SlackChannelService } from './slack-channel-service';
-import { findWorkspace } from './slack-utils';
+import { extractUserIds, findWorkspace } from './slack-utils';
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
@@ -165,10 +165,13 @@ export class SlackEventHandlingService implements OnModuleInit {
             channelName = channelObject.channel.name;
         }
 
+        const updatedText =await this.replaceUserIdsWithNames(text,slackBotToken)
+
+
         // const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
         // const channelName = channelobject.channel.name
         const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
-        const notificationMessage = `User @${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${text}'\nAt: ${timestamp}`;
+        const notificationMessage = `User ${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${updatedText}'\nAt: ${timestamp}`;
 
             await this.webhook.send({
             text: notificationMessage,
@@ -178,6 +181,38 @@ export class SlackEventHandlingService implements OnModuleInit {
         throw error; // Propagate the error to ensure visibility
       }
   }
+
+
+  async  replaceUserIdsWithNames(
+    text: string,
+    slackBotToken: string
+): Promise<string> {
+    // Extract user IDs from the text
+    const userIds = extractUserIds(text);
+
+    // Map user IDs to real names
+    const realNames = await Promise.all(
+        userIds.map(async (userId) => {
+            try {
+                const userObject = await this.slackService.findUser(userId, slackBotToken);
+                return userObject?.user?.real_name || 'Unknown User';
+            } catch (error) {
+                console.error(`Error fetching user ${userId}:`, error);
+                return 'Unknown User'; // Fallback for failed lookups
+            }
+        })
+    );
+
+    // Replace each userId mention in the text with the corresponding real name
+    let updatedText = text;
+    userIds.forEach((userId, index) => {
+        const mention = `<@${userId}>`; // Format of the mention
+        const realName = realNames[index];
+        updatedText = updatedText.replace(mention, realName);
+    });
+
+    return updatedText;
+}
 
   async callLLM(
     userPrompt,

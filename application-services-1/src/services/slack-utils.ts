@@ -160,3 +160,8 @@ export async function findWorkspace(
     throw error;
   }
 }
+
+export function extractUserIds(text: string): string[] {
+    const matches = text.matchAll(/<@([A-Z0-9]+)>/g);
+    return Array.from(matches, match => match[1]);
+}
