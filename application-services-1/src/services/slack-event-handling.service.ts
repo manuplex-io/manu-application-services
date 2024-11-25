@@ -174,10 +174,21 @@ export class SlackEventHandlingService implements OnModuleInit {
         // const channelName = channelobject.channel.name
         const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
         const notificationMessage = `User ${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${updatedText}'\nAt: ${timestamp}`;
+        const element = {
+          type: 'rich_text_section',
+          elements: [
+            {
+              type: 'text',
+              text: notificationMessage
+            }
+          ]
+        }
+        blocks.elements[0] = element
         console.log("notificationMessage",notificationMessage)
-        console.log("blocks",blocks)
+        console.log("blocks",JSON.stringify(blocks))
+        console.log("elements",JSON.stringify(blocks.elements))
             await this.webhook.send({
-            text: notificationMessage,
+            // text: notificationMessage,
             blocks:blocks
             });
     } catch (error) {
