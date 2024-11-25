@@ -16,7 +16,7 @@ import { SlackChannelService } from './slack-channel-service';
 
 @Injectable()
 export class NoCapabilitiesService implements OnModuleInit {
-    private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
+    // private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
     private readonly webhookURL = process.env.webhookURL //webhook URL
     // private readonly webhook : IncomingWebhook//webhook URL
 
@@ -32,14 +32,15 @@ export class NoCapabilitiesService implements OnModuleInit {
   async noCapability(functionInput: any, context: KafkaContext) {
     const channel = functionInput.fromChannel;
     const threadTs = functionInput.thread;
+    const slackBotToken = functionInput.token;
 
     const plexReply = 'I do not have the capability to handle your request currently. Please let me know if you need my help in any of the following';
     console.log('Response from Plex', plexReply);
 
-    await this.sendMessage(channel, plexReply, threadTs);
+    await this.sendMessage(channel, plexReply, threadTs, slackBotToken);
   }
 
-  private async sendMessage(channel: string, text: string, threadTs: string) {
+  private async sendMessage(channel: string, text: string, threadTs: string, slackBotToken:string) {
     try {
         const payload: any = { channel, text };
         if (threadTs) {
@@ -50,7 +51,7 @@ export class NoCapabilitiesService implements OnModuleInit {
         payload,
         {
           headers: {
-            Authorization: `Bearer ${this.slackBotToken}`,
+            Authorization: `Bearer ${slackBotToken}`,
             'Content-Type': 'application/json',
           },
         },

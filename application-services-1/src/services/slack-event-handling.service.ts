@@ -16,7 +16,7 @@ import { SlackChannelService } from './slack-channel-service';
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
-    private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
+    // private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
     private readonly webhookURL = process.env.webhookURL //webhook URL
     private readonly webhook : IncomingWebhook//webhook URL
 
@@ -49,6 +49,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const channel = functionInput.fromChannel;
     const user = functionInput.fromUser;
     const threadTs = functionInput.thread;
+    const slackBotToken = functionInput.token;
 
 
     const userPrompt = `Your name is Plex. You are a helpful assistant with a good sense of humour. User has asked you for a joke. Respond to user's question with a unique and funny joke. Here is user's ask:${userInput}`;
@@ -68,7 +69,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     const plexReply = response.messageContent.content;
     console.log('Response from Plex', plexReply);
 
-    await this.sendMessage(channel, plexReply, threadTs);
+    await this.sendMessage(channel, plexReply, threadTs, slackBotToken);
 
     // const messageInput = {
     //   messageContent: {
@@ -143,7 +144,8 @@ export class SlackEventHandlingService implements OnModuleInit {
   async slackNotification(functionInput: any, context: KafkaContext) {
     try {  
         const userId = functionInput.fromUser;
-        const userObject = await this.slackService.findUser(userId,this.slackBotToken)
+        const slackBotToken = functionInput.token
+        const userObject = await this.slackService.findUser(userId, slackBotToken)
         const userName = userObject.user.real_name
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
@@ -154,7 +156,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         if (channelId.startsWith('D')) {
             channelName = 'Direct Message'; // Label direct message channels
         } else {
-            const channelObject = await this.slackService.findChannelName(channelId, this.slackBotToken);
+            const channelObject = await this.slackService.findChannelName(channelId, slackBotToken);
             channelName = channelObject.channel.name;
         }
 
@@ -221,7 +223,7 @@ export class SlackEventHandlingService implements OnModuleInit {
     return response;
   }
 
-  private async sendMessage(channel: string, text: string, threadTs: string) {
+  private async sendMessage(channel: string, text: string, threadTs: string, slackBotToken: string) {
     try {
         const payload: any = { channel, text };
         if (threadTs) {
@@ -232,7 +234,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         payload,
         {
           headers: {
-            Authorization: `Bearer ${this.slackBotToken}`,
+            Authorization: `Bearer ${slackBotToken}`,
             'Content-Type': 'application/json',
           },
         },

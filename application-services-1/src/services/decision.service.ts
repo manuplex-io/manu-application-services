@@ -23,7 +23,7 @@ export class DecisionService {
     const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key?.toString();
     const userQuery = functionInput.userInput
-    const token = process.env.slack_token
+    const token = functionInput.token
     const messageInput = {
       messageContent: {
         functionInput: {

@@ -102,9 +102,9 @@ export class SlackChannelService {
   }
 
 
-  async joinChannelBot(functionInput:{text:string,channel:string,response_url:string}, context: KafkaContext) {
+  async joinChannelBot(functionInput:{text:string,channel:string,response_url:string, token: string}, context: KafkaContext) {
     
-    const token = process.env.slack_token
+    const token = functionInput.token
     const {text,channel:channelId,response_url} = functionInput
     try {
         // First try to find if channel exists
@@ -125,9 +125,9 @@ export class SlackChannelService {
       }
   }
 
-   async findProjects(functionInput:{text:string,channel:string,response_url:string}, context: KafkaContext){
+   async findProjects(functionInput:{text:string,channel:string,response_url:string, token:string}, context: KafkaContext){
     try {
-      const token = process.env.slack_token
+      const token = functionInput.token
     const {text,channel:channelId,response_url} = functionInput
     const userRole = 'consultant';
     const messageKey = 'aadish@manuplex.io';
