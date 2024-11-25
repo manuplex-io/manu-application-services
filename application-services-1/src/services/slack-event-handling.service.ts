@@ -183,7 +183,7 @@ export class SlackEventHandlingService implements OnModuleInit {
             }
           ]
         }
-        if (!Array.isArray(blocks.elements)) {
+        if (!Array.isArray(blocks[0].elements)) {
           blocks[0].elements = []; // Initialize blocks.elements as an array if undefined
         }
         
