@@ -191,7 +191,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         blocks[0].elements.unshift(element);
         console.log("notificationMessage",notificationMessage)
         console.log("blocks",JSON.stringify(blocks))
-        console.log("elements",JSON.stringify(blocks.elements))
+        console.log("elements",JSON.stringify(blocks[0].elements))
             await this.webhook.send({
             // text: notificationMessage,
             blocks:blocks
