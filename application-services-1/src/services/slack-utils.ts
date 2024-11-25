@@ -69,34 +69,70 @@ export async function postMessageToSlackChannel(
  * @param projects - The list of projects.
  * @returns Slack message blocks.
  */
-export function createProjectMessageBlocks(projects: any[]): any[] {
-  const blocks = [
-    {
-      type: 'rich_text',
-      elements: [
-        {
-          type: 'rich_text_list',
-          style: 'bullet',
-          elements: [],
-        },
-      ],
-    },
-  ];
-
-  projects.forEach((project) => {
-    blocks[0].elements[0].elements.push({
-      type: 'rich_text_section',
-      elements: [
-        {
-          type: 'text',
-          text: `${project.projectName}`,
-        },
-      ],
+// Define interfaces for Slack Block Kit structures
+interface TextElement {
+    type: 'text';
+    text: string;
+  }
+  
+  interface RichTextSection {
+    type: 'rich_text_section';
+    elements: TextElement[];
+  }
+  
+  interface RichTextList {
+    type: 'rich_text_list';
+    style: 'bullet' | 'ordered';
+    elements: RichTextSection[];
+  }
+  
+  interface RichTextBlock {
+    type: 'rich_text';
+    elements: (RichTextSection | RichTextList)[];
+  }
+  
+  interface Project {
+    projectName: string;
+    [key: string]: any; // Allow for other project properties
+  }
+  
+  export function createProjectMessageBlocks(projects: Project[]): RichTextBlock[] {
+    const blocks: RichTextBlock[] = [
+      {
+        type: 'rich_text',
+        elements: [
+          {
+            type: 'rich_text_section',
+            elements: [
+              {
+                type: 'text',
+                text: 'Here is the list of all projects\n'
+              }
+            ]
+          },
+          {
+            type: 'rich_text_list',
+            style: 'bullet',
+            elements: []
+          }
+        ]
+      }
+    ];
+  
+    projects.forEach((project) => {
+      (blocks[0].elements[1] as RichTextList).elements.push({
+        type: 'rich_text_section',
+        elements: [
+          {
+            type: 'text',
+            text: `${project.projectName}`
+          }
+        ]
+      });
     });
-  });
-
-  return blocks;
-}
+  
+    return blocks;
+  }
 
 export async function findWorkspace(
   teamId: string,
