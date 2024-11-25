@@ -183,7 +183,7 @@ export class SlackEventHandlingService implements OnModuleInit {
             }
           ]
         }
-        blocks.elements[0] = element
+        // blocks.elements[0] = element
         console.log("notificationMessage",notificationMessage)
         console.log("blocks",JSON.stringify(blocks))
         console.log("elements",JSON.stringify(blocks.elements))
