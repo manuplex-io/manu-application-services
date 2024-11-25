@@ -13,6 +13,7 @@ import {
   CURRENT_SCHEMA_VERSION,
 } from 'src/interfaces/ob1-message.interfaces';
 import { SlackChannelService } from './slack-channel-service';
+import { findWorkspace } from './slack-utils';
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
@@ -145,10 +146,13 @@ export class SlackEventHandlingService implements OnModuleInit {
     try {  
         const userId = functionInput.fromUser;
         const slackBotToken = functionInput.token
+        const teamId = functionInput.teamId
         const userObject = await this.slackService.findUser(userId, slackBotToken)
         const userName = userObject.user.real_name
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
+        const workspaceObject = await findWorkspace(teamId, slackBotToken)
+        const workspace = workspaceObject.team.name
 
         let channelName = '';
 
@@ -163,7 +167,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         // const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
         // const channelName = channelobject.channel.name
         const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
-        const notificationMessage = `User @${userName} has sent a message to channel '${channelName}':\n> '${text}'\nAt: ${timestamp}`;
+        const notificationMessage = `User @${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${text}'\nAt: ${timestamp}`;
 
             await this.webhook.send({
             text: notificationMessage,
