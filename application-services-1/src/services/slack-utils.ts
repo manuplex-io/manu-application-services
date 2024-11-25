@@ -26,13 +26,14 @@ interface SlackWorkspaceResponse {
   error?: string;
 }
 
+const SLACK_BASE_URL = 'https://slack.com/api';
+
 export async function postMessageToSlackChannel(
   channel: string,
   message: { text: string; blocks?: any[] },
   token: string,
   threadTs: string,
 ): Promise<void> {
-  const SLACK_BASE_URL = 'https://slack.com/api';
 
   try {
     const response = await axios.post(
@@ -103,7 +104,7 @@ export async function findWorkspace(
 ): Promise<SlackWorkspaceResponse> {
   try {
     const response = await axios.get<SlackWorkspaceResponse>(
-      `${this.SLACK_BASE_URL}/team.info`,
+      `${SLACK_BASE_URL}/team.info`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
