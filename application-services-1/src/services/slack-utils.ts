@@ -116,7 +116,7 @@ export async function findWorkspace(
     );
     return response.data;
   } catch (error) {
-    this.logger.error(
+    console.error(
       `Failed to find workspace with team ID ${teamId}:`,
       error.response?.data,
     );

@@ -152,6 +152,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         const text = functionInput.userInput;
         const channelId = functionInput.fromChannel;
         const workspaceObject = await findWorkspace(teamId, slackBotToken)
+        console.log('workspace object retrieved', workspaceObject)
         const workspace = workspaceObject.team.name
 
         let channelName = '';
