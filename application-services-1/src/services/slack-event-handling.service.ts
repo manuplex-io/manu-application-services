@@ -147,6 +147,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         const userId = functionInput.fromUser;
         const slackBotToken = functionInput.token
         const teamId = functionInput.teamId
+        const blocks = functionInput.blocks
         const userObject = await this.slackService.findUser(userId, slackBotToken)
         const userName = userObject.user.real_name
         const text = functionInput.userInput;
@@ -175,6 +176,7 @@ export class SlackEventHandlingService implements OnModuleInit {
 
             await this.webhook.send({
             text: notificationMessage,
+            blocks:blocks
             });
     } catch (error) {
         console.error('Error in slackNotification:', error);
