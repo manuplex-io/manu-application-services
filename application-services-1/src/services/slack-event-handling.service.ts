@@ -157,7 +157,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         const workspace = workspaceObject.team.name
 
         let channelName = '';
-        console.log("original blocks",blocks)
+        console.log("original blocks",JSON.stringify(blocks))
         // Check if the message is from a direct message channel
         if (channelId.startsWith('D')) {
             channelName = 'Direct Message'; // Label direct message channels
