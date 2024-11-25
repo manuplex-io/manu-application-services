@@ -183,7 +183,12 @@ export class SlackEventHandlingService implements OnModuleInit {
             }
           ]
         }
-        blocks.elements.unshift(element);
+        if (!Array.isArray(blocks.elements)) {
+          blocks[0].elements = []; // Initialize blocks.elements as an array if undefined
+        }
+        
+        // Add the element to the 0th index
+        blocks[0].elements.unshift(element);
         console.log("notificationMessage",notificationMessage)
         console.log("blocks",JSON.stringify(blocks))
         console.log("elements",JSON.stringify(blocks.elements))
