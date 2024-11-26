@@ -13,6 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ffmpeg from 'fluent-ffmpeg';
 import OpenAI from 'openai';
+import axios from 'axios'
 @Injectable()
 export class DecisionService {
     private openai: OpenAI
@@ -55,9 +56,12 @@ export class DecisionService {
       },
     };
 
-    const processedInput = await this.processInput(functionInput);
+    if (files && files.length > 0) {
+        const transcription = await this.processSlackAudioFile(files, token);
+        console.log(transcription)
+      }
     
-
+    
 
     const messageInputAdd = {
       messageType: 'REQUEST',
@@ -103,25 +107,53 @@ export class DecisionService {
   }
 
 
-  private checkFileExists(filePath: string): boolean {
-    return fs.existsSync(filePath);
-  }
-
   /**
-   * Check if the file is a supported audio format
-   * @param filePath Path to the file
-   * @returns Boolean indicating if the file is a supported audio format
+   * Download file from Slack
+   * @param fileInfo Slack file information
+   * @param token Slack authentication token
+   * @returns Promise with downloaded file path
    */
-  private isSupportedAudioFormat(filePath: string): boolean {
-    const supportedExtensions = ['.wav', '.mp3'];
-    const fileExtension = path.extname(filePath).toLowerCase();
-    return supportedExtensions.includes(fileExtension);
+  async downloadSlackFile(fileInfo: any, token: string): Promise<string> {
+    // Ensure download directory exists
+    const downloadDir = path.join(process.cwd(), 'downloads');
+    if (!fs.existsSync(downloadDir)) {
+      fs.mkdirSync(downloadDir);
+    }
+
+    // Generate a unique filename
+    const filename = `${fileInfo.id}_${fileInfo.name}`;
+    const filePath = path.join(downloadDir, filename);
+
+    try {
+      // Download file using axios to support Slack's private download URLs
+      const response = await axios({
+        method: 'get',
+        url: fileInfo.url_private_download,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'User-Agent': 'Slack File Downloader'
+        },
+        responseType: 'stream'
+      });
+
+      // Save the file
+      const writer = fs.createWriteStream(filePath);
+      response.data.pipe(writer);
+
+      return new Promise((resolve, reject) => {
+        writer.on('finish', () => resolve(filePath));
+        writer.on('error', reject);
+      });
+    } catch (error) {
+      console.error('Error downloading Slack file:', error);
+      throw new Error('Failed to download Slack file');
+    }
   }
 
   /**
-   * Convert audio file to WAV format
-   * @param inputPath Path to the input audio file
-   * @returns Promise resolving to the output WAV file path
+   * Convert audio to WAV format
+   * @param inputPath Path to input audio file
+   * @returns Promise with WAV file path
    */
   private convertToWav(inputPath: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -144,54 +176,59 @@ export class DecisionService {
   }
 
   /**
-   * Process input and get text (either from audio transcription or user query)
-   * @param functionInput Input containing files and user query
-   * @returns Promise resolving to text
+   * Transcribe audio file
+   * @param filePath Path to audio file
+   * @returns Promise with transcription text
    */
-  async processInput(functionInput: any): Promise<string> {
-    const files = functionInput.files;
-    console.log("files",JSON.stringify(files))
-    const userQuery = functionInput.userInput;
-
-    // If no files or files is empty, use userQuery
-    if (!files || files.length === 0) {
-      console.log('No files provided. Using user query.');
-      return userQuery;
-    }
-
-    // Find the first audio file
-    const audioFile = files.find(file => 
-      this.checkFileExists(file.path) && 
-      this.isSupportedAudioFormat(file.path)
-    );
-
-    // If no audio file found, use userQuery
-    if (!audioFile) {
-      console.log('No supported audio file found. Using user query.');
-      return userQuery;
-    }
-
+  async transcribeAudio(filePath: string): Promise<string> {
     try {
-      // If the file is not .wav, convert it
-      let wavFilePath = audioFile.path;
-      if (path.extname(audioFile.path).toLowerCase() !== '.wav') {
-        console.log('Converting audio to WAV format');
-        wavFilePath = await this.convertToWav(audioFile.path);
-      }
+      // Ensure file is in WAV format
+      const wavFilePath = await this.convertToWav(filePath);
 
       // Transcribe the WAV file
-      console.log('Transcribing audio file');
       const transcription = await this.openai.audio.transcriptions.create({
         file: fs.createReadStream(wavFilePath),
         model: 'whisper-1',
         response_format: 'text'
       });
 
-      return transcription || userQuery;
+      return transcription;
     } catch (error) {
       console.error('Audio transcription error:', error);
-      // Fallback to user query if transcription fails
-      return userQuery;
+      throw new Error('Failed to transcribe audio');
     }
+  }
+
+  /**
+   * Process Slack audio file
+   * @param files Slack files array
+   * @param token Slack authentication token
+   * @returns Promise with transcription text
+   */
+  async processSlackAudioFile(files: any[], token: string): Promise<string> {
+    // Find first audio file
+    const audioFile = files.find(file => 
+      file.mimetype.startsWith('audio/') || 
+      ['mp3', 'wav', 'm4a', 'flac', 'ogg'].includes(file.filetype)
+    );
+
+    if (!audioFile) {
+      throw new Error('No audio file found');
+    }
+
+    // Download the file
+    const downloadedFilePath = await this.downloadSlackFile(audioFile, token);
+
+    // Transcribe the downloaded audio file
+    const transcription = await this.transcribeAudio(downloadedFilePath);
+
+    // Optionally, clean up the downloaded file
+    try {
+      fs.unlinkSync(downloadedFilePath);
+    } catch (cleanupError) {
+      console.error('Error cleaning up downloaded file:', cleanupError);
+    }
+
+    return transcription;
   }
 }
