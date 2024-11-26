@@ -34,8 +34,16 @@ export class DecisionService {
     const messageHeaders = context.getMessage().headers as unknown as OB1MessageHeader;
     const messageKey = context.getMessage().key?.toString();
     const files = functionInput.files
-    const userQuery = functionInput.userInput
+    let userQuery = functionInput.userInput
     const token = functionInput.token
+    console.log("files",JSON.stringify(files))
+    if (files && files.length > 0) {
+        const transcription = await this.processSlackAudioFile(files, token);
+        console.log(transcription)
+        userQuery = transcription
+        functionInput.userInput = transcription
+      }
+
     const messageInput = {
       messageContent: {
         functionInput: {
@@ -56,11 +64,7 @@ export class DecisionService {
       },
     };
 
-    console.log("files",JSON.stringify(files))
-    if (files && files.length > 0) {
-        const transcription = await this.processSlackAudioFile(files, token);
-        console.log(transcription)
-      }
+    
     
     
 
