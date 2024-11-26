@@ -1,6 +1,9 @@
 # Use the latest Node.js image
 FROM node:latest
 
+# Install ffmpeg
+RUN apk add --no-cache ffmpeg
+
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
