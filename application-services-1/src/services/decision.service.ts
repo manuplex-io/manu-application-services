@@ -56,6 +56,7 @@ export class DecisionService {
       },
     };
 
+    console.log("files",JSON.stringify(files))
     if (files && files.length > 0) {
         const transcription = await this.processSlackAudioFile(files, token);
         console.log(transcription)
@@ -135,6 +136,8 @@ export class DecisionService {
         },
         responseType: 'stream'
       });
+
+      console.log("response.data",response.data)
 
       // Save the file
       const writer = fs.createWriteStream(filePath);
@@ -216,9 +219,11 @@ export class DecisionService {
       throw new Error('No audio file found');
     }
 
+    console.log("audioFile",audioFile)
+
     // Download the file
     const downloadedFilePath = await this.downloadSlackFile(audioFile, token);
-
+    console.log("downloadedFilePath",downloadedFilePath)
     // Transcribe the downloaded audio file
     const transcription = await this.transcribeAudio(downloadedFilePath);
 
