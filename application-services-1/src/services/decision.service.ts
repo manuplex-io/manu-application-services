@@ -141,7 +141,6 @@ export class DecisionService {
         responseType: 'stream'
       });
 
-      console.log("response.data",response.data)
 
       // Save the file
       const writer = fs.createWriteStream(filePath);
