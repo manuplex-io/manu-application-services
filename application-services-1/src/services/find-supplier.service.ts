@@ -14,13 +14,13 @@ import axios from 'axios';
 
 @Injectable()
 export class FindSupplierService implements OnModuleInit {
-  private readonly subdomain: string
+  // private readonly subdomain: string
   constructor(
     private readonly kafkaService: KafkaOb1Service,
     private readonly tavilySearchService: TavilySearchService,
     private readonly googleSheetService: GoogleSheetService,
   ) {
-    this.subdomain = process.env.ENV === 'prod' ? 'os' : 'app'; // Set 'os' for prod and 'app' for dev
+    // this.subdomain = process.env.ENV === 'prod' ? 'os' : 'app'; // Set 'os' for prod and 'app' for dev
   }
 
   async onModuleInit() {}
@@ -350,31 +350,26 @@ export class FindSupplierService implements OnModuleInit {
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTAyMjMzODkyMTg2MTU2NDQ4MjUiLCJlbWFpbCI6ImFwb29ydkBtYW51cGxleC5pbyIsInBlcnNvbklkIjoiYXBvb3J2QG1hbnVwbGV4LmlvIiwicGVyc29uUm9sZSI6ImNvbnN1bHRhbnQiLCJ1c2VyT3JnSWQiOiJkZWZhdWx0IiwiaW5zdGFuY2VfaWRzIjpbImNvbnN1bHRhbnQiXSwibmFtZSI6IkFwb29ydiBNYWxob3RyYSIsImdpdmVuTmFtZSI6IkFwb29ydiIsImZhbWlseU5hbWUiOiJNYWxob3RyYSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMZXJhRFR1dVJzZjNJSEE4OW4yZFNSTWxWalJKQTRpcTdieG5qMlJaWHNDQjItN2c9czk2LWMiLCJwZXJzb25Ib21lRG9tYWluIjoibWFudXBsZXguaW8iLCJpYXQiOjE3MzI2MjQ1NTAsImV4cCI6MTczMjYzODk1MH0.0ScvSZQFwlY884qxj-Jm0JtjEL9iEgbNGzyv_ZLJLtc'
-    const promptId = '5226cefb-8e9a-48da-a793-b0bb1655ad7c'; // Replace with the actual prompt ID
-    const url = `https://${this.subdomain}.manuplex.io/services/admin/agent-services/prompts/${promptId}/executeWithoutUserPrompt`;
+    // const token = 'This needs to be taken from header'
+    // const promptId = '5226cefb-8e9a-48da-a793-b0bb1655ad7c'; // Replace with the actual prompt ID
+    // const url = `https://${this.subdomain}.manuplex.io/services/admin/agent-services/prompts/${promptId}/executeWithoutUserPrompt`;
     
     
-    // Axios request
-  // try {
-    const response = await axios.post(
-      url,
-      {
-        userPromptVariables: {supplierList}
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // 'User-Role': headers.userRole.toString(),
-          // 'User-Email': headers.userEmail.toString(),
-          // 'Message-Key': messageKey,
-          // 'Instance-Name': instanceName,
-        },
-      },
-    );
+    // // Axios request
+    // const response = await axios.post(
+    //   url,
+    //   {
+    //     userPromptVariables: {supplierList}
+    //   },
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //   },
+    // );
 
-    console.log("Response after find supplier post with new prompt method", response.data)
+    // console.log("Response after find supplier post with new prompt method", response.data)
   //   // Return response data
   //   return response.data;
   // } catch (error) {
@@ -382,20 +377,20 @@ export class FindSupplierService implements OnModuleInit {
   //   throw new Error('Failed to execute the supplier finding process.');
   // }
 
-    // const userPrompt = `Given the following list of search results from the web, identify and give 10 valid supplier names. Ensure you only give ten names. Here is the list:${supplierList}`;
-    // const responseFormat = schemas['get_supplier_names'];
-    // const response = await this.callLLM(
-    //   userPrompt,
-    //   responseFormat,
-    //   headers.userRole.toString(),
-    //   headers.userEmail.toString(),
-    //   messageKey,
-    //   instanceName,
-    //   'gpt-4o-mini',
-    // );
+    const userPrompt = `Given the following list of search results from the web, identify and give 10 valid supplier names. Ensure you only give ten names. Here is the list:${supplierList}`;
+    const responseFormat = schemas['get_supplier_names'];
+    const response = await this.callLLM(
+      userPrompt,
+      responseFormat,
+      headers.userRole.toString(),
+      headers.userEmail.toString(),
+      messageKey,
+      instanceName,
+      'gpt-4o-mini',
+    );
 
-    // const supplierNames = JSON.parse(response.messageContent.content);
-    const supplierNames = JSON.parse(response.data.content);
+    const supplierNames = JSON.parse(response.messageContent.content);
+    // const supplierNames = JSON.parse(response.data.content);
     console.log('Supplier names', supplierNames.names);
     console.log(typeof supplierNames.names);
 
