@@ -15,11 +15,12 @@ import * as ffmpeg from 'fluent-ffmpeg';
 import OpenAI from 'openai';
 @Injectable()
 export class DecisionService {
+    private openai: OpenAI
+
   constructor(private kafkaOb1Service: KafkaOb1Service,
      private findSupplierService: FindSupplierService,
      private readonly slackEventHandlingService: SlackEventHandlingService, 
      private readonly noCapabilitiesService: NoCapabilitiesService,
-     private openai: OpenAI
     ) {
         this.openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY
