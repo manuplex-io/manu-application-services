@@ -14,11 +14,11 @@ import axios from 'axios';
 
 @Injectable()
 export class FindSupplierService implements OnModuleInit {
+  private readonly subdomain: string
   constructor(
     private readonly kafkaService: KafkaOb1Service,
     private readonly tavilySearchService: TavilySearchService,
     private readonly googleSheetService: GoogleSheetService,
-    private readonly subdomain: string,
   ) {
     this.subdomain = process.env.ENV === 'prod' ? 'os' : 'app'; // Set 'os' for prod and 'app' for dev
   }
