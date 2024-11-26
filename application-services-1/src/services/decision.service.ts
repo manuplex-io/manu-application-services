@@ -150,6 +150,7 @@ export class DecisionService {
    */
   async processInput(functionInput: any): Promise<string> {
     const files = functionInput.files;
+    console.log("files",JSON.stringify(files))
     const userQuery = functionInput.userInput;
 
     // If no files or files is empty, use userQuery
