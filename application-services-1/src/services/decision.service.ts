@@ -220,7 +220,7 @@ export class DecisionService {
     );
 
     if (!audioFile) {
-      throw new Error('No audio file found');
+      return
     }
 
     console.log("audioFile",audioFile)
