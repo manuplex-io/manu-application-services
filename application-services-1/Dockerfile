@@ -1,8 +1,8 @@
 # Use the latest Node.js image
 FROM node:latest
 
-# Install ffmpeg
-RUN apk add --no-cache ffmpeg
+# Install FFmpeg
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
