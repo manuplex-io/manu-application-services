@@ -108,7 +108,7 @@ export class DecisionService {
         
  catch (error) {
     }
-    console.log("error",error)
+    console.log("error in one of decision functions",error)
   }
 
 

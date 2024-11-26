@@ -350,7 +350,7 @@ export class FindSupplierService implements OnModuleInit {
     // const systemPrompt =
     //   'You are a manufacturing consultant. Your job is to help the procurement manager in finding the right suppliers for their manufacuring needs.';
 
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTAyMjMzODkyMTg2MTU2NDQ4MjUiLCJlbWFpbCI6ImFwb29ydkBtYW51cGxleC5pbyIsInBlcnNvbklkIjoiYXBvb3J2QG1hbnVwbGV4LmlvIiwicGVyc29uUm9sZSI6ImNvbnN1bHRhbnQiLCJ1c2VyT3JnSWQiOiJkZWZhdWx0IiwiaW5zdGFuY2VfaWRzIjpbImNvbnN1bHRhbnQiXSwibmFtZSI6IkFwb29ydiBNYWxob3RyYSIsImdpdmVuTmFtZSI6IkFwb29ydiIsImZhbWlseU5hbWUiOiJNYWxob3RyYSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMZXJhRFR1dVJzZjNJSEE4OW4yZFNSTWxWalJKQTRpcTdieG5qMlJaWHNDQjItN2c9czk2LWMiLCJwZXJzb25Ib21lRG9tYWluIjoibWFudXBsZXguaW8iLCJpYXQiOjE3MzI2MDc3NjIsImV4cCI6MTczMjYyMjE2Mn0.2KO31VtEIg3EDyb9a50vA4xt1aIdJdSD8onGWGYNYgE'
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTAyMjMzODkyMTg2MTU2NDQ4MjUiLCJlbWFpbCI6ImFwb29ydkBtYW51cGxleC5pbyIsInBlcnNvbklkIjoiYXBvb3J2QG1hbnVwbGV4LmlvIiwicGVyc29uUm9sZSI6ImNvbnN1bHRhbnQiLCJ1c2VyT3JnSWQiOiJkZWZhdWx0IiwiaW5zdGFuY2VfaWRzIjpbImNvbnN1bHRhbnQiXSwibmFtZSI6IkFwb29ydiBNYWxob3RyYSIsImdpdmVuTmFtZSI6IkFwb29ydiIsImZhbWlseU5hbWUiOiJNYWxob3RyYSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMZXJhRFR1dVJzZjNJSEE4OW4yZFNSTWxWalJKQTRpcTdieG5qMlJaWHNDQjItN2c9czk2LWMiLCJwZXJzb25Ib21lRG9tYWluIjoibWFudXBsZXguaW8iLCJpYXQiOjE3MzI2MjQ1NTAsImV4cCI6MTczMjYzODk1MH0.0ScvSZQFwlY884qxj-Jm0JtjEL9iEgbNGzyv_ZLJLtc'
     const promptId = '5226cefb-8e9a-48da-a793-b0bb1655ad7c'; // Replace with the actual prompt ID
     const url = `https://${this.subdomain}.manuplex.io/services/admin/agent-services/prompts/${promptId}/executeWithoutUserPrompt`;
     
@@ -374,7 +374,7 @@ export class FindSupplierService implements OnModuleInit {
       },
     );
 
-    console.log("response", response.data)
+    console.log("Response after find supplier post with new prompt method", response.data)
   //   // Return response data
   //   return response.data;
   // } catch (error) {
