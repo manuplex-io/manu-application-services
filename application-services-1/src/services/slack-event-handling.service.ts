@@ -232,7 +232,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         ...messageInput1,
     };
 
-    const response2 = this.kafkaService.sendRequestSystem(
+    const response2 = await this.kafkaService.sendRequestSystem(
         messageKey,
         instanceName,
         destinationService,
@@ -243,8 +243,17 @@ export class SlackEventHandlingService implements OnModuleInit {
         headers.userEmail.toString(),
     );
 
-    console.log("response from Database service for retrieving ticket", response2)
+    console.log("response from Database service for retrieving ticket", response2.messageContent)
     // const blocks = [response2]
+    const options = response2.messageContent.map(ticket=>(
+        {
+            "text": {
+                "type": "plain_text",
+                "text": ticket.ticketDescription
+            },
+            "value": ticket.ticketDescription
+        }
+    ))
 
     const blocks = [
         {
@@ -257,29 +266,7 @@ export class SlackEventHandlingService implements OnModuleInit {
             "accessory": {
                 "type": "radio_buttons",
                 "action_id": "select_project",
-                "options": [
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Project 1"
-                        },
-                        "value": "project_1"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Project 2"
-                        },
-                        "value": "project_2"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Project 3"
-                        },
-                        "value": "project_3"
-                    }
-                ]
+                "options": options
             }
         },
         {
@@ -326,6 +313,8 @@ export class SlackEventHandlingService implements OnModuleInit {
             ]
         }
     ]
+
+    console.log("Blocks after appending ticket list", blocks)
 
     await this.postMessageToChannel(channelId, {blocks:blocks}, token);
 
