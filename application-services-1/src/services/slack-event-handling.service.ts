@@ -203,6 +203,140 @@ export class SlackEventHandlingService implements OnModuleInit {
       }
   }
 
+  async sendTicketList(functionInput: any, context: KafkaContext) {
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const destinationService = 'database-service';
+    const sourceFunction = 'sendTicketList';
+    const sourceType = 'service';
+    const team_id = functionInput.team_id;
+    const token = functionInput.token;
+    const channelId = functionInput.fromChannel;
+
+    const messageInput1 = {
+        messageContent: {
+        functionName: 'retrieveTickets', //retrieveTickets
+        functionInput: {
+            CRUDName: 'GET',
+            CRUDInput: {
+            tableEntity: 'OB1-tickets',
+            teamId: team_id, 
+            },
+        },
+        },
+    };
+    const messageInputAdd1 = {
+        messageType: 'REQUEST',
+        ...messageInput1,
+    };
+
+    const response2 = this.kafkaService.sendRequestSystem(
+        messageKey,
+        instanceName,
+        destinationService,
+        sourceFunction,
+        sourceType,
+        messageInputAdd1,
+        headers.userRole.toString(),
+        headers.userEmail.toString(),
+    );
+
+    console.log("response from Database service for retrieving ticket", response2)
+    // const blocks = [response2]
+
+    const blocks = [
+        {
+            "type": "section",
+            "block_id": "radio_list",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Select an existing project (only one):"
+            },
+            "accessory": {
+                "type": "radio_buttons",
+                "action_id": "select_project",
+                "options": [
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Project 1"
+                        },
+                        "value": "project_1"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Project 2"
+                        },
+                        "value": "project_2"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Project 3"
+                        },
+                        "value": "project_3"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "new_project_name",
+            "optional": true,
+            "element": {
+                "type": "plain_text_input",
+                "action_id": "new_project_input",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Enter a new project name"
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Or create a new project (leave radio selection empty)"
+            }
+        },
+        {
+            "type": "actions",
+            "block_id": "action_buttons",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Submit"
+                    },
+                    "value": "submit",
+                    "action_id": "submit_button",
+                    "style": "primary"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Cancel"
+                    },
+                    "value": "cancel",
+                    "action_id": "cancel_button",
+                    "style": "danger"
+                }
+            ]
+        }
+    ]
+
+    await this.postMessageToChannel(channelId, {blocks:blocks}, token);
+
+    return {
+        messageContent: {
+        content: response2,
+        },
+    };
+ };
+
+
 
   async  replaceUserIdsWithNames(
     text: string,
@@ -334,95 +468,6 @@ export class SlackEventHandlingService implements OnModuleInit {
       this.logger.error(`Failed to post message to channel ${channel}:`, error.response?.data);
       throw error;
     }
-  }
-
-  private sendProjectModal(channelId:string,token:string){
-
-    const blocks = [
-      {
-          "type": "section",
-          "block_id": "radio_list",
-          "text": {
-              "type": "mrkdwn",
-              "text": "Select an existing project (only one):"
-          },
-          "accessory": {
-              "type": "radio_buttons",
-              "action_id": "select_project",
-              "options": [
-                  {
-                      "text": {
-                          "type": "plain_text",
-                          "text": "Project 1"
-                      },
-                      "value": "project_1"
-                  },
-                  {
-                      "text": {
-                          "type": "plain_text",
-                          "text": "Project 2"
-                      },
-                      "value": "project_2"
-                  },
-                  {
-                      "text": {
-                          "type": "plain_text",
-                          "text": "Project 3"
-                      },
-                      "value": "project_3"
-                  }
-              ]
-          }
-      },
-      {
-          "type": "input",
-          "block_id": "new_project_name",
-          "optional": true,
-          "element": {
-              "type": "plain_text_input",
-              "action_id": "new_project_input",
-              "placeholder": {
-                  "type": "plain_text",
-                  "text": "Enter a new project name"
-              }
-          },
-          "label": {
-              "type": "plain_text",
-              "text": "Or create a new project (leave radio selection empty)"
-          }
-      },
-      {
-          "type": "actions",
-          "block_id": "action_buttons",
-          "elements": [
-              {
-                  "type": "button",
-                  "text": {
-                      "type": "plain_text",
-                      "text": "Submit"
-                  },
-                  "value": "submit",
-                  "action_id": "submit_button",
-                  "style": "primary"
-              },
-              {
-                  "type": "button",
-                  "text": {
-                      "type": "plain_text",
-                      "text": "Cancel"
-                  },
-                  "value": "cancel",
-                  "action_id": "cancel_button",
-                  "style": "danger"
-              }
-          ]
-      }
-  ]
-
-  this.postMessageToChannel(channelId, {blocks:blocks}, token)
-
-
-
   }
 
 //   async slackNotification(functionInput: any, context: KafkaContext) {

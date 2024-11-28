@@ -99,6 +99,12 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
+      }
+      else if (functionName === 'sendTicketList') {
+        return await this.slackEventHandlingService.sendTicketList(
+          functionInput,
+          context,
+        );
       } 
       else if (functionName === 'slackNotification') {
         return await this.slackEventHandlingService.slackNotification(
