@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { TavilySearchService } from './tavily-search.service';
@@ -20,6 +20,8 @@ export class SlackEventHandlingService implements OnModuleInit {
     // private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
     private readonly webhookURL = process.env.webhookURL //webhook URL
     private readonly webhook : IncomingWebhook//webhook URL
+    private readonly logger = new Logger(SlackChannelService.name);
+    private readonly SLACK_BASE_URL = 'https://slack.com/api';
 
   constructor(
     private readonly kafkaService: KafkaOb1Service,
@@ -302,6 +304,125 @@ export class SlackEventHandlingService implements OnModuleInit {
     } catch (error) {
       console.error('Error sending message:', error.response?.data || error.message);
     }
+  }
+
+  private async postMessageToChannel(
+    channel: string,
+    message: { text?: string; blocks?: any[] },
+    token: string,
+  ): Promise<void> {
+    try {
+      const response = await axios.post(
+        `${this.SLACK_BASE_URL}/chat.postMessage`,
+        {
+          channel: channel,
+          text: message.text, // Fallback text for notifications or unsupported clients
+          blocks: message.blocks, // Richly formatted blocks
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.data.ok) {
+        throw new Error(`Failed to post message: ${response.data.error}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to post message to channel ${channel}:`, error.response?.data);
+      throw error;
+    }
+  }
+
+  private sendProjectModal(channelId:string,token:string){
+
+    const blocks = [
+      {
+          "type": "section",
+          "block_id": "radio_list",
+          "text": {
+              "type": "mrkdwn",
+              "text": "Select an existing project (only one):"
+          },
+          "accessory": {
+              "type": "radio_buttons",
+              "action_id": "select_project",
+              "options": [
+                  {
+                      "text": {
+                          "type": "plain_text",
+                          "text": "Project 1"
+                      },
+                      "value": "project_1"
+                  },
+                  {
+                      "text": {
+                          "type": "plain_text",
+                          "text": "Project 2"
+                      },
+                      "value": "project_2"
+                  },
+                  {
+                      "text": {
+                          "type": "plain_text",
+                          "text": "Project 3"
+                      },
+                      "value": "project_3"
+                  }
+              ]
+          }
+      },
+      {
+          "type": "input",
+          "block_id": "new_project_name",
+          "optional": true,
+          "element": {
+              "type": "plain_text_input",
+              "action_id": "new_project_input",
+              "placeholder": {
+                  "type": "plain_text",
+                  "text": "Enter a new project name"
+              }
+          },
+          "label": {
+              "type": "plain_text",
+              "text": "Or create a new project (leave radio selection empty)"
+          }
+      },
+      {
+          "type": "actions",
+          "block_id": "action_buttons",
+          "elements": [
+              {
+                  "type": "button",
+                  "text": {
+                      "type": "plain_text",
+                      "text": "Submit"
+                  },
+                  "value": "submit",
+                  "action_id": "submit_button",
+                  "style": "primary"
+              },
+              {
+                  "type": "button",
+                  "text": {
+                      "type": "plain_text",
+                      "text": "Cancel"
+                  },
+                  "value": "cancel",
+                  "action_id": "cancel_button",
+                  "style": "danger"
+              }
+          ]
+      }
+  ]
+
+  this.postMessageToChannel(channelId, {blocks:blocks}, token)
+
+
+
   }
 
 //   async slackNotification(functionInput: any, context: KafkaContext) {
