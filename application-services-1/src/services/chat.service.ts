@@ -12,37 +12,57 @@ export class ChatService {
   constructor(private kafkaService: KafkaOb1Service) {}
 
   async chatWithUser(functionInput: any, context: KafkaContext) {
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const headers: OB1MessageHeader = context.getMessage()
+        .headers as unknown as OB1MessageHeader;
     try {
-      const { token, userId, channelId, thread_ts } = functionInput;
+      const { token, userId, channelId, projectName } = functionInput;
 
-      const messages = await getChannelMessageHistory(channelId, token);
+      const channelMessages = await getChannelMessageHistory(channelId, token);
 
-      const latestMessage = messages.find((message) => message.user === userId);
+      const latestMessage = channelMessages.find((message) => message.user === userId);
 
-      if (latestMessage) {
-        const threadId = latestMessage.ts
-        const messages = [{user:latestMessage.text}]
-        this.appendConversation(threadId, context,messages);
+      if (!latestMessage) {
+        throw Error("No latest message found for the user")
       }
 
-    //   const CRUDFunctionInput = {
-    //     CRUDOperationName: CRUDOperationName.POST,
-    //     CRUDRoute: CRUDPromptRoute.EXECUTE_WITH_USER_PROMPT,
-    //     CRUDBody: executeDto,
-    //     routeParams: { promptId },
-    //   }; //CRUDFunctionInput
+      
+      const executeDto = {
+        userPromptVariables:{
+          userInput:latestMessage.text
+        },
+        llmConfig:{
+          provider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+        }
+      }
+
+      const CRUDFunctionInput = {
+        CRUDOperationName: CRUDOperationName.POST,
+        CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
+        CRUDBody: executeDto,
+        routeParams: { promptId:"6def9705-2456-4c9c-80d9-f5a19e25f657" },
+      }; //CRUDFunctionInput
   
-    //   const request: CRUDRequest = {
-    //     messageKey: user.personId, //messageKey
-    //     userOrgId: user.userOrgId || 'default', //instanceName
-    //     sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
-    //     CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
-    //     CRUDFunctionInput, //CRUDFunctionInput
-    //     personRole: user.personRole || 'user', // userRole
-    //     personId: user.personId, // userEmail
-    //   };
-    //   const response = await this.kafkaService.sendAgentCRUDRequest(request);
-    //   return { ...response.messageContent };
+      const request: CRUDRequest = {
+        messageKey: messageKey, //messageKey
+        userOrgId: instanceName || 'default', //instanceName
+        sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
+        CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
+        CRUDFunctionInput, //CRUDFunctionInput
+        personRole: headers.userRole.toString() || 'user', // userRole
+        personId:  headers.userEmail.toString(), // userEmail
+      };
+      const response = await this.kafkaService.sendAgentCRUDRequest(request);
+      console.log("response from llm",response.messageContent)
+      const threadId = latestMessage.ts
+      const messages = [{user:latestMessage.text}]
+      this.appendConversation(threadId, context,messages);
+
+      return { ...response.messageContent };
+
     } catch (error) {
       this.logger.error(`error ${error}`);
       throw Error(error)
