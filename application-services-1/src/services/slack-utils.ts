@@ -214,3 +214,58 @@ export async function getChannelMessageHistory(channelId: string, slackToken: st
    );
  }
 }
+
+/**
+ * Retrieves the message history of a Slack thread
+ * @param channelId - The ID of the Slack channel
+ * @param threadTs - The timestamp of the thread's parent message
+ * @param slackToken - The Slack bot token
+ * @returns A promise resolving to the messages in the thread
+ */
+export async function getThreadMessageHistory(channelId: string, threadTs: string, slackToken: string): Promise<any[]> {
+  // Validate inputs
+  if (!channelId || typeof channelId !== 'string') {
+    throw new HttpException('Invalid channelId. It must be a non-empty string.', HttpStatus.BAD_REQUEST);
+  }
+  if (!threadTs || typeof threadTs !== 'string') {
+    throw new HttpException('Invalid threadTs. It must be a non-empty string.', HttpStatus.BAD_REQUEST);
+  }
+  if (!slackToken || typeof slackToken !== 'string') {
+    throw new HttpException('Invalid slackToken. It must be a non-empty string.', HttpStatus.BAD_REQUEST);
+  }
+
+  try {
+    // Call the Slack API
+    const response = await axios.get(`${SLACK_BASE_URL}/conversations.replies`, {
+      headers: {
+        Authorization: `Bearer ${slackToken}`,
+        'Content-Type': 'application/json',
+      },
+      params: {
+        channel: channelId,
+        ts: threadTs, // Parent message timestamp
+      },
+    });
+
+    // Validate response
+    if (!response.data.ok) {
+      throw new HttpException(`Slack API error: ${response.data.error}`, HttpStatus.BAD_REQUEST);
+    }
+
+    // Return messages
+    return response.data.messages.map((message: any) => ({
+      text: message.text,
+      ts: message.ts,
+      user: message.user || 'unknown',
+    }));
+  } catch (error) {
+    console.error('Error fetching Slack thread messages:', error.message);
+    throw new HttpException(
+      'Failed to retrieve thread messages. Please check the inputs and permissions.',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+}
+
+
+
