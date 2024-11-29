@@ -23,7 +23,7 @@ export class ChatService {
   
     try {
       const { token, userId, channelId, projectName, threadId,userInput } = functionInput;
-      let messages: { user?: string; system?: string }[] = [];
+      let messages: { role:string,content:string }[] = [];
       let userInput1 = userInput
       let threadId1 = threadId
       if (threadId1) {
@@ -37,8 +37,8 @@ export class ChatService {
         // Transform the messages into the required JSON format
         messages = threadMessages.map((message) =>
           message.user === userId
-            ? { user: message.text }
-            : { system: message.text },
+            ? { role:"user",content: message.text }
+            : { role:"system", content:message.text },
         );
         
       } else {
@@ -99,9 +99,9 @@ export class ChatService {
   
       // Append the bot's response to the history
       if(!threadId){
-        messages.push({ user: userInput1 })
+        messages.push({ role:"user",content: userInput1 })
       }
-      messages.push({ system: plexMessage });
+      messages.push({ role: "system",content: plexMessage });
   
       // Save the updated conversation history
       await this.appendConversation(threadId1, context, messages);
