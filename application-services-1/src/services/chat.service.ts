@@ -21,7 +21,8 @@ export class ChatService {
 
       if (latestMessage) {
         const threadId = latestMessage.ts
-        this.appendConversation(threadId, context);
+        const messages = [{user:latestMessage.text}]
+        this.appendConversation(threadId, context,messages);
       }
 
     //   const CRUDFunctionInput = {
@@ -48,7 +49,7 @@ export class ChatService {
     }
   }
 
-  async appendConversation(threadId: string, context: KafkaContext) {
+  async appendConversation(threadId: string, context: KafkaContext,messages:any[]) {
     try {
       const headers: OB1MessageHeader = context.getMessage()
         .headers as unknown as OB1MessageHeader;
@@ -66,6 +67,7 @@ export class ChatService {
             CRUDInput: {
               tableEntity: 'OB1-threadMessage',
               threadId: threadId,
+              conversation:messages
             },
           },
         },
