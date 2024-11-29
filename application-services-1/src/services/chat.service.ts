@@ -64,7 +64,7 @@ export class ChatService {
       // Define the executeDto with the conversation history
       const executeDto = {
         userPromptVariables: {
-          userInput1,
+          userInput:userInput1,
         },
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
