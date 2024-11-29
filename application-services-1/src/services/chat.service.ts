@@ -25,8 +25,8 @@ export class ChatService {
       const { token, userId, channelId, projectName, threadId,userInput } = functionInput;
       let messages: { user?: string; system?: string }[] = [];
       let userInput1 = userInput
-  
-      if (threadId) {
+      let threadId1 = threadId
+      if (threadId1) {
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
           channelId,
@@ -51,6 +51,7 @@ export class ChatService {
         const latestMessage = channelMessages.find(
           (message) => message.user === userId,
         );
+        threadId1 = latestMessage.ts
   
         if (!latestMessage) {
           throw Error('No latest message found for the user');
@@ -103,7 +104,7 @@ export class ChatService {
       messages.push({ system: plexMessage });
   
       // Save the updated conversation history
-      await this.appendConversation(threadId, context, messages);
+      await this.appendConversation(threadId1, context, messages);
   
       // Post the bot's response to the thread
       await this.postMessageToChannel(
