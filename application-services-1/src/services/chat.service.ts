@@ -5,10 +5,11 @@ import { OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import { CRUDOperationName, CRUDRequest } from 'src/kafka-ob1/interfaces/CRUD.interfaces';
 import { CRUDPromptRoute } from 'src/kafka-ob1/interfaces/promptCRUD.interfaces';
-
+import axios from 'axios'
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
+  private readonly SLACK_BASE_URL = 'https://slack.com/api';
   constructor(private kafkaService: KafkaOb1Service) {}
 
   async chatWithUser(functionInput: any, context: KafkaContext) {
@@ -61,8 +62,8 @@ export class ChatService {
       const plexMessage = content.Response
       const threadId = latestMessage.ts
       const messages = [{user:latestMessage.text},{plex:plexMessage}]
-      this.appendConversation(threadId, context,messages);
-
+      await this.appendConversation(threadId, context,messages);
+      await this.postMessageToChannel(channelId,{text:plexMessage},token,threadId)
       return { ...response.messageContent };
 
     } catch (error) {
@@ -111,6 +112,37 @@ export class ChatService {
       );
     } catch (error) {
         throw Error(`error in append Conversation function ${error}`)
+    }
+  }
+  private async postMessageToChannel(
+    channel: string,
+    message: { text?: string; blocks?: any[] },
+    token: string,
+    thread_ts?:string,
+  ): Promise<void> {
+    try {
+      const response = await axios.post(
+        `${this.SLACK_BASE_URL}/chat.postMessage`,
+        {
+          channel: channel,
+          text: message.text, // Fallback text for notifications or unsupported clients
+          blocks: message.blocks, // Richly formatted blocks
+          thread_ts:thread_ts
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.data.ok) {
+        throw new Error(`Failed to post message: ${response.data.error}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to post message to channel ${channel}:`, error.response?.data);
+      throw error;
     }
   }
 }
