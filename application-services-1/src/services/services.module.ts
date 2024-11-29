@@ -10,6 +10,7 @@ import { SlackChannelService } from './slack-channel-service';
 import { SlackEventHandlingService } from './slack-event-handling.service';
 import { DecisionService } from './decision.service';
 import { NoCapabilitiesService } from './no-capability.service';
+import { ChatService } from './chat.service';
 
 @Module({
   imports: [forwardRef(() => KafkaOb1Module)],
@@ -23,7 +24,8 @@ import { NoCapabilitiesService } from './no-capability.service';
     SlackChannelService,
     SlackEventHandlingService,
     DecisionService,
-    NoCapabilitiesService
+    NoCapabilitiesService,
+    ChatService
   ],
   exports: [
     OrderFormService,
@@ -35,7 +37,8 @@ import { NoCapabilitiesService } from './no-capability.service';
     SlackChannelService,
     SlackEventHandlingService,
     DecisionService,
-    NoCapabilitiesService
+    NoCapabilitiesService,
+    ChatService
   ],
 })
 export class ServicesModule {}

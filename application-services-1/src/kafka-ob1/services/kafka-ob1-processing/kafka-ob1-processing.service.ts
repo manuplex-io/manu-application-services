@@ -17,6 +17,7 @@ import { ShortlistSupplierService } from 'src/services/shortlist-supplier.servic
 import { SlackChannelService } from 'src/services/slack-channel-service';
 import { SlackEventHandlingService } from 'src/services/slack-event-handling.service';
 import { DecisionService } from 'src/services/decision.service';
+import { ChatService } from 'src/services/chat.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -32,7 +33,8 @@ export class KafkaOb1ProcessingService {
     private readonly shortlistSupplierService: ShortlistSupplierService,
     private readonly slackChannelService: SlackChannelService,
     private readonly slackEventHandlingService: SlackEventHandlingService,
-    private readonly decisionService:DecisionService
+    private readonly decisionService:DecisionService,
+    private readonly chatService:ChatService
 
   ) {}
 
@@ -111,7 +113,20 @@ export class KafkaOb1ProcessingService {
           functionInput,
           context,
         );
-      } else if (functionName === 'CRUDInstancesfunction') {
+      }
+      else if (functionName === 'slackNotification') {
+        return await this.slackEventHandlingService.slackNotification(
+          functionInput,
+          context,
+        );
+      }
+      else if (functionName === 'chatWithUser') {
+        return await this.chatService.chatWithUser(
+          functionInput,
+          context,
+        );
+      }
+       else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
         this.logger.error(`Function ${functionName} not found`);

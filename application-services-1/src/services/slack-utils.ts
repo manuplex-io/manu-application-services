@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import axios from 'axios';
 
 /**
@@ -164,4 +165,52 @@ export async function findWorkspace(
 export function extractUserIds(text: string): string[] {
     const matches = text.matchAll(/<@([A-Z0-9]+)>/g);
     return Array.from(matches, match => match[1]);
+}
+
+/**
+* Retrieves the last 5 messages from a Slack channel
+* @param channelId - The ID of the Slack channel
+* @param slackToken - The Slack bot token
+* @returns A promise resolving to the last 5 messages
+*/
+export async function getChannelMessageHistory(channelId: string, slackToken: string): Promise<any[]> {
+ // Validate inputs
+ if (!channelId || typeof channelId !== 'string') {
+   throw new HttpException('Invalid channelId. It must be a non-empty string.', HttpStatus.BAD_REQUEST);
+ }
+ if (!slackToken || typeof slackToken !== 'string') {
+   throw new HttpException('Invalid slackToken. It must be a non-empty string.', HttpStatus.BAD_REQUEST);
+ }
+
+ try {
+   // Call the Slack API
+   const response = await axios.get(`${SLACK_BASE_URL}/conversations.history`, {
+     headers: {
+       Authorization: `Bearer ${slackToken}`,
+       'Content-Type': 'application/json',
+     },
+     params: {
+       channel: channelId,
+       limit: 5, // Retrieve only the last 5 messages
+     },
+   });
+
+   // Validate response
+   if (!response.data.ok) {
+     throw new HttpException(`Slack API error: ${response.data.error}`, HttpStatus.BAD_REQUEST);
+   }
+
+   // Return messages
+   return response.data.messages.map((message: any) => ({
+     text: message.text,
+     ts: message.ts,
+     user: message.user || 'unknown',
+   }));
+ } catch (error) {
+   console.error('Error fetching Slack messages:', error.message);
+   throw new HttpException(
+     'Failed to retrieve channel messages. Please check the inputs and permissions.',
+     HttpStatus.INTERNAL_SERVER_ERROR,
+   );
+ }
 }
