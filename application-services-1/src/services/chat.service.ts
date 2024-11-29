@@ -57,8 +57,10 @@ export class ChatService {
       };
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
       console.log("response from llm",response.messageContent)
+      const content = JSON.parse(response.messageContent)
+      const plexMessage = content.Response
       const threadId = latestMessage.ts
-      const messages = [{user:latestMessage.text}]
+      const messages = [{user:latestMessage.text},{plex:plexMessage}]
       this.appendConversation(threadId, context,messages);
 
       return { ...response.messageContent };
