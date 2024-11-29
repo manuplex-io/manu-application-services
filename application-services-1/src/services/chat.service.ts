@@ -3,6 +3,8 @@ import { KafkaContext } from '@nestjs/microservices';
 import { getChannelMessageHistory } from './slack-utils';
 import { OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
+import { CRUDOperationName, CRUDRequest } from 'src/kafka-ob1/interfaces/CRUD.interfaces';
+import { CRUDPromptRoute } from 'src/kafka-ob1/interfaces/promptCRUD.interfaces';
 
 @Injectable()
 export class ChatService {
@@ -18,15 +20,35 @@ export class ChatService {
       const latestMessage = messages.find((message) => message.user === userId);
 
       if (latestMessage) {
-        this.appendConversation(functionInput, context);
+        const threadId = latestMessage.ts
+        this.appendConversation(threadId, context);
       }
+
+    //   const CRUDFunctionInput = {
+    //     CRUDOperationName: CRUDOperationName.POST,
+    //     CRUDRoute: CRUDPromptRoute.EXECUTE_WITH_USER_PROMPT,
+    //     CRUDBody: executeDto,
+    //     routeParams: { promptId },
+    //   }; //CRUDFunctionInput
+  
+    //   const request: CRUDRequest = {
+    //     messageKey: user.personId, //messageKey
+    //     userOrgId: user.userOrgId || 'default', //instanceName
+    //     sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
+    //     CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
+    //     CRUDFunctionInput, //CRUDFunctionInput
+    //     personRole: user.personRole || 'user', // userRole
+    //     personId: user.personId, // userEmail
+    //   };
+    //   const response = await this.kafkaService.sendAgentCRUDRequest(request);
+    //   return { ...response.messageContent };
     } catch (error) {
       this.logger.error(`error ${error}`);
       throw Error(error)
     }
   }
 
-  async appendConversation(functionInput: any, context: KafkaContext) {
+  async appendConversation(threadId: string, context: KafkaContext) {
     try {
       const headers: OB1MessageHeader = context.getMessage()
         .headers as unknown as OB1MessageHeader;
@@ -35,7 +57,6 @@ export class ChatService {
       const destinationService = 'database-service';
       const sourceFunction = 'addMessage';
       const sourceType = 'service';
-      const threadId = functionInput.thread_ts;
 
       const messageInput1 = {
         messageContent: {

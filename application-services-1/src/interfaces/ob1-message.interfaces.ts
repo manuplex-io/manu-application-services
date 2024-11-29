@@ -74,6 +74,46 @@ export interface OB1messageContent {
 
 }
 
+export class OB1MessageHeaderClass {
+    //compulsory fields
+
+    sourceService: string;
+    schemaVersion: string;
+
+    //new optional but soon to become compulsory fields
+    personId?: string;
+    userOrgId?: string;
+
+    //compulsory but to be depricated soon
+    instanceName?: string;
+    userEmail?: string;
+
+    //optional but defined in other tables
+    destinationService?: string;
+    requestId?: string;
+    responseId?: string;
+    kafka_correlationId?: string;
+
+
+    //optional but not defined in other tables
+    sourceFunction?: string;
+    sourceType?: string;
+    kafka_replyPartition?: number;
+    kafka_replyTopic?: string;
+    //future use
+    sourceServiceId?: string;
+
+    //new optional fields
+    personRole?: string;
+    consultantOrgID?: string;
+
+    //optional but to be depricated soon
+    userRole?: string;
+    instanceId?: string;
+    userId?: string;
+
+}
+
 
 // Function to validate schema version
 export function validateSchemaVersion(header: OB1MessageHeader): void {
