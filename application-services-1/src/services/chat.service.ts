@@ -111,7 +111,7 @@ export class ChatService {
         channelId,
         { text: plexMessage },
         token,
-        threadId, // Post the message in the thread
+        threadId1, // Post the message in the thread
       );
   
       return { ...response.messageContent };
