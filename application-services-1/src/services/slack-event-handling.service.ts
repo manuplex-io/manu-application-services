@@ -270,7 +270,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         type: 'plain_text',
         text: "No, It's a new project",
       },
-      value: 'no',
+      value: 'new_project',
     });
 
     const blocks = [
