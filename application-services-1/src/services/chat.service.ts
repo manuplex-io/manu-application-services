@@ -22,7 +22,7 @@ export class ChatService {
       .headers as unknown as OB1MessageHeader;
   
     try {
-      const { token, userId, channelId, projectName, threadId,userInput } = functionInput;
+      const { token, userId, channelId, projectName, threadId,userInput,teamId } = functionInput;
       let messages: { role:string,content:string }[] = [];
       let userInput1 = userInput
       let threadId1 = threadId
@@ -100,6 +100,12 @@ export class ChatService {
   
       const parsedMessage = JSON.parse(response.messageContent.content);
       const plexMessage = parsedMessage.Response;
+
+      const {Ticket_ID,Ticket_Description} = parsedMessage
+      if(Ticket_ID && Ticket_Description){
+        await this.createTicket(Ticket_ID,Ticket_Description,teamId,threadId1,context)
+        console.log("ticket created")
+      }
   
       // Append the bot's response to the history
       if(!threadId){
@@ -122,6 +128,60 @@ export class ChatService {
     } catch (error) {
       this.logger.error(`error ${error}`);
       throw Error(error);
+    }
+  }
+
+
+  async createTicket(
+    ticketId: string,
+    ticketDescription: string,
+    teamId: string,
+    threadId: any,
+    context: KafkaContext,
+  ) {
+    try {
+      const headers: OB1MessageHeader = context.getMessage()
+        .headers as unknown as OB1MessageHeader;
+      const messageKey = context.getMessage().key.toString();
+      const instanceName = context.getMessage().headers.instanceName.toString();
+      const destinationService = 'database-service';
+      const sourceFunction = 'addMessage';
+      const sourceType = 'service';
+
+     
+
+      const messageInput1 = {
+        messageContent: {
+          functionName: 'retrieveTickets', //retrieveTickets
+          functionInput: {
+            CRUDName: 'CREATE',
+            CRUDInput: {
+              tableEntity: 'OB1-tickets',
+              threadId: threadId,
+              ticketId: ticketId,
+              ticketDescription:ticketDescription,
+              teamId:teamId
+            },
+          },
+        },
+      };
+      const messageInputAdd1 = {
+        messageType: 'REQUEST',
+        ...messageInput1,
+      };
+
+      const response = await this.kafkaService.sendRequestSystem(
+        messageKey,
+        instanceName,
+        destinationService,
+        sourceFunction,
+        sourceType,
+        messageInputAdd1,
+        headers.userRole.toString(),
+        headers.userEmail.toString(),
+      );
+    } catch (error) {
+      throw Error(`error in creating Ticket function ${error}`);
     }
   }
   
