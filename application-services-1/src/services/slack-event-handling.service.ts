@@ -17,11 +17,11 @@ import { extractUserIds, findWorkspace } from './slack-utils';
 
 @Injectable()
 export class SlackEventHandlingService implements OnModuleInit {
-    // private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
-    private readonly webhookURL = process.env.webhookURL //webhook URL
-    private readonly webhook : IncomingWebhook//webhook URL
-    private readonly logger = new Logger(SlackChannelService.name);
-    private readonly SLACK_BASE_URL = 'https://slack.com/api';
+  // private readonly slackBotToken = process.env.slack_token //PlexTestOrg1
+  private readonly webhookURL = process.env.webhookURL; //webhook URL
+  private readonly webhook: IncomingWebhook; //webhook URL
+  private readonly logger = new Logger(SlackChannelService.name);
+  private readonly SLACK_BASE_URL = 'https://slack.com/api';
 
   constructor(
     private readonly kafkaService: KafkaOb1Service,
@@ -44,25 +44,24 @@ export class SlackEventHandlingService implements OnModuleInit {
     const destinationService = 'database-service';
     const sourceFunction = 'handleSlackEvents';
     const sourceType = 'service';
-    const userRole = 'consultant'
-    const userEmail = 'aadisharma8441@gmail.com'
+    const userRole = 'consultant';
+    const userEmail = 'aadisharma8441@gmail.com';
     // const projectName = functionInput.projectName;
     const userInput = functionInput.userInput;
-    const instanceName = 'Dummy Instance Name' // Needs to be changed
+    const instanceName = 'Dummy Instance Name'; // Needs to be changed
     const channel = functionInput.fromChannel;
     const user = functionInput.fromUser;
     const threadTs = functionInput.thread;
     const slackBotToken = functionInput.token;
-
 
     const userPrompt = `Your name is Plex. You are a helpful assistant with a good sense of humour. User has asked you for a joke. Respond to user's question with a unique and funny joke. Here is user's ask:${userInput}`;
     const responseFormat = ''; // Need to change
     const response = await this.callLLM(
       userPrompt,
       responseFormat,
-    //   headers.userRole.toString(),
+      //   headers.userRole.toString(),
       userRole,
-    //   headers.userEmail.toString(),
+      //   headers.userEmail.toString(),
       userEmail,
       messageKey,
       instanceName,
@@ -145,62 +144,73 @@ export class SlackEventHandlingService implements OnModuleInit {
   }
 
   async slackNotification(functionInput: any, context: KafkaContext) {
-    try {  
-        const userId = functionInput.fromUser;
-        const slackBotToken = functionInput.token
-        const teamId = functionInput.teamId
-        const blocks = functionInput.blocks
-        const userObject = await this.slackService.findUser(userId, slackBotToken)
-        const userName = userObject.user.real_name
-        const text = functionInput.userInput;
-        const channelId = functionInput.fromChannel;
-        const workspaceObject = await findWorkspace(teamId, slackBotToken)
-        const workspace = workspaceObject.team.name
+    try {
+      const userId = functionInput.fromUser;
+      const slackBotToken = functionInput.token;
+      const teamId = functionInput.teamId;
+      const blocks = functionInput.blocks;
+      const userObject = await this.slackService.findUser(
+        userId,
+        slackBotToken,
+      );
+      const userName = userObject.user.real_name;
+      const text = functionInput.userInput;
+      const channelId = functionInput.fromChannel;
+      const workspaceObject = await findWorkspace(teamId, slackBotToken);
+      const workspace = workspaceObject.team.name;
 
-        let channelName = '';
-        console.log("original blocks",JSON.stringify(blocks))
-        // Check if the message is from a direct message channel
-        if (channelId.startsWith('D')) {
-            channelName = 'Direct Message'; // Label direct message channels
-        } else {
-            const channelObject = await this.slackService.findChannelName(channelId, slackBotToken);
-            channelName = channelObject.channel.name;
-        }
-
-        const updatedText =await this.replaceUserIdsWithNames(text,slackBotToken)
-        console.log("text",text)
-        console.log("updated text",updatedText)
-
-        // const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
-        // const channelName = channelobject.channel.name
-        const timestamp = new Date(Number(functionInput.timestamp) * 1000).toLocaleString(); // Convert Slack timestamp
-        const notificationMessage = `User ${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${updatedText}'\nAt: ${timestamp}`;
-        const element = {
-          type: 'rich_text_section',
-          elements: [
-            {
-              type: 'text',
-              text: notificationMessage
-            }
-          ]
-        }
-        if (!Array.isArray(blocks[0].elements)) {
-          blocks[0].elements = []; // Initialize blocks.elements as an array if undefined
-        }
-        
-        // Add the element to the 0th index
-        blocks[0].elements.unshift(element);
-        console.log("notificationMessage",notificationMessage)
-        console.log("blocks",JSON.stringify(blocks))
-        console.log("elements",JSON.stringify(blocks[0].elements))
-            await this.webhook.send({
-            // text: notificationMessage,
-            blocks:blocks
-            });
-    } catch (error) {
-        console.error('Error in slackNotification:', error);
-        throw error; // Propagate the error to ensure visibility
+      let channelName = '';
+      console.log('original blocks', JSON.stringify(blocks));
+      // Check if the message is from a direct message channel
+      if (channelId.startsWith('D')) {
+        channelName = 'Direct Message'; // Label direct message channels
+      } else {
+        const channelObject = await this.slackService.findChannelName(
+          channelId,
+          slackBotToken,
+        );
+        channelName = channelObject.channel.name;
       }
+
+      const updatedText = await this.replaceUserIdsWithNames(
+        text,
+        slackBotToken,
+      );
+      console.log('text', text);
+      console.log('updated text', updatedText);
+
+      // const channelobject = await this.slackService.findChannelName(channelId,this.slackBotToken)
+      // const channelName = channelobject.channel.name
+      const timestamp = new Date(
+        Number(functionInput.timestamp) * 1000,
+      ).toLocaleString(); // Convert Slack timestamp
+      const notificationMessage = `User ${userName} has sent a message to channel '${channelName}' on workspace '${workspace}':\n> '${updatedText}'\nAt: ${timestamp}`;
+      const element = {
+        type: 'rich_text_section',
+        elements: [
+          {
+            type: 'text',
+            text: notificationMessage,
+          },
+        ],
+      };
+      if (!Array.isArray(blocks[0].elements)) {
+        blocks[0].elements = []; // Initialize blocks.elements as an array if undefined
+      }
+
+      // Add the element to the 0th index
+      blocks[0].elements.unshift(element);
+      console.log('notificationMessage', notificationMessage);
+      console.log('blocks', JSON.stringify(blocks));
+      console.log('elements', JSON.stringify(blocks[0].elements));
+      await this.webhook.send({
+        // text: notificationMessage,
+        blocks: blocks,
+      });
+    } catch (error) {
+      console.error('Error in slackNotification:', error);
+      throw error; // Propagate the error to ensure visibility
+    }
   }
 
   async sendTicketList(functionInput: any, context: KafkaContext) {
@@ -216,147 +226,113 @@ export class SlackEventHandlingService implements OnModuleInit {
     const channelId = functionInput.fromChannel;
 
     const messageInput1 = {
-        messageContent: {
+      messageContent: {
         functionName: 'retrieveTickets', //retrieveTickets
         functionInput: {
-            CRUDName: 'GET',
-            CRUDInput: {
+          CRUDName: 'GET',
+          CRUDInput: {
             tableEntity: 'OB1-tickets',
-            teamId: team_id, 
-            },
+            teamId: team_id,
+          },
         },
-        },
+      },
     };
     const messageInputAdd1 = {
-        messageType: 'REQUEST',
-        ...messageInput1,
+      messageType: 'REQUEST',
+      ...messageInput1,
     };
 
     const response2 = await this.kafkaService.sendRequestSystem(
-        messageKey,
-        instanceName,
-        destinationService,
-        sourceFunction,
-        sourceType,
-        messageInputAdd1,
-        headers.userRole.toString(),
-        headers.userEmail.toString(),
+      messageKey,
+      instanceName,
+      destinationService,
+      sourceFunction,
+      sourceType,
+      messageInputAdd1,
+      headers.userRole.toString(),
+      headers.userEmail.toString(),
     );
 
-    console.log("response from Database service for retrieving ticket", response2.messageContent)
+    console.log(
+      'response from Database service for retrieving ticket',
+      response2.messageContent,
+    );
     // const blocks = [response2]
-    const options = response2.messageContent.map(ticket=>(
-        {
-            "text": {
-                "type": "plain_text",
-                "text": ticket.ticketDescription
-            },
-            "value": ticket.ticketDescription
-        }
-    ))
+    const options = response2.messageContent.map((ticket) => ({
+      text: {
+        type: 'plain_text',
+        text: ticket.ticketDescription,
+      },
+      value: ticket.ticketDescription,
+    }));
+    options.push({
+      text: {
+        type: 'plain_text',
+        text: "No, It's a new project",
+      },
+      value: 'no',
+    });
 
     const blocks = [
-        {
-            "type": "section",
-            "block_id": "radio_list",
-            "text": {
-                "type": "mrkdwn",
-                "text": "Select an existing project (only one):"
-            },
-            "accessory": {
-                "type": "radio_buttons",
-                "action_id": "select_project",
-                "options": options
-            }
+      {
+        type: 'section',
+        block_id: 'radio_list',
+        text: {
+          type: 'mrkdwn',
+          text: 'Sure. Before we move forward, can you confirm if this is related to any of the existing project from below list?',
         },
-        {
-            "type": "input",
-            "block_id": "new_project_name",
-            "optional": true,
-            "element": {
-                "type": "plain_text_input",
-                "action_id": "new_project_input",
-                "placeholder": {
-                    "type": "plain_text",
-                    "text": "Enter a new project name"
-                }
-            },
-            "label": {
-                "type": "plain_text",
-                "text": "Or create a new project (leave radio selection empty)"
-            }
+        accessory: {
+          type: 'radio_buttons',
+          action_id: 'select_project',
+          options: options,
         },
-        {
-            "type": "actions",
-            "block_id": "action_buttons",
-            "elements": [
-                {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Submit"
-                    },
-                    "value": "submit",
-                    "action_id": "submit_button",
-                    "style": "primary"
-                },
-                {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Cancel"
-                    },
-                    "value": "cancel",
-                    "action_id": "cancel_button",
-                    "style": "danger"
-                }
-            ]
-        }
-    ]
+      },
+    ];
 
-    console.log("Blocks after appending ticket list", blocks)
+    console.log('Blocks after appending ticket list', blocks);
 
-    await this.postMessageToChannel(channelId, {blocks:blocks}, token);
+    await this.postMessageToChannel(channelId, { blocks: blocks }, token);
 
     return {
-        messageContent: {
+      messageContent: {
         content: response2,
-        },
+      },
     };
- };
+  }
 
-
-
-  async  replaceUserIdsWithNames(
+  async replaceUserIdsWithNames(
     text: string,
-    slackBotToken: string
-): Promise<string> {
+    slackBotToken: string,
+  ): Promise<string> {
     // Extract user IDs from the text
     const userIds = extractUserIds(text);
 
     // Map user IDs to real names
     const realNames = await Promise.all(
-        userIds.map(async (userId) => {
-            try {
-                const userObject = await this.slackService.findUser(userId, slackBotToken);
-                return userObject?.user?.real_name || 'Unknown User';
-            } catch (error) {
-                console.error(`Error fetching user ${userId}:`, error);
-                return 'Unknown User'; // Fallback for failed lookups
-            }
-        })
+      userIds.map(async (userId) => {
+        try {
+          const userObject = await this.slackService.findUser(
+            userId,
+            slackBotToken,
+          );
+          return userObject?.user?.real_name || 'Unknown User';
+        } catch (error) {
+          console.error(`Error fetching user ${userId}:`, error);
+          return 'Unknown User'; // Fallback for failed lookups
+        }
+      }),
     );
 
     // Replace each userId mention in the text with the corresponding real name
     let updatedText = text;
     userIds.forEach((userId, index) => {
-        const mention = `<@${userId}>`; // Format of the mention
-        const realName = realNames[index];
-        updatedText = updatedText.replace(mention, realName);
+      const mention = `<@${userId}>`; // Format of the mention
+      const realName = realNames[index];
+      updatedText = updatedText.replace(mention, realName);
     });
 
     return updatedText;
-}
+  }
 
   async callLLM(
     userPrompt,
@@ -407,25 +383,29 @@ export class SlackEventHandlingService implements OnModuleInit {
     return response;
   }
 
-  private async sendMessage(channel: string, text: string, threadTs: string, slackBotToken: string) {
+  private async sendMessage(
+    channel: string,
+    text: string,
+    threadTs: string,
+    slackBotToken: string,
+  ) {
     try {
-        const payload: any = { channel, text };
-        if (threadTs) {
-          payload.thread_ts = threadTs; // Include thread_ts if provided
-        }
-      await axios.post(
-        'https://slack.com/api/chat.postMessage',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${slackBotToken}`,
-            'Content-Type': 'application/json',
-          },
+      const payload: any = { channel, text };
+      if (threadTs) {
+        payload.thread_ts = threadTs; // Include thread_ts if provided
+      }
+      await axios.post('https://slack.com/api/chat.postMessage', payload, {
+        headers: {
+          Authorization: `Bearer ${slackBotToken}`,
+          'Content-Type': 'application/json',
         },
-      );
-      console.log('Reply sent', text)
+      });
+      console.log('Reply sent', text);
     } catch (error) {
-      console.error('Error sending message:', error.response?.data || error.message);
+      console.error(
+        'Error sending message:',
+        error.response?.data || error.message,
+      );
     }
   }
 
@@ -444,87 +424,90 @@ export class SlackEventHandlingService implements OnModuleInit {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
 
       if (!response.data.ok) {
         throw new Error(`Failed to post message: ${response.data.error}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to post message to channel ${channel}:`, error.response?.data);
+      this.logger.error(
+        `Failed to post message to channel ${channel}:`,
+        error.response?.data,
+      );
       throw error;
     }
   }
 
-//   async slackNotification(functionInput: any, context: KafkaContext) {
-//     try {
-//         await this.webhook.send({
-//             "channel": "C123ABC456",
-//             "text": "New Paid Time Off request from Fred Enriquez",
-//             "blocks": [
-//               {
-//                 "type": "header",
-//                 "text": {
-//                 "type": "plain_text",
-//                   "text": "New request",
-//                   "emoji": true
-//                 }
-//               },
-//               {
-//                 "type": "section",
-//                 "fields": [
-//                   {
-//                     "type": "mrkdwn",
-//                     "text": "*Type:*\nPaid Time Off"
-//                   },
-//                   {
-//                     "type": "mrkdwn",
-//                     "text": "*Created by:*\n<example.com|Fred Enriquez>"
-//                   }
-//                 ]
-//               },
-//               {
-//                 "type": "section",
-//                 "fields": [
-//                   {
-//                     "type": "mrkdwn",
-//                     "text": "*When:*\nAug 10 - Aug 13"
-//                   }
-//                 ]
-//               },
-//               {
-//                 "type": "actions",
-//                 "elements": [
-//                   {
-//                     "type": "button",
-//                     "text": {
-//                       "type": "plain_text",
-//                       "emoji": true,
-//                       "text": "Approve"
-//                     },
-//                     "style": "primary",
-//                     "value": "click_me_123"
-//                   },
-//                   {
-//                     "type": "button",
-//                     "text": {
-//                       "type": "plain_text",
-//                       "emoji": true,
-//                       "text": "Reject"
-//                     },
-//                       "style": "danger",
-//                       "value": "click_me_123"
-//                   }
-//                 ]
-//               }
-//             ]
-//           });
-//       } catch (error) {
-//         console.error('Error sending message to Slack:', error);
-//         throw new Error('Failed to send message to Slack');
-//       }
-//   }
+  //   async slackNotification(functionInput: any, context: KafkaContext) {
+  //     try {
+  //         await this.webhook.send({
+  //             "channel": "C123ABC456",
+  //             "text": "New Paid Time Off request from Fred Enriquez",
+  //             "blocks": [
+  //               {
+  //                 "type": "header",
+  //                 "text": {
+  //                 "type": "plain_text",
+  //                   "text": "New request",
+  //                   "emoji": true
+  //                 }
+  //               },
+  //               {
+  //                 "type": "section",
+  //                 "fields": [
+  //                   {
+  //                     "type": "mrkdwn",
+  //                     "text": "*Type:*\nPaid Time Off"
+  //                   },
+  //                   {
+  //                     "type": "mrkdwn",
+  //                     "text": "*Created by:*\n<example.com|Fred Enriquez>"
+  //                   }
+  //                 ]
+  //               },
+  //               {
+  //                 "type": "section",
+  //                 "fields": [
+  //                   {
+  //                     "type": "mrkdwn",
+  //                     "text": "*When:*\nAug 10 - Aug 13"
+  //                   }
+  //                 ]
+  //               },
+  //               {
+  //                 "type": "actions",
+  //                 "elements": [
+  //                   {
+  //                     "type": "button",
+  //                     "text": {
+  //                       "type": "plain_text",
+  //                       "emoji": true,
+  //                       "text": "Approve"
+  //                     },
+  //                     "style": "primary",
+  //                     "value": "click_me_123"
+  //                   },
+  //                   {
+  //                     "type": "button",
+  //                     "text": {
+  //                       "type": "plain_text",
+  //                       "emoji": true,
+  //                       "text": "Reject"
+  //                     },
+  //                       "style": "danger",
+  //                       "value": "click_me_123"
+  //                   }
+  //                 ]
+  //               }
+  //             ]
+  //           });
+  //       } catch (error) {
+  //         console.error('Error sending message to Slack:', error);
+  //         throw new Error('Failed to send message to Slack');
+  //       }
+  //   }
 }
