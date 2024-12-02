@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
-import { getChannelMessageHistory, getThreadMessageHistory } from './slack-utils';
+import { getChannelMessageHistory, getThreadMessageHistory, deleteSlackMessage } from './slack-utils';
 import { OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import {
@@ -47,6 +47,10 @@ export class ChatService {
           channelId,
           token,
         );
+
+        const timestampToBeDeleted = channelMessages[0].ts
+
+        await deleteSlackMessage(channelId,timestampToBeDeleted,token)
   
         const latestMessage = channelMessages.find(
           (message) => message.user === userId,

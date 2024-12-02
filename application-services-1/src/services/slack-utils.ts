@@ -268,4 +268,31 @@ export async function getThreadMessageHistory(channelId: string, threadTs: strin
 }
 
 
+export async function deleteSlackMessage(channelId: string, timestamp: string, slackToken: string) {
+  try {
+    const response = await axios.post(
+      `${SLACK_BASE_URL}/chat.delete`,
+      {
+        channel: channelId,
+        ts: timestamp, // The timestamp of the message to delete
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${slackToken}`, // Bearer token for authentication
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.data.ok) {
+      console.log('Message deleted successfully:', response.data);
+    } else {
+      console.error('Failed to delete message:', response.data.error);
+    }
+  } catch (error) {
+    console.error('Error deleting message:', error.message);
+  }
+}
+
+
 
