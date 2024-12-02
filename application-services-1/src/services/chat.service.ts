@@ -38,7 +38,7 @@ export class ChatService {
         messages = threadMessages.map((message) =>
           message.user === userId
             ? { role:"user",content: message.text }
-            : { role:"system", content:message.text },
+            : { role:"assistant", content:message.text },
         );
         
       } else {
@@ -101,7 +101,7 @@ export class ChatService {
       if(!threadId){
         messages.push({ role:"user",content: userInput1 })
       }
-      messages.push({ role: "system",content: plexMessage });
+      messages.push({ role: "assistant",content: plexMessage });
   
       // Save the updated conversation history
       await this.appendConversation(threadId1, context, messages);
