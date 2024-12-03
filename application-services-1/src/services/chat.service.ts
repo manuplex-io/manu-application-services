@@ -173,9 +173,9 @@ export class ChatService {
     try {
       const executeDto = {
         userPromptVariables: {
-          userInput: userInput,
+          userInput: "",
         },
-        messageHistory: [{ role: 'assistant', content: message }], // Pass the transformed history
+        messageHistory: [{ role: 'user', content: userInput },{ role: 'assistant', content: message }], // Pass the transformed history
         llmConfig: {
           provider: 'openai',
           model: 'gpt-4o-mini',
