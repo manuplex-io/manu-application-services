@@ -257,7 +257,34 @@ export class SlackEventHandlingService implements OnModuleInit {
       'response from Database service for retrieving ticket',
       response2.messageContent,
     );
-    // const blocks = [response2]
+
+    let blocks;
+
+    if (!response2.messageContent || response2.messageContent.length === 0) {
+        blocks = [
+            {
+              type: 'section',
+              block_id: 'radio_list',
+              text: {
+                type: 'mrkdwn',
+                text: 'Please click on below to get started',
+              },
+              accessory: {
+                type: 'radio_buttons',
+                action_id: 'select_project',
+                options: [
+                    {
+                    text: {
+                        type: 'plain_text',
+                        text: "Start a new project",
+                      },
+                      value: 'new_project',
+                    },
+                ],
+                },
+              },
+          ];
+    } else {
     const options = response2.messageContent.map((ticket) => ({
       text: {
         type: 'plain_text',
@@ -273,7 +300,7 @@ export class SlackEventHandlingService implements OnModuleInit {
       value: 'new_project',
     });
 
-    const blocks = [
+    blocks = [
       {
         type: 'section',
         block_id: 'radio_list',
@@ -288,11 +315,12 @@ export class SlackEventHandlingService implements OnModuleInit {
         },
       },
     ];
+    }
 
     console.log('Blocks after appending ticket list', blocks);
-
+    
     await this.postMessageToChannel(channelId, { blocks: blocks }, token);
-
+    
     return {
       messageContent: {
         content: response2,
