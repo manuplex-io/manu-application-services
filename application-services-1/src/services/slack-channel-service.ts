@@ -128,10 +128,10 @@ export class SlackChannelService {
       }
   }
 
-   async findProjects(functionInput:{text:string,channel:string,response_url:string, token:string}, context: KafkaContext){
+   async findProjects(functionInput:{text:string,channel:string,response_url:string, token:string, teamId:string}, context: KafkaContext){
     try {
       const token = functionInput.token
-    const {text,channel:channelId,response_url} = functionInput
+    const {text,channel:channelId,response_url,teamId} = functionInput
     const userRole = 'consultant';
     const messageKey = 'aadish@manuplex.io';
     const instanceId = 'consultant';
@@ -140,13 +140,14 @@ export class SlackChannelService {
     const sourceType = 'service';
     const messageInput1 = {
       messageContent: {
+        functionName: 'retrieveTickets', //retrieveTickets
         functionInput: {
           CRUDName: 'GET',
           CRUDInput: {
-            tableEntity: 'OB1-projects',
+            tableEntity: 'OB1-tickets',
+            teamId: teamId,
           },
         },
-        functionName: 'CRUDUserfunction',
       },
     };
     const messageInputAdd = {
