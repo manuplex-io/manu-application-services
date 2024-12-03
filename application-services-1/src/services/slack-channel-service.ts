@@ -382,20 +382,12 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
             type: "mrkdwn",
             text: `*For any Hardware related requirement:*\nTag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
           },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "What are the various ASTM grades for steel?",
-            },
-            action_id: "ask_astm_grades",
-          },
         },
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "• <@plex-dev-2> *What are the various ASTM grades for steel?*",
+            text: "<@plex-dev-2> What are the various ASTM grades for steel?",
           },
           accessory: {
             type: "button",
@@ -410,7 +402,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "• <@plex-dev-2> *Help me find a CNC machinist who does small orders.*",
+            text: "<@plex-dev-2> Help me find a CNC machinist who does small orders.",
           },
           accessory: {
             type: "button",
@@ -425,7 +417,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "• <@plex-dev-2> *Help me find an alternative to a PCB connector.*",
+            text: "<@plex-dev-2> Help me find an alternative to a PCB connector.",
           },
           accessory: {
             type: "button",
