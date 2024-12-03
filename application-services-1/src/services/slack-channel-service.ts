@@ -371,53 +371,53 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!\n\nThere are just 3 things you need to remember:\n\n1. Tag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want.`,
+            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!\n\nThere are just 3 things you need to remember:\n\n1. Tag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
           },
         },
+        // Example 1 as a button
         {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "@plex-dev-2 What are the various ASTM grades for steel?",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to ask",
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` What are the various ASTM grades for steel?",
+                emoji: true,
+              },
+              action_id: "example_astm_grades",
             },
-            action_id: "example_astm_grades",
-          },
+          ],
         },
+        // Example 2 as a button
         {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "@plex-dev-2 Help me find a CNC machinist who does small orders.",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to ask",
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` Help me find a CNC machinist who does small orders.",
+                emoji: true,
+              },
+              action_id: "example_cnc_machinist",
             },
-            action_id: "example_cnc_machinist",
-          },
+          ],
         },
+        // Example 3 as a button
         {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "@plex-dev-2 Help me find an alternative to a PCB connector.",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to ask",
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` Help me find an alternative to a PCB connector.",
+                emoji: true,
+              },
+              action_id: "example_pcb_connector",
             },
-            action_id: "example_pcb_connector",
-          },
+          ],
         },
         {
           type: "section",
