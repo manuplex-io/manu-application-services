@@ -383,14 +383,14 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*For any Hardware related requirement:*\nTag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
+            text: `*To ask me anything:*\nTag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
           },
         },
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "<@plex-dev-2> What are the various ASTM grades for steel?",
+            text: "<@plex-dev-2> *What are the various ASTM grades for steel?*",
           },
           accessory: {
             type: "button",
@@ -405,7 +405,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "<@plex-dev-2> Help me find a CNC machinist who does small orders.",
+            text: "<@plex-dev-2> *Help me find a CNC machinist who does small orders.*",
           },
           accessory: {
             type: "button",
@@ -420,7 +420,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "<@plex-dev-2> Help me find an alternative to a PCB connector.",
+            text: "<@plex-dev-2> *Help me find an alternative to a PCB connector.*",
           },
           accessory: {
             type: "button",
@@ -436,7 +436,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*For checking what I am working on:*\nType \`/whatsupPlex\` to see what I am working on.`,
+            text: `*To check my current tasks:*\nType \`/whatsupPlex\` to see what I am working on.`,
           },
         },
         // Section 3: For inviting me to join a channel
@@ -444,7 +444,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*For inviting me to join a channel:*\nType \`/joinhere\` to add me to any Slack channel.`,
+            text: `*To invite me to a channel:*\nType \`/joinhere\` to add me to any Slack channel.`,
           },
         },
       ];

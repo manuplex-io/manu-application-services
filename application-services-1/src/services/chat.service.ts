@@ -156,7 +156,14 @@ export class ChatService {
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
 
-    const message = `Thread for ${userInput}`
+      let message = ''
+    if (userInput === 'What are the various ASTM grades for steel?') { 
+    message = `Sure, let me help you in finding some ASTM grades for steel`
+  } else if (userInput === 'Help me find an alternative to a PCB connector.'){
+    message = `Sure, let me help you in finding some alternatives to the PCB connector`
+  } else if (userInput === 'Help me find a CNC machinist who does small orders.') {
+    message = `Sure, let me help in finding a CNC machinist that fulfills your requirement`
+  }
     const data = await this.postMessageToChannel(
         channelId,
         { text:message  },
@@ -168,7 +175,7 @@ export class ChatService {
         userPromptVariables: {
           userInput: userInput,
         },
-        messageHistory: [], // Pass the transformed history
+        messageHistory: [{ role: 'assistant', content: message }], // Pass the transformed history
         llmConfig: {
           provider: 'openai',
           model: 'gpt-4o-mini',
