@@ -101,9 +101,9 @@ export class ChatService {
       const parsedMessage = JSON.parse(response.messageContent.content);
       const plexMessage = parsedMessage.Response;
 
-      const {Ticket_ID,Ticket_Description} = parsedMessage
-      if(Ticket_ID && Ticket_Description){
-        await this.createTicket(Ticket_ID,Ticket_Description,teamId,threadId1,context)
+      const {Ticket_ID,Ticket_Title} = parsedMessage
+      if(Ticket_ID && Ticket_Title){
+        await this.createTicket(Ticket_ID,Ticket_Title,teamId,threadId1,context)
         console.log("ticket created")
       }
   
