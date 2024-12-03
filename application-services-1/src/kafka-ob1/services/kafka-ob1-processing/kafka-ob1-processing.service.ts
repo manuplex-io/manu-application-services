@@ -126,6 +126,12 @@ export class KafkaOb1ProcessingService {
           context,
         );
       }
+      else if (functionName === 'onboardUser') {
+        return await this.chatService.onboardUser(
+          functionInput,
+          context,
+        );
+      }
        else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
