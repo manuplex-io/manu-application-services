@@ -126,7 +126,7 @@ interface TextElement {
         elements: [
           {
             type: 'text',
-            text: `${project.projectName}`
+            text: `${project.ticketDescription}`
           }
         ]
       });
