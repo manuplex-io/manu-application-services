@@ -372,38 +372,84 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!\n\nThere are just 3 things you need to remember:\n\n1. Tag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
+            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!`,
           },
         },
-        // Example 1
+        // Section 1: For any hardware-related requirement
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `• <@plex-dev-2> *What are the various ASTM grades for steel?*`,
+            text: `*For any Hardware related requirement:*\nTag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
           },
-        },
-        // Example 2
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `• <@plex-dev-2> *Help me find a CNC machinist who does small orders.*`,
-          },
-        },
-        // Example 3
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `• <@plex-dev-2> *Help me find an alternative to a PCB connector.*`,
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "What are the various ASTM grades for steel?",
+            },
+            action_id: "ask_astm_grades",
           },
         },
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `2. Type \`/whatsupPlex\` to see what I am working on.\n3. Type \`/joinhere\` to add me to any Slack channel.`,
+            text: "• <@plex-dev-2> *What are the various ASTM grades for steel?*",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to Ask",
+            },
+            action_id: "ask_astm_grades",
+          },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "• <@plex-dev-2> *Help me find a CNC machinist who does small orders.*",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to Ask",
+            },
+            action_id: "ask_cnc_machinist",
+          },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "• <@plex-dev-2> *Help me find an alternative to a PCB connector.*",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to Ask",
+            },
+            action_id: "ask_pcb_connector",
+          },
+        },
+        // Section 2: For checking what I am working on
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*For checking what I am working on:*\nType \`/whatsupPlex\` to see what I am working on.`,
+          },
+        },
+        // Section 3: For inviting me to join a channel
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*For inviting me to join a channel:*\nType \`/joinhere\` to add me to any Slack channel.`,
           },
         },
       ];
