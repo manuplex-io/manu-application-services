@@ -63,7 +63,7 @@ export class SlackChannelService {
             if (joinResponse.warning !== 'already_in_channel') {
               await this.inviteUserToChannel(existingChannel.channel.id, userId, token);
               // await this.postWelcomeMessage(existingChannel.channel.id, token, "consultant", "aadish@manuplex.io");
-              await this.postNewWelcomeMessage(existingChannel.channel.id, token, "consultant");
+              await this.postNewWelcomeMessage(existingChannel.channel.id, token, userId);
             } else {
               this.logger.log(`Bot is already in channel ${channel}`);
             }
@@ -87,7 +87,8 @@ export class SlackChannelService {
           await this.inviteUserToChannel(createdChannel.channel.id, userId, token);
           
           // Post welcome message for newly created channel
-          await this.postWelcomeMessage(createdChannel.channel.id, token, "consultant", "aadish@manuplex.io");
+          // await this.postWelcomeMessage(createdChannel.channel.id, token, "consultant", "aadish@manuplex.io");
+          await this.postNewWelcomeMessage(createdChannel.channel.id, token, userId);
   
           return {
             ok: true,
@@ -103,10 +104,10 @@ export class SlackChannelService {
   }
 
 
-  async joinChannelBot(functionInput:{text:string,channel:string,response_url:string, token: string}, context: KafkaContext) {
+  async joinChannelBot(functionInput:{text:string,channel:string,response_url:string, token: string, userId:string}, context: KafkaContext) {
     
     const token = functionInput.token
-    const {text,channel:channelId,response_url} = functionInput
+    const {text,channel:channelId,response_url, userId} = functionInput
     try {
         // First try to find if channel exists
           const joinResponse = await this.joinChannel(channelId, token);
@@ -114,7 +115,8 @@ export class SlackChannelService {
           console.log("joinResponse",joinResponse)
           if (joinResponse.ok) {
             if (joinResponse.warning !== 'already_in_channel') {
-              await this.postWelcomeMessage(channelId, token, "consultant", "aadish@manuplex.io");
+              // await this.postWelcomeMessage(channelId, token, "consultant", "aadish@manuplex.io");
+              await this.postNewWelcomeMessage(channelId, token, userId);
             } else {
               this.sendMessage(response_url,"I am already here to assist you in your procurement process.")
               this.logger.log(`Bot is already in channel ${channelId}`);
@@ -323,40 +325,45 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
    * Posts welcome message to the channel using LLM
    * @private
    */
-  private async postWelcomeMessage(
-    channel: string,
-    token: string,
-    userRole: string,
-    userEmail: string,
-  ): Promise<void> {
-    try {
-      // Call LLM to generate welcome message
-      this.logger.log(`calling llm`);
-      const llmResponse = await this.callLLM(
-        'You are a helpful assistant that generates welcome messages for Slack channels.',
-        prompts.slackJoin,
-        "",
-        userRole,
-        userEmail,
-        userEmail,
-        userRole,
-      );
-      this.logger.log(`llmResponse ${llmResponse}`);
-      // Post the message to the channel
-      await this.postMessageToChannel(channel, {text:llmResponse.messageContent.content}, token);
+  // private async postWelcomeMessage(
+  //   channel: string,
+  //   token: string,
+  //   userRole: string,
+  //   userEmail: string,
+  // ): Promise<void> {
+  //   try {
+  //     // Call LLM to generate welcome message
+  //     this.logger.log(`calling llm`);
+  //     const llmResponse = await this.callLLM(
+  //       'You are a helpful assistant that generates welcome messages for Slack channels.',
+  //       prompts.slackJoin,
+  //       "",
+  //       userRole,
+  //       userEmail,
+  //       userEmail,
+  //       userRole,
+  //     );
+  //     this.logger.log(`llmResponse ${llmResponse}`);
+  //     // Post the message to the channel
+  //     await this.postMessageToChannel(channel, {text:llmResponse.messageContent.content}, token);
 
-      this.logger.log(`Successfully posted welcome message to channel: ${channel}`);
-    } catch (error) {
-      this.logger.error(`Failed to post welcome message to channel ${channel}:`, error);
-      throw new Error(`Failed to post welcome message: ${error.message}`);
-    }
-  }
+  //     this.logger.log(`Successfully posted welcome message to channel: ${channel}`);
+  //   } catch (error) {
+  //     this.logger.error(`Failed to post welcome message to channel ${channel}:`, error);
+  //     throw new Error(`Failed to post welcome message: ${error.message}`);
+  //   }
+  // }
 
   private async postNewWelcomeMessage(
     channel: string,
     token: string,
-    userName: string,
+    userId: string,
   ): Promise<void> {
+    const userObject = await this.findUser(
+      userId,
+      token,
+    );
+    const userName = userObject.user.real_name;
     try {
       // Fixed welcome message
       const welcomeMessage = [
@@ -368,33 +375,49 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           },
         },
         {
-          type: "actions",
-          elements: [
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` What are the various ASTM grades for steel?",
-              },
-              action_id: "example_astm_grades",
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "@plex-dev-2 What are the various ASTM grades for steel?",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to ask",
             },
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` Help me find a CNC machinist who does small orders.",
-              },
-              action_id: "example_cnc_machinist",
+            action_id: "example_astm_grades",
+          },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "@plex-dev-2 Help me find a CNC machinist who does small orders.",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to ask",
             },
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` Help me find an alternative to a PCB connector.",
-              },
-              action_id: "example_pcb_connector",
+            action_id: "example_cnc_machinist",
+          },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "@plex-dev-2 Help me find an alternative to a PCB connector.",
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Click to ask",
             },
-          ],
+            action_id: "example_pcb_connector",
+          },
         },
         {
           type: "section",
