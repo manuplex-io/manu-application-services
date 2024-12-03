@@ -168,16 +168,19 @@ export class SlackChannelService {
     );
 
     const projects = response.messageContent; // Assuming this is an array of projects
-    console.log("projects", projects);
-
-    // Generate Slack blocks using the utility function
-    const blocks = createProjectBlocks(projects);
-    console.log("blocks", blocks);
-    const slackMessage = {
-      text: 'Here is the list of projects.', // Fallback text
-      blocks, // Richly formatted blocks
+    let slackMessage = {
+      text: 'No Existing Projects', // Fallback text
+      blocks:[]
     };
-
+    console.log("projects", projects);
+    if (Array.isArray(projects) && projects.length > 0) {
+      const blocks = createProjectBlocks(projects);
+      console.log("blocks", blocks);
+      slackMessage = {
+        text: 'Here is the list of projects.', 
+        blocks, // Richly formatted blocks
+      };
+    }
     await this.postMessageToChannel(channelId, slackMessage, token);
     return response;
     } catch (error) {
