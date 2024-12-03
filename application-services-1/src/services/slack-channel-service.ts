@@ -62,7 +62,8 @@ export class SlackChannelService {
           if (joinResponse.ok) {
             if (joinResponse.warning !== 'already_in_channel') {
               await this.inviteUserToChannel(existingChannel.channel.id, userId, token);
-              await this.postWelcomeMessage(existingChannel.channel.id, token, "consultant", "aadish@manuplex.io");
+              // await this.postWelcomeMessage(existingChannel.channel.id, token, "consultant", "aadish@manuplex.io");
+              await this.postNewWelcomeMessage(existingChannel.channel.id, token, "consultant");
             } else {
               this.logger.log(`Bot is already in channel ${channel}`);
             }
@@ -350,6 +351,73 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
       throw new Error(`Failed to post welcome message: ${error.message}`);
     }
   }
+
+  private async postNewWelcomeMessage(
+    channel: string,
+    token: string,
+    userName: string,
+  ): Promise<void> {
+    try {
+      // Fixed welcome message
+      const welcomeMessage = [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!\n\nThere are just 3 things you need to remember:\n\n1. Tag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want.`,
+          },
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` What are the various ASTM grades for steel?",
+              },
+              action_id: "example_astm_grades",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` Help me find a CNC machinist who does small orders.",
+              },
+              action_id: "example_cnc_machinist",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "\`@plex-dev-2\` Help me find an alternative to a PCB connector.",
+              },
+              action_id: "example_pcb_connector",
+            },
+          ],
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `2. Type \`/whatsupPlex\` to see what I am working on.\n3. Type \`/joinhere\` to add me to any Slack channel.`,
+          },
+        },
+      ];
+  
+      // Post the message to the channel
+      await this.postMessageToChannel(channel, {
+        blocks: welcomeMessage,
+        text: ''
+      }, token);
+  
+      this.logger.log(`Successfully posted new welcome message to channel: ${channel}`);
+    } catch (error) {
+      this.logger.error(`Failed to post new welcome message to channel ${channel}:`, error);
+      throw new Error(`Failed to post new welcome message: ${error.message}`);
+    }
+  }
+  
 
   /**
    * Posts a message to a Slack channel
