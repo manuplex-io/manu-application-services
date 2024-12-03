@@ -375,50 +375,29 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
             text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!\n\nThere are just 3 things you need to remember:\n\n1. Tag me \`@plex-dev-2\` and ask anything to get started. Try from the below options or type anything you want:`,
           },
         },
-        // Example 1 as a button
+        // Example 1
         {
-          type: "actions",
-          elements: [
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` What are the various ASTM grades for steel?",
-                emoji: true,
-              },
-              action_id: "example_astm_grades",
-            },
-          ],
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `• <@plex-dev-2> *What are the various ASTM grades for steel?*`,
+          },
         },
-        // Example 2 as a button
+        // Example 2
         {
-          type: "actions",
-          elements: [
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` Help me find a CNC machinist who does small orders.",
-                emoji: true,
-              },
-              action_id: "example_cnc_machinist",
-            },
-          ],
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `• <@plex-dev-2> *Help me find a CNC machinist who does small orders.*`,
+          },
         },
-        // Example 3 as a button
+        // Example 3
         {
-          type: "actions",
-          elements: [
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "\`@plex-dev-2\` Help me find an alternative to a PCB connector.",
-                emoji: true,
-              },
-              action_id: "example_pcb_connector",
-            },
-          ],
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `• <@plex-dev-2> *Help me find an alternative to a PCB connector.*`,
+          },
         },
         {
           type: "section",
