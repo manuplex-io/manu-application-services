@@ -160,7 +160,7 @@ export class ChatService {
               threadId: threadId,
               ticketId: ticketId,
               ticketDescription:ticketDescription,
-              teamId:teamId
+              creator:teamId
             },
           },
         },
