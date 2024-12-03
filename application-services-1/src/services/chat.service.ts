@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
-import { getChannelMessageHistory, getThreadMessageHistory, deleteSlackMessage } from './slack-utils';
+import {
+  getChannelMessageHistory,
+  getThreadMessageHistory,
+  deleteSlackMessage,
+} from './slack-utils';
 import { OB1MessageHeader } from 'src/interfaces/ob1-message.interfaces';
 import { KafkaOb1Service } from 'src/kafka-ob1/kafka-ob1.service';
 import {
@@ -20,12 +24,20 @@ export class ChatService {
     const instanceName = context.getMessage().headers.instanceName.toString();
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
-  
+
     try {
-      const { token, userId, channelId, projectName, threadId,userInput,teamId } = functionInput;
-      let messages: { role:string,content:string }[] = [];
-      let userInput1 = userInput
-      let threadId1 = threadId
+      const {
+        token,
+        userId,
+        channelId,
+        projectName,
+        threadId,
+        userInput,
+        teamId,
+      } = functionInput;
+      let messages: { role: string; content: string }[] = [];
+      let userInput1 = userInput;
+      let threadId1 = threadId;
       if (threadId1) {
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
@@ -33,14 +45,13 @@ export class ChatService {
           threadId,
           token,
         );
-  
+
         // Transform the messages into the required JSON format
         messages = threadMessages.map((message) =>
           message.user === userId
-            ? { role:"user",content: message.text }
-            : { role:"assistant", content:message.text },
+            ? { role: 'user', content: message.text }
+            : { role: 'assistant', content: message.text },
         );
-        
       } else {
         // No threadId: Fetch channel messages to find the latest user message
         const channelMessages = await getChannelMessageHistory(
@@ -48,27 +59,27 @@ export class ChatService {
           token,
         );
 
-        const timestampToBeDeleted = channelMessages[0].ts
+        const timestampToBeDeleted = channelMessages[0].ts;
 
-        await deleteSlackMessage(channelId,timestampToBeDeleted,token)
-  
+        await deleteSlackMessage(channelId, timestampToBeDeleted, token);
+
         const latestMessage = channelMessages.find(
           (message) => message.user === userId,
         );
-        threadId1 = latestMessage.ts
-  
+        threadId1 = latestMessage.ts;
+
         if (!latestMessage) {
           throw Error('No latest message found for the user');
         }
-  
+
         // Use this message as the starting point
         userInput1 = latestMessage.text;
       }
-  
+
       // Define the executeDto with the conversation history
       const executeDto = {
         userPromptVariables: {
-          userInput:userInput1,
+          userInput: userInput1,
         },
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
@@ -77,14 +88,14 @@ export class ChatService {
           temperature: 0.7,
         },
       };
-  
+
       const CRUDFunctionInput = {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
         routeParams: { promptId: '6def9705-2456-4c9c-80d9-f5a19e25f657' },
       }; //CRUDFunctionInput
-  
+
       const request: CRUDRequest = {
         messageKey, //messageKey
         userOrgId: instanceName || 'default', //instanceName
@@ -94,28 +105,34 @@ export class ChatService {
         personRole: headers.userRole.toString() || 'user', // userRole
         personId: headers.userEmail.toString(), // userEmail
       };
-  
+
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
       console.log('response from llm', response.messageContent);
-  
+
       const parsedMessage = JSON.parse(response.messageContent.content);
       const plexMessage = parsedMessage.Response;
 
-      const {Ticket_ID,Ticket_Title} = parsedMessage
-      if(Ticket_ID && Ticket_Title){
-        await this.createTicket(Ticket_ID,Ticket_Title,teamId,threadId1,context)
-        console.log("ticket created")
+      const { Ticket_ID, Ticket_Title } = parsedMessage;
+      if (Ticket_ID && Ticket_Title) {
+        await this.createTicket(
+          Ticket_ID,
+          Ticket_Title,
+          teamId,
+          threadId1,
+          context,
+        );
+        console.log('ticket created');
       }
-  
+
       // Append the bot's response to the history
-      if(!threadId){
-        messages.push({ role:"user",content: userInput1 })
+      if (!threadId) {
+        messages.push({ role: 'user', content: userInput1 });
       }
-      messages.push({ role: "assistant",content: plexMessage });
-  
+      messages.push({ role: 'assistant', content: plexMessage });
+
       // Save the updated conversation history
       await this.appendConversation(threadId1, context, messages);
-  
+
       // Post the bot's response to the thread
       await this.postMessageToChannel(
         channelId,
@@ -123,7 +140,7 @@ export class ChatService {
         token,
         threadId1, // Post the message in the thread
       );
-  
+
       return { ...response.messageContent };
     } catch (error) {
       this.logger.error(`error ${error}`);
@@ -131,6 +148,70 @@ export class ChatService {
     }
   }
 
+  async onboardUser(functionInput: any, context: KafkaContext) {
+    const { token, userId, channelId, userInput, teamId } =
+      functionInput;
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+
+    const message = `Thread for ${userInput}`
+    const data = await this.postMessageToChannel(
+        channelId,
+        { text:message  },
+        token,
+      );
+    const threadId = data.ts
+    try {
+      const executeDto = {
+        userPromptVariables: {
+          userInput: userInput,
+        },
+        messageHistory: [], // Pass the transformed history
+        llmConfig: {
+          provider: 'openai',
+          model: 'gpt-4o-mini',
+          temperature: 0.7,
+        },
+      };
+
+      const CRUDFunctionInput = {
+        CRUDOperationName: CRUDOperationName.POST,
+        CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
+        CRUDBody: executeDto,
+        routeParams: { promptId: '6def9705-2456-4c9c-80d9-f5a19e25f657' },
+      }; //CRUDFunctionInput
+
+      const request: CRUDRequest = {
+        messageKey, //messageKey
+        userOrgId: instanceName || 'default', //instanceName
+        sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
+        CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
+        CRUDFunctionInput, //CRUDFunctionInput
+        personRole: headers.userRole.toString() || 'user', // userRole
+        personId: headers.userEmail.toString(), // userEmail
+      };
+
+      const response = await this.kafkaService.sendAgentCRUDRequest(request);
+      console.log('response from llm', response.messageContent);
+
+      const parsedMessage = JSON.parse(response.messageContent.content);
+      const plexMessage = parsedMessage.Response;
+
+      await this.postMessageToChannel(
+        channelId,
+        { text: plexMessage },
+        token,
+        threadId, // Post the message in the thread
+      );
+
+      return { ...response.messageContent };
+    } catch (error) {
+      this.logger.error(`error in onboardUser function ${error}`);
+      throw error;
+    }
+  }
 
   async createTicket(
     ticketId: string,
@@ -148,8 +229,6 @@ export class ChatService {
       const sourceFunction = 'addMessage';
       const sourceType = 'service';
 
-     
-
       const messageInput1 = {
         messageContent: {
           functionName: 'retrieveTickets', //retrieveTickets
@@ -159,8 +238,8 @@ export class ChatService {
               tableEntity: 'OB1-tickets',
               threadId: threadId,
               ticketId: ticketId,
-              ticketDescription:ticketDescription,
-              creator:teamId
+              ticketDescription: ticketDescription,
+              creator: teamId,
             },
           },
         },
@@ -184,7 +263,6 @@ export class ChatService {
       throw Error(`error in creating Ticket function ${error}`);
     }
   }
-  
 
   async appendConversation(
     threadId: string,
@@ -237,7 +315,7 @@ export class ChatService {
     message: { text?: string; blocks?: any[] },
     token: string,
     thread_ts?: string,
-  ): Promise<void> {
+  ) {
     try {
       const response = await axios.post(
         `${this.SLACK_BASE_URL}/chat.postMessage`,
@@ -254,6 +332,8 @@ export class ChatService {
           },
         },
       );
+
+      return response.data
 
       if (!response.data.ok) {
         throw new Error(`Failed to post message: ${response.data.error}`);
