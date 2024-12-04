@@ -515,38 +515,11 @@ export class SlackEventHandlingService implements OnModuleInit {
         response.messageContent,
       );
 
-      const { teamId, threadId, channelId } = response.messageContent;
+      const { threadId, channelId } = response.messageContent;
+      const slackToken = response.messageContent.creator.accessToken
 
-      
-      const messageInput1 = {
-        messageContent: {
-          functionInput: {
-            CRUDName: 'GET',
-            CRUDInput: {
-              tableEntity: 'OB1-slackWorkspaces',
-              teamId: teamId
-            },
-          },
-          functionName: 'CRUDslackfunction',
-        },
-      };
-      const messageInputAdd1 = {
-        messageType: 'REQUEST',
-        ...messageInput1,
-      };
-
-      const response2 = await this.kafkaService.sendRequestSystem(
-        messageKey,
-        instanceId,
-        destinationService,
-        sourceFunction,
-        sourceType,
-        messageInputAdd1,
-        userRole,
-        messageKey,
-      );
       return {
-        slackToken: response2.messageContent.accessToken,
+        slackToken,
         channelId,
         threadId,
       };
