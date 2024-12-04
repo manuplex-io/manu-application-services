@@ -255,7 +255,7 @@ export class ChatService {
 
       const CRUDFunctionInput = {
         CRUDOperationName: CRUDOperationName.POST,
-        CRUDRoute: CRUDPromptRoute.EXECUTE_WITH_USER_PROMPT,
+        CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
         routeParams: { promptId: '9783f7ab-af81-4230-82c1-5759847244a3' },
       }; //CRUDFunctionInput
@@ -274,30 +274,25 @@ export class ChatService {
 
       const llmResponse = JSON.parse(response.messageContent.content);
       console.log("llmResponse",llmResponse)
-      if(Array.isArray(llmResponse.Messages)){
-        const Messages = llmResponse.Messages[0]
-        const {Recipient,Message} = Messages
-
-        if(Recipient == "manager"){
-          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
-          const {slackToken,channelId, threadId} = slackDetails
-          await this.postMessageToChannel(channelId,{text:Message},slackToken,threadId)
-
+      if (Array.isArray(llmResponse?.Messages)) {
+        const Manager = llmResponse.Messages.find((element) => element.Recipient === "manager");
+        const Consultant = llmResponse.Messages.find((element) => element.Recipient === "consultant");
+    
+        if (Manager) {
+            const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
+            const { slackToken, channelId, threadId } = slackDetails;
+            await this.postMessageToChannel(channelId, { text: Manager.Message }, slackToken, threadId);
         }
-        else if(Recipient == "consultant"){
-          await this.postJiraComment(ticketId,Message)
+    
+        if (Consultant) { // Corrected condition
+            await this.postJiraComment(ticketId, Consultant.Message);
         }
-        else{
-          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
-          const {slackToken,channelId, threadId} = slackDetails
-          await this.postMessageToChannel(channelId,{text:Message},slackToken,threadId)
-          await this.postJiraComment(ticketId,Message)
-        }
-      }
+    }
       else{
         console.log("llm response did not return array")
       }
     } catch (error) {
+      console.log("error",error)
       this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)
     }
 
