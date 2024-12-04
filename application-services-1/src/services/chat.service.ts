@@ -228,8 +228,8 @@ export class ChatService {
 
     try {
 
-      const messageHistory = await this.agentPlexHistory(ticketId)
-      console.log("messageHistory",messageHistory)
+      const ticketDetails = await this.agentPlexHistory(ticketId)
+      console.log("ticketDetails",ticketDetails)
       await this.postJiraComment(ticketId)
       
     } catch (error) {
@@ -402,7 +402,6 @@ export class ChatService {
                 updated: response.data.fields?.updated
             };
 
-            console.log(ticketDetails);
             return ticketDetails;
         }
     } 
