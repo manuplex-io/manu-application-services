@@ -413,7 +413,7 @@ export class ChatService {
 
 async postJiraComment(ticketId:string){
   try {
-    const response  = await axios.post(`${this.JIRA_BASE_URL}rest/api/2/issue/${ticketId}/comment`
+    const response  = await axios.post(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`
       ,{body:"Hello, my team agents"},
       {
         headers: {
