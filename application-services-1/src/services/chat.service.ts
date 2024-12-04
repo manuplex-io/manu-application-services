@@ -13,12 +13,16 @@ import {
 } from 'src/kafka-ob1/interfaces/CRUD.interfaces';
 import { CRUDPromptRoute } from 'src/kafka-ob1/interfaces/promptCRUD.interfaces';
 import axios from 'axios';
+import { SlackEventHandlingService } from './slack-event-handling.service';
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly SLACK_BASE_URL = 'https://slack.com/api';
   private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net'
-  constructor(private kafkaService: KafkaOb1Service) {}
+  constructor(
+    private kafkaService: KafkaOb1Service,
+    private slackEventHandlingService: SlackEventHandlingService,
+  ) {}
 
   async chatWithUser(functionInput: any, context: KafkaContext) {
     const messageKey = context.getMessage().key.toString();
@@ -231,6 +235,9 @@ export class ChatService {
       const ticketDetails = await this.agentPlexHistory(ticketId)
       console.log("ticketDetails",ticketDetails)
       await this.postJiraComment(ticketId)
+
+      const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
+      console.log('Slack details received from getSlackDetails function', slackDetails)
       
     } catch (error) {
       this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)

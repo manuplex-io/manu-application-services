@@ -470,6 +470,91 @@ export class SlackEventHandlingService implements OnModuleInit {
     }
   }
 
+  async getSlackDetails(ticketId: string) {
+    try {
+      // const headers: OB1MessageHeader = context.getMessage()
+        // .headers as unknown as OB1MessageHeader;
+      const messageKey = "aadish@manuplex.io";
+      // const messageKey = context.getMessage().key.toString();
+      const instanceId = 'consultant';
+      const userRole = 'consultant';
+      const destinationService = 'database-service';
+      const sourceFunction = 'getSlackDetails';
+      const sourceType = 'service';
+
+      const messageInput = {
+        messageContent: {
+          functionName: 'retrieveTickets',
+          functionInput: {
+            CRUDName: 'GET',
+            CRUDInput: {
+              tableEntity: 'OB1-tickets',
+              ticketId: ticketId,
+            },
+          },
+        },
+      };
+      const messageInputAdd = {
+        messageType: 'REQUEST',
+        ...messageInput,
+      };
+
+      const response = await this.kafkaService.sendRequestSystem(
+        messageKey,
+        instanceId,
+        destinationService,
+        sourceFunction,
+        sourceType,
+        messageInputAdd,
+        userRole,
+        messageKey,
+      );
+
+      console.log(
+        'response from Database service for retrieving slack details',
+        response.messageContent,
+      );
+
+      const { teamId, threadId, channelId } = response.messageContent;
+
+      
+      const messageInput1 = {
+        messageContent: {
+          functionInput: {
+            CRUDName: 'GET',
+            CRUDInput: {
+              tableEntity: 'OB1-slackWorkspaces',
+              teamId: teamId
+            },
+          },
+          functionName: 'CRUDslackfunction',
+        },
+      };
+      const messageInputAdd1 = {
+        messageType: 'REQUEST',
+        ...messageInput1,
+      };
+
+      const response2 = await this.kafkaService.sendRequestSystem(
+        messageKey,
+        instanceId,
+        destinationService,
+        sourceFunction,
+        sourceType,
+        messageInputAdd1,
+        userRole,
+        messageKey,
+      );
+      return {
+        slackToken: response2.messageContent.accessToken,
+        channelId,
+        threadId,
+      };
+      } catch (error) {
+        console.error('Error sending response to Slack:', error.message);
+      }
+  }
+
   //   async slackNotification(functionInput: any, context: KafkaContext) {
   //     try {
   //         await this.webhook.send({
