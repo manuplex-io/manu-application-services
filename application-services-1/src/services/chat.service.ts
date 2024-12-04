@@ -121,6 +121,7 @@ export class ChatService {
           teamId,
           threadId1,
           context,
+          channelId,
         );
         console.log('ticket created');
       }
@@ -243,6 +244,7 @@ export class ChatService {
     teamId: string,
     threadId: any,
     context: KafkaContext,
+    channelId: string,
   ) {
     try {
       const headers: OB1MessageHeader = context.getMessage()
