@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Body, Injectable, Logger } from '@nestjs/common';
 import { KafkaContext } from '@nestjs/microservices';
 import {
   getChannelMessageHistory,
@@ -373,32 +373,62 @@ export class ChatService {
     }
   }
 
-  async agentPlexHistory(ticketId:string){
-    console.log("url",`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`)
-    console.log("env",`${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`)
+  async agentPlexHistory(ticketKey: string) {
+    console.log("url", `${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`)
+    console.log("env", `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`)
     try {
-      const response = await axios.get(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`,
-       {
+        const response = await axios.get(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`, {
+            headers: {
+                Authorization: `Basic ${Buffer.from(
+                    `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`
+                ).toString('base64')}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response && response.data) {
+            // Extract key information from the ticket
+            const ticketDetails = {
+                description: response.data.fields?.description || 'No description available',
+                comments: response.data.fields?.comment?.comments?.map((comment) => ({
+                    role: comment.author?.displayName, 
+                    content: comment.body,
+                })) || [],
+                status: response.data.fields?.status?.name,
+                priority: response.data.fields?.priority?.name,
+                summary: response.data.fields?.summary,
+                created: response.data.fields?.created,
+                updated: response.data.fields?.updated
+            };
+
+            console.log(ticketDetails);
+            return ticketDetails;
+        }
+    } 
+    catch (error) {
+        this.logger.error(`error in agentPlexHistory ${JSON.stringify(error)}`)
+        throw error;
+    }
+}
+
+async postJiraComment(ticketId:string){
+  try {
+    const response  = await axios.post(`${this.JIRA_BASE_URL}rest/api/2/issue/${ticketId}/comment`
+      ,{body:"Hello, my team agents"},
+      {
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`
+              `${process.env.JIRA_PLEX_EMAIL}:${process.env.JIRA_PLEX_TOKEN}`
           ).toString('base64')}`,
           'Accept': 'application/json'
-        }
-       }
-      )
-      if (response && response.data && response.data.comments) {
-        const transformedComments = response.data.comments.map((comment) => ({
-          role: comment.author?.displayName, 
-          content: comment.body,
-        }));
-        console.log(transformedComments);
-        return transformedComments;
-    }
-  } 
-  catch (error) {
-      this.logger.error(`error in agentPlexHistory ${JSON.stringify(error)}`)
-      throw error
-    }
+      }
+      }      
+    )
+    return response.data
+
+  } catch (error) {
+    throw Error(`error in postJiraComment ${JSON.stringify(error)}`)
   }
+}
+
 }
