@@ -230,6 +230,7 @@ export class ChatService {
 
       const messageHistory = await this.agentPlexHistory(ticketId)
       console.log("messageHistory",messageHistory)
+      await this.postJiraComment(ticketId)
       
     } catch (error) {
       this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)
