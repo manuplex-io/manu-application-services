@@ -372,6 +372,8 @@ export class ChatService {
   }
 
   async agentPlexHistory(ticketId:string){
+    console.log("url",`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`)
+    console.log("env",`${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`)
     try {
       const response = await axios.get(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`,
        {
