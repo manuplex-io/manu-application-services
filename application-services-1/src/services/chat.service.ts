@@ -17,6 +17,7 @@ import axios from 'axios';
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly SLACK_BASE_URL = 'https://slack.com/api';
+  private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net'
   constructor(private kafkaService: KafkaOb1Service) {}
 
   async chatWithUser(functionInput: any, context: KafkaContext) {
@@ -220,6 +221,22 @@ export class ChatService {
     }
   }
 
+  async handleAgentResponse(functionInput:any, context:KafkaContext){
+
+    const {ticketId,comment,displayName} = functionInput
+
+    try {
+
+      const messageHistory = await this.agentPlexHistory(ticketId)
+      console.log("messageHistory",messageHistory)
+      
+    } catch (error) {
+      this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)
+    }
+
+
+  }
+
   async createTicket(
     ticketId: string,
     ticketDescription: string,
@@ -351,6 +368,33 @@ export class ChatService {
         error.response?.data,
       );
       throw error;
+    }
+  }
+
+  async agentPlexHistory(ticketId:string){
+    try {
+      const response = await axios.get(`${this.JIRA_BASE_URL}/rest/api/2/issue/:${ticketId}/comment`,
+       {
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`
+          ).toString('base64')}`,
+          'Accept': 'application/json'
+        }
+       }
+      )
+      if (response && response.data && response.data.comments) {
+        const transformedComments = response.data.comments.map((comment) => ({
+          role: comment.author?.displayName, 
+          content: comment.body,
+        }));
+        console.log(transformedComments);
+        return transformedComments;
+    }
+  } 
+  catch (error) {
+      this.logger.error(`error in agentPlexHistory ${JSON.stringify(error)}`)
+      throw error
     }
   }
 }

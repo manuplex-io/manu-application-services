@@ -132,6 +132,12 @@ export class KafkaOb1ProcessingService {
           context,
         );
       }
+      else if (functionName === 'handleAgentResponse') {
+        return await this.chatService.handleAgentResponse(
+          functionInput,
+          context,
+        );
+      }
        else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {
