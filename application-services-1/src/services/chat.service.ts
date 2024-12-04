@@ -227,18 +227,76 @@ export class ChatService {
   }
 
   async handleAgentResponse(functionInput:any, context:KafkaContext){
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
 
     const {ticketId,comment,displayName} = functionInput
 
     try {
 
       const ticketDetails = await this.agentPlexHistory(ticketId)
-      console.log("ticketDetails",ticketDetails)
-      await this.postJiraComment(ticketId)
+      // console.log("ticketDetails",ticketDetails)
+      const executeDto = {
+        systemPromptVariables: {
+          taskDescription: ticketDetails.description,
+        },
+        userPromptVariables: {
+          consultantMessage: comment,
+        },
+        messageHistory: ticketDetails.comments, // Pass the transformed history
+        llmConfig: {
+          provider: 'openai',
+          model: 'gpt-4o-mini',
+          temperature: 0.7,
+        },
+      };
 
-      const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
-      console.log('Slack details received from getSlackDetails function', slackDetails)
-      
+      const CRUDFunctionInput = {
+        CRUDOperationName: CRUDOperationName.POST,
+        CRUDRoute: CRUDPromptRoute.EXECUTE_WITH_USER_PROMPT,
+        CRUDBody: executeDto,
+        routeParams: { promptId: '9783f7ab-af81-4230-82c1-5759847244a3' },
+      }; //CRUDFunctionInput
+
+      const request: CRUDRequest = {
+        messageKey, //messageKey
+        userOrgId: instanceName || 'default', //instanceName
+        sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
+        CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
+        CRUDFunctionInput, //CRUDFunctionInput
+        personRole: headers.userRole.toString() || 'user', // userRole
+        personId: headers.userEmail.toString(), // userEmail
+      };
+      const response = await this.kafkaService.sendAgentCRUDRequest(request);
+      // await this.postJiraComment(ticketId)
+
+      const llmResponse = JSON.parse(response.messageContent.content);
+      console.log("llmResponse",llmResponse)
+      if(Array.isArray(llmResponse.Messages)){
+        const Messages = llmResponse.Messages[0]
+        const {Recipient,Message} = Messages
+
+        if(Recipient == "manager"){
+          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
+          const {slackToken,channelId, threadId} = slackDetails
+          await this.postMessageToChannel(channelId,{text:Message},slackToken,threadId)
+
+        }
+        else if(Recipient == "consultant"){
+          await this.postJiraComment(ticketId,Message)
+        }
+        else{
+          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId)
+          const {slackToken,channelId, threadId} = slackDetails
+          await this.postMessageToChannel(channelId,{text:Message},slackToken,threadId)
+          await this.postJiraComment(ticketId,Message)
+        }
+      }
+      else{
+        console.log("llm response did not return array")
+      }
     } catch (error) {
       this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)
     }
@@ -400,7 +458,7 @@ export class ChatService {
             const ticketDetails = {
                 description: response.data.fields?.description || 'No description available',
                 comments: response.data.fields?.comment?.comments?.map((comment) => ({
-                    role: comment.author?.displayName, 
+                    role: comment.author?.displayName == "Plex" ? "assistant" :"user", 
                     content: comment.body,
                 })) || [],
                 status: response.data.fields?.status?.name,
@@ -419,10 +477,10 @@ export class ChatService {
     }
 }
 
-async postJiraComment(ticketId:string){
+async postJiraComment(ticketId:string, messsage:string){
   try {
     const response  = await axios.post(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`
-      ,{body:"Hello, my team agents"},
+      ,{body:messsage},
       {
         headers: {
           Authorization: `Basic ${Buffer.from(
