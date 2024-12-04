@@ -274,6 +274,7 @@ export class ChatService {
               ticketId: ticketId,
               ticketDescription: ticketDescription,
               creator: teamId,
+              channelId: channelId,
             },
           },
         },
