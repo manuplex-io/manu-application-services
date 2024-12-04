@@ -427,6 +427,7 @@ async postJiraComment(ticketId:string){
     return response.data
 
   } catch (error) {
+    this.logger.error(`error in postJiraComment ${JSON.stringify(error)}`)
     throw Error(`error in postJiraComment ${JSON.stringify(error)}`)
   }
 }
