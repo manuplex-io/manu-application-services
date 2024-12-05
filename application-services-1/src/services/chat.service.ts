@@ -18,7 +18,7 @@ import { SlackEventHandlingService } from './slack-event-handling.service';
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly SLACK_BASE_URL = 'https://slack.com/api';
-  private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net'
+  private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net';
   constructor(
     private kafkaService: KafkaOb1Service,
     private slackEventHandlingService: SlackEventHandlingService,
@@ -44,6 +44,17 @@ export class ChatService {
       let userInput1 = userInput;
       let threadId1 = threadId;
       if (threadId1) {
+        const { ticketId, ticketDescription } =
+          await this.getTicketDetailsByThreadId(threadId);
+        if (ticketId) {
+          await this.chatAfterTicketCreation(
+            functionInput,
+            ticketId,
+            context,
+            messages,
+          );
+          return;
+        }
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
           channelId,
@@ -154,34 +165,167 @@ export class ChatService {
     }
   }
 
-  async onboardUser(functionInput: any, context: KafkaContext) {
-    const { token, userId, channelId, userInput, teamId } =
-      functionInput;
+  async existingProject(functionInput: any, context: KafkaContext) {
+    
+    const {
+      token,
+      userId,
+      channelId,
+      projectName,
+      userInput,
+      teamId,
+    } = functionInput;
+
+    try {
+      const channelMessages = await getChannelMessageHistory(channelId, token);
+
+      const timestampToBeDeleted = channelMessages[0].ts;
+
+      await deleteSlackMessage(channelId, timestampToBeDeleted, token);
+
+      const latestMessage = channelMessages.find(
+        (message) => message.user === userId,
+      );
+
+      if (!latestMessage) {
+        throw Error('No latest message found for the user');
+      }
+
+      const {threadId} = await this.slackEventHandlingService.getSlackDetails(projectName)
+
+      const newFunctionInput = {...functionInput, threadId}
+
+      await this.chatAfterTicketCreation(newFunctionInput,projectName,context)
+
+    } catch (error) {}
+  }
+
+  async chatAfterTicketCreation(
+    functionInput: any,
+    ticketId: string,
+    context: KafkaContext,
+    messages?: any[],
+  ) {
+    const {
+      token,
+      userId,
+      channelId,
+      projectName,
+      threadId,
+      userInput,
+      teamId,
+    } = functionInput;
+
     const messageKey = context.getMessage().key.toString();
     const instanceName = context.getMessage().headers.instanceName.toString();
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
 
-      let message = ''
-    if (userInput === 'What are the various ASTM grades for steel?') { 
-    message = `Sure, let me help you in finding some ASTM grades for steel`
-  } else if (userInput === 'Help me find an alternative to a PCB connector.'){
-    message = `Sure, let me help you in finding some alternatives to the PCB connector`
-  } else if (userInput === 'Help me find a CNC machinist who does small orders.') {
-    message = `Sure, let me help in finding a CNC machinist that fulfills your requirement`
-  }
-    const data = await this.postMessageToChannel(
-        channelId,
-        { text:message  },
-        token,
+    try {
+      const ticketDetails = await this.agentPlexHistory(ticketId);
+      // console.log("ticketDetails",ticketDetails)
+      const executeDto = {
+        systemPromptVariables: {
+          taskDescription: ticketDetails.description,
+        },
+        userPromptVariables: {
+          userInput: userInput,
+        },
+        messageHistory: ticketDetails.comments, // Pass the transformed history
+        llmConfig: {
+          provider: 'openai',
+          model: 'gpt-4o-mini',
+          temperature: 0.7,
+        },
+      };
+
+      const CRUDFunctionInput = {
+        CRUDOperationName: CRUDOperationName.POST,
+        CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
+        CRUDBody: executeDto,
+        routeParams: { promptId: 'c26bf9e3-ce1b-4824-9767-dd3b44c51b17' },
+      }; //CRUDFunctionInput
+
+      const request: CRUDRequest = {
+        messageKey, //messageKey
+        userOrgId: instanceName || 'default', //instanceName
+        sourceFunction: 'executePromptWithUserPrompt', //sourceFunction
+        CRUDFunctionNameInput: 'promptCRUD-V1', //CRUDFunctionNameInput
+        CRUDFunctionInput, //CRUDFunctionInput
+        personRole: headers.userRole.toString() || 'user', // userRole
+        personId: headers.userEmail.toString(), // userEmail
+      };
+      const response = await this.kafkaService.sendAgentCRUDRequest(request);
+      // await this.postJiraComment(ticketId)
+
+      const llmResponse = JSON.parse(response.messageContent.content);
+      console.log('llmResponse', llmResponse);
+      if (Array.isArray(llmResponse?.Messages)) {
+        const Manager = llmResponse.Messages.find(
+          (element) => element.Recipient === 'manager',
+        );
+        const Consultant = llmResponse.Messages.find(
+          (element) => element.Recipient === 'consultant',
+        );
+
+        if (Manager) {
+          await this.postMessageToChannel(
+            channelId,
+            { text: Manager.Message },
+            token,
+            threadId,
+          );
+        }
+
+        if (Consultant) {
+          // Corrected condition
+          await this.postJiraComment(ticketId, Consultant.Message);
+        }
+      } else {
+        console.log('llm response did not return array');
+      }
+    } catch (error) {
+      console.log('error', error);
+      this.logger.error(
+        `error in chatAfterTicketCreation Function ${JSON.stringify(error)}`,
       );
-    const threadId = data.ts
+    }
+  }
+
+  async onboardUser(functionInput: any, context: KafkaContext) {
+    const { token, userId, channelId, userInput, teamId } = functionInput;
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+
+    let message = '';
+    if (userInput === 'What are the various ASTM grades for steel?') {
+      message = `Sure, let me help you in finding some ASTM grades for steel`;
+    } else if (
+      userInput === 'Help me find an alternative to a PCB connector.'
+    ) {
+      message = `Sure, let me help you in finding some alternatives to the PCB connector`;
+    } else if (
+      userInput === 'Help me find a CNC machinist who does small orders.'
+    ) {
+      message = `Sure, let me help in finding a CNC machinist that fulfills your requirement`;
+    }
+    const data = await this.postMessageToChannel(
+      channelId,
+      { text: message },
+      token,
+    );
+    const threadId = data.ts;
     try {
       const executeDto = {
         userPromptVariables: {
-          userInput: "",
+          userInput: '',
         },
-        messageHistory: [{ role: 'user', content: userInput },{ role: 'assistant', content: message }], // Pass the transformed history
+        messageHistory: [
+          { role: 'user', content: userInput },
+          { role: 'assistant', content: message },
+        ], // Pass the transformed history
         llmConfig: {
           provider: 'openai',
           model: 'gpt-4o-mini',
@@ -226,17 +370,16 @@ export class ChatService {
     }
   }
 
-  async handleAgentResponse(functionInput:any, context:KafkaContext){
+  async handleAgentResponse(functionInput: any, context: KafkaContext) {
     const messageKey = context.getMessage().key.toString();
     const instanceName = context.getMessage().headers.instanceName.toString();
     const headers: OB1MessageHeader = context.getMessage()
       .headers as unknown as OB1MessageHeader;
 
-    const {ticketId,comment,displayName} = functionInput
+    const { ticketId, comment, displayName } = functionInput;
 
     try {
-
-      const ticketDetails = await this.agentPlexHistory(ticketId)
+      const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
       const executeDto = {
         systemPromptVariables: {
@@ -273,30 +416,40 @@ export class ChatService {
       // await this.postJiraComment(ticketId)
 
       const llmResponse = JSON.parse(response.messageContent.content);
-      console.log("llmResponse",llmResponse)
+      console.log('llmResponse', llmResponse);
       if (Array.isArray(llmResponse?.Messages)) {
-        const Manager = llmResponse.Messages.find((element) => element.Recipient === "manager");
-        const Consultant = llmResponse.Messages.find((element) => element.Recipient === "consultant");
-    
+        const Manager = llmResponse.Messages.find(
+          (element) => element.Recipient === 'manager',
+        );
+        const Consultant = llmResponse.Messages.find(
+          (element) => element.Recipient === 'consultant',
+        );
+
         if (Manager) {
-            const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
-            const { slackToken, channelId, threadId } = slackDetails;
-            await this.postMessageToChannel(channelId, { text: Manager.Message }, slackToken, threadId);
+          const slackDetails =
+            await this.slackEventHandlingService.getSlackDetails(ticketId);
+          const { slackToken, channelId, threadId } = slackDetails;
+          await this.postMessageToChannel(
+            channelId,
+            { text: Manager.Message },
+            slackToken,
+            threadId,
+          );
         }
-    
-        if (Consultant) { // Corrected condition
-            await this.postJiraComment(ticketId, Consultant.Message);
+
+        if (Consultant) {
+          // Corrected condition
+          await this.postJiraComment(ticketId, Consultant.Message);
         }
-    }
-      else{
-        console.log("llm response did not return array")
+      } else {
+        console.log('llm response did not return array');
       }
     } catch (error) {
-      console.log("error",error)
-      this.logger.error(`error in handleAgentResponse Function ${JSON.stringify(error)}`)
+      console.log('error', error);
+      this.logger.error(
+        `error in handleAgentResponse Function ${JSON.stringify(error)}`,
+      );
     }
-
-
   }
 
   async createTicket(
@@ -421,11 +574,8 @@ export class ChatService {
         },
       );
 
-      return response.data
+      return response.data;
 
-      if (!response.data.ok) {
-        throw new Error(`Failed to post message: ${response.data.error}`);
-      }
     } catch (error) {
       this.logger.error(
         `Failed to post message to channel ${channel}:`,
@@ -436,61 +586,121 @@ export class ChatService {
   }
 
   async agentPlexHistory(ticketKey: string) {
-    console.log("url", `${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`)
-    console.log("env", `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`)
+    console.log('url', `${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`);
+    console.log('env', `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`);
     try {
-        const response = await axios.get(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`, {
-            headers: {
-                Authorization: `Basic ${Buffer.from(
-                    `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`
-                ).toString('base64')}`,
-                'Accept': 'application/json'
-            }
-        });
+      const response = await axios.get(
+        `${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketKey}`,
+        {
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`,
+            ).toString('base64')}`,
+            Accept: 'application/json',
+          },
+        },
+      );
 
-        if (response && response.data) {
-            // Extract key information from the ticket
-            const ticketDetails = {
-                description: response.data.fields?.description || 'No description available',
-                comments: response.data.fields?.comment?.comments?.map((comment) => ({
-                    role: comment.author?.displayName == "Plex" ? "assistant" :"user", 
-                    content: comment.body,
-                })) || [],
-                status: response.data.fields?.status?.name,
-                priority: response.data.fields?.priority?.name,
-                summary: response.data.fields?.summary,
-                created: response.data.fields?.created,
-                updated: response.data.fields?.updated
-            };
+      if (response && response.data) {
+        // Extract key information from the ticket
+        const ticketDetails = {
+          description:
+            response.data.fields?.description || 'No description available',
+          comments:
+            response.data.fields?.comment?.comments?.map((comment) => ({
+              role:
+                comment.author?.displayName == 'Plex' ? 'assistant' : 'user',
+              content: comment.body,
+            })) || [],
+          status: response.data.fields?.status?.name,
+          priority: response.data.fields?.priority?.name,
+          summary: response.data.fields?.summary,
+          created: response.data.fields?.created,
+          updated: response.data.fields?.updated,
+        };
 
-            return ticketDetails;
-        }
-    } 
-    catch (error) {
-        this.logger.error(`error in agentPlexHistory ${JSON.stringify(error)}`)
-        throw error;
-    }
-}
-
-async postJiraComment(ticketId:string, messsage:string){
-  try {
-    const response  = await axios.post(`${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`
-      ,{body:messsage},
-      {
-        headers: {
-          Authorization: `Basic ${Buffer.from(
-              `${process.env.JIRA_PLEX_EMAIL}:${process.env.JIRA_PLEX_TOKEN}`
-          ).toString('base64')}`,
-          'Accept': 'application/json'
+        return ticketDetails;
       }
-      }      
-    )
-    return response.data
-
-  } catch (error) {
-    this.logger.error(`error in postJiraComment ${JSON.stringify(error)}`)
-    throw Error(`error in postJiraComment ${JSON.stringify(error)}`)
+    } catch (error) {
+      this.logger.error(`error in agentPlexHistory ${JSON.stringify(error)}`);
+      throw error;
+    }
   }
-}
 
+  async postJiraComment(ticketId: string, messsage: string) {
+    try {
+      const response = await axios.post(
+        `${this.JIRA_BASE_URL}/rest/api/2/issue/${ticketId}/comment`,
+        { body: messsage },
+        {
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              `${process.env.JIRA_PLEX_EMAIL}:${process.env.JIRA_PLEX_TOKEN}`,
+            ).toString('base64')}`,
+            Accept: 'application/json',
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      this.logger.error(`error in postJiraComment ${JSON.stringify(error)}`);
+      throw Error(`error in postJiraComment ${JSON.stringify(error)}`);
+    }
+  }
+
+  async getTicketDetailsByThreadId(threadId: string) {
+    try {
+      // const headers: OB1MessageHeader = context.getMessage()
+      // .headers as unknown as OB1MessageHeader;
+      const messageKey = 'aadish@manuplex.io';
+      // const messageKey = context.getMessage().key.toString();
+      const instanceId = 'consultant';
+      const userRole = 'consultant';
+      const destinationService = 'database-service';
+      const sourceFunction = 'getSlackDetails';
+      const sourceType = 'service';
+
+      const messageInput = {
+        messageContent: {
+          functionName: 'retrieveTickets',
+          functionInput: {
+            CRUDName: 'GET',
+            CRUDInput: {
+              tableEntity: 'OB1-tickets',
+              threadId: threadId,
+            },
+          },
+        },
+      };
+      const messageInputAdd = {
+        messageType: 'REQUEST',
+        ...messageInput,
+      };
+
+      const response = await this.kafkaService.sendRequestSystem(
+        messageKey,
+        instanceId,
+        destinationService,
+        sourceFunction,
+        sourceType,
+        messageInputAdd,
+        userRole,
+        messageKey,
+      );
+
+      console.log(
+        'response from Database service for retrieving slack details',
+        response.messageContent,
+      );
+
+      const { ticketDescription, ticketId } = response.messageContent;
+
+      return {
+        ticketDescription,
+        ticketId,
+      };
+    } catch (error) {
+      console.error('Error sending response to Slack:', error.message);
+    }
+  }
 }

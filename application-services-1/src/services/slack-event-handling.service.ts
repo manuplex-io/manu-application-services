@@ -290,7 +290,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         type: 'plain_text',
         text: ticket.ticketDescription,
       },
-      value: ticket.ticketDescription,
+      value: ticket.ticketId,
     }));
     options.push({
       text: {
