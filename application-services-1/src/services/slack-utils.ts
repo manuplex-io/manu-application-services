@@ -244,6 +244,7 @@ export async function getThreadMessageHistory(channelId: string, threadTs: strin
       params: {
         channel: channelId,
         ts: threadTs, // Parent message timestamp
+        limit:10
       },
     });
 
