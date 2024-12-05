@@ -138,6 +138,12 @@ export class KafkaOb1ProcessingService {
           context,
         );
       }
+      else if (functionName === 'existingProject') {
+        return await this.chatService.existingProject(
+          functionInput,
+          context,
+        );
+      }
        else if (functionName === 'CRUDInstancesfunction') {
         return { errorMessage: 'CRUDInstancesfunction not implemented' };
       } else {

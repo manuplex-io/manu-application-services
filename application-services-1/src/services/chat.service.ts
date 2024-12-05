@@ -426,7 +426,7 @@ export class ChatService {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
-        routeParams: { promptId: '9783f7ab-af81-4230-82c1-5759847244a3' },
+        routeParams: { promptId: 'f8dd202a-a4f6-489e-9e49-680d8aeb7789' },
       }; //CRUDFunctionInput
 
       const request: CRUDRequest = {
