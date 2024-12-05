@@ -60,6 +60,7 @@ export class ChatService {
             ? { role: 'user', content: message.text }
             : { role: 'assistant', content: message.text },
         );
+        messages.pop()
         if (ticketId) {
           console.log("calling chatAfterTicketCreation", ticketId)
           await this.chatAfterTicketCreation(
