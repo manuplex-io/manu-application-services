@@ -622,6 +622,9 @@ export class ChatService {
             ).toString('base64')}`,
             Accept: 'application/json',
           },
+          params:{
+            maxResults:10
+          }
         },
       );
 
