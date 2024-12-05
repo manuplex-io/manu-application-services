@@ -515,13 +515,14 @@ export class SlackEventHandlingService implements OnModuleInit {
         response.messageContent,
       );
 
-      const { threadId, channelId } = response.messageContent;
+      const { threadId, channelId,ticketDescription } = response.messageContent;
       const slackToken = response.messageContent.creator.accessToken
 
       return {
         slackToken,
         channelId,
         threadId,
+        ticketDescription
       };
       } catch (error) {
         console.error('Error sending response to Slack:', error.message);

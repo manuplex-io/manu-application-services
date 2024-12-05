@@ -46,15 +46,7 @@ export class ChatService {
       if (threadId1) {
         const { ticketId, ticketDescription } =
           await this.getTicketDetailsByThreadId(threadId);
-        if (ticketId) {
-          await this.chatAfterTicketCreation(
-            functionInput,
-            ticketId,
-            context,
-            messages,
-          );
-          return;
-        }
+        
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
           channelId,
@@ -68,6 +60,17 @@ export class ChatService {
             ? { role: 'user', content: message.text }
             : { role: 'assistant', content: message.text },
         );
+        if (ticketId) {
+          console.log("calling chatAfterTicketCreation", ticketId)
+          await this.chatAfterTicketCreation(
+            functionInput,
+            ticketId,
+            ticketDescription,
+            context,
+            messages,
+          );
+          return;
+        }
       } else {
         // No threadId: Fetch channel messages to find the latest user message
         const channelMessages = await getChannelMessageHistory(
@@ -177,32 +180,53 @@ export class ChatService {
     } = functionInput;
 
     try {
+
+      const {threadId,ticketDescription} = await this.slackEventHandlingService.getSlackDetails(projectName)
+
+      console.log(`existing project ${projectName} ${threadId}`)
+
+
+      const threadMessages = await getThreadMessageHistory(
+        channelId,
+        threadId,
+        token,
+      );
+
+      // Transform the messages into the required JSON format
+      const messages = threadMessages.map((message) =>
+        message.user === userId
+          ? { role: 'user', content: message.text }
+          : { role: 'assistant', content: message.text },
+      );
       const channelMessages = await getChannelMessageHistory(channelId, token);
 
       const timestampToBeDeleted = channelMessages[0].ts;
 
       await deleteSlackMessage(channelId, timestampToBeDeleted, token);
 
-      const latestMessage = channelMessages.find(
+      const userInput = channelMessages.find(
         (message) => message.user === userId,
       );
 
-      if (!latestMessage) {
+      if (!userInput) {
         throw Error('No latest message found for the user');
       }
 
-      const {threadId} = await this.slackEventHandlingService.getSlackDetails(projectName)
 
-      const newFunctionInput = {...functionInput, threadId}
+      const newFunctionInput = {...functionInput, threadId,userInput}
+      console.log("newFunctionInput",newFunctionInput)
 
-      await this.chatAfterTicketCreation(newFunctionInput,projectName,context)
+      await this.chatAfterTicketCreation(newFunctionInput,projectName,ticketDescription,context,messages)
 
-    } catch (error) {}
+    } catch (error) {
+      this.logger.error(`error in function existing project ${JSON.stringify(error)}`)
+    }
   }
 
   async chatAfterTicketCreation(
     functionInput: any,
     ticketId: string,
+    ticketDescription:string,
     context: KafkaContext,
     messages?: any[],
   ) {
@@ -222,16 +246,16 @@ export class ChatService {
       .headers as unknown as OB1MessageHeader;
 
     try {
-      const ticketDetails = await this.agentPlexHistory(ticketId);
+      // const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
       const executeDto = {
         systemPromptVariables: {
-          taskDescription: ticketDetails.description,
+          taskDescription: ticketDescription,
         },
         userPromptVariables: {
           userInput: userInput,
         },
-        messageHistory: ticketDetails.comments, // Pass the transformed history
+        messageHistory: messages, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
           model: 'gpt-4o-mini',
