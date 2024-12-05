@@ -634,7 +634,6 @@ export class ChatService {
             response.data.fields?.description || 'No description available',
             comments:
             response.data.fields?.comment?.comments
-              ?.slice(-10) // Get the last 10 comments
               .map((comment) => ({
                 role: comment.author?.displayName === 'Plex' ? 'assistant' : 'user',
                 content: comment.body,
