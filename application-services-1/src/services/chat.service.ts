@@ -44,8 +44,8 @@ export class ChatService {
       let userInput1 = userInput;
       let threadId1 = threadId;
       if (threadId1) {
-        const { ticketId, ticketDescription } =
-          await this.getTicketDetailsByThreadId(threadId);
+        
+        const response =   await this.getTicketDetailsByThreadId(threadId);
         
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
@@ -61,7 +61,8 @@ export class ChatService {
             : { role: 'assistant', content: message.text },
         );
         messages.pop()
-        if (ticketId) {
+        if (response) {
+          const {ticketId,ticketDescription} = response
           console.log("calling chatAfterTicketCreation", ticketId)
           await this.chatAfterTicketCreation(
             functionInput,
@@ -719,12 +720,19 @@ export class ChatService {
         response.messageContent,
       );
 
-      const { ticketDescription, ticketId } = response.messageContent;
+      const content = response.messageContent;
+      if(content){
+        const { ticketDescription, ticketId } = content
+        return {
+          ticketDescription,
+          ticketId,
+        };
+      }
+      else{
+        return null
+      }
 
-      return {
-        ticketDescription,
-        ticketId,
-      };
+      
     } catch (error) {
       console.error('Error sending response to Slack:', error.message);
     }
