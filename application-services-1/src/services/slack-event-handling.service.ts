@@ -289,7 +289,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Project List"
+          "text": "Sure. Before we move forward, can you confirm if this is related to any of the existing project from below list?"
         }
       }]
       const sections = response2.messageContent.flatMap((ticket) => [
