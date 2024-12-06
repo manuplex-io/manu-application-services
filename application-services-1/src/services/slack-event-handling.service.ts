@@ -297,7 +297,7 @@ export class SlackEventHandlingService implements OnModuleInit {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*Task Description:* ${ticket.ticketDescription}\n*Status:* ${ticket.status === 'Completed' ? 'Completed ✅' : 'In Progress ⏳'}`,
+            text: `*Task Description:* ${ticket.ticketDescription}\n*Status:* ${ticket.status}`,
           },
           accessory: {
             type: 'button',
@@ -323,7 +323,7 @@ export class SlackEventHandlingService implements OnModuleInit {
         style: 'primary',
         text: {
           type: 'plain_text',
-          text: 'select',
+          text: 'Select',
         },
         value: 'new_project',
       },
