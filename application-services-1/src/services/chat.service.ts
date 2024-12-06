@@ -206,9 +206,11 @@ export class ChatService {
 
       await deleteSlackMessage(channelId, timestampToBeDeleted, token);
 
-      const userInput = channelMessages.find(
+      const latestMessage = channelMessages.find(
         (message) => message.user === userId,
       );
+
+      const userInput = latestMessage.text
 
       if (!userInput) {
         throw Error('No latest message found for the user');
@@ -444,28 +446,31 @@ export class ChatService {
       const llmResponse = JSON.parse(response.messageContent.content);
       console.log('llmResponse', llmResponse);
       if (Array.isArray(llmResponse?.Messages)) {
-        const Manager = llmResponse.Messages.find(
+        const managerMessages = llmResponse.Messages.filter(
           (element) => element.Recipient === 'manager',
         );
-        const Consultant = llmResponse.Messages.find(
+        const consultantMessages = llmResponse.Messages.filter(
           (element) => element.Recipient === 'consultant',
         );
-
-        if (Manager) {
-          const slackDetails =
-            await this.slackEventHandlingService.getSlackDetails(ticketId);
+      
+        if (managerMessages.length > 0) {
+          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
           const { slackToken, channelId, threadId } = slackDetails;
-          await this.postMessageToChannel(
-            channelId,
-            { text: Manager.Message },
-            slackToken,
-            threadId,
-          );
+      
+          for (const message of managerMessages) {
+            await this.postMessageToChannel(
+              channelId,
+              { text: message.Message },
+              slackToken,
+              threadId,
+            );
+          }
         }
-
-        if (Consultant) {
-          // Corrected condition
-          await this.postJiraComment(ticketId, Consultant.Message);
+      
+        if (consultantMessages.length > 0) {
+          for (const message of consultantMessages) {
+            await this.postJiraComment(ticketId, message.Message);
+          }
         }
       } else {
         console.log('llm response did not return array');
