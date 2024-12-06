@@ -262,27 +262,22 @@ export class SlackEventHandlingService implements OnModuleInit {
 
     if (!response2.messageContent || response2.messageContent.length === 0) {
         blocks = [
-            {
-              type: 'section',
-              block_id: 'radio_list',
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Please click to get started`,
+            },
+            accessory: {
+              type: 'button',
+              style: 'primary',
               text: {
-                type: 'mrkdwn',
-                text: 'Please click on below to get started',
+                type: 'plain_text',
+                text: 'Select',
               },
-              accessory: {
-                type: 'radio_buttons',
-                action_id: 'select_project',
-                options: [
-                    {
-                    text: {
-                        type: 'plain_text',
-                        text: "Start a new project",
-                      },
-                      value: 'new_project',
-                    },
-                ],
-                },
-              },
+              value: 'new_project',
+            },
+          }
           ];
     } else {
       blocks = [{
