@@ -285,37 +285,51 @@ export class SlackEventHandlingService implements OnModuleInit {
               },
           ];
     } else {
-    const options = response2.messageContent.map((ticket) => ({
+      blocks = [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "Project List"
+        }
+      }]
+      const sections = response2.messageContent.flatMap((ticket) => [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Task Description:* ${ticket.ticketDescription}\n*Status:* ${ticket.status === 'Completed' ? 'Completed ✅' : 'In Progress ⏳'}`,
+          },
+          accessory: {
+            type: 'button',
+            style: 'primary',
+            text: {
+              type: 'plain_text',
+              text: 'select',
+            },
+            value: ticket.ticketId,
+          },
+        },
+        { type: 'divider' }, // Adds a divider after each block
+      ]);
+      blocks.push(...sections);
+      blocks.push({
+      type: 'section',
       text: {
-        type: 'plain_text',
-        text: ticket.ticketDescription,
+        type: 'mrkdwn',
+        text: `*New Project:* No, it's a new project`,
       },
-      value: ticket.ticketId,
-    }));
-    options.push({
-      text: {
-        type: 'plain_text',
-        text: "No, It's a new project",
-      },
-      value: 'new_project',
-    });
-
-    blocks = [
-      {
-        type: 'section',
-        block_id: 'radio_list',
+      accessory: {
+        type: 'button',
+        style: 'primary',
         text: {
-          type: 'mrkdwn',
-          text: 'Sure. Before we move forward, can you confirm if this is related to any of the existing project from below list?',
+          type: 'plain_text',
+          text: 'select',
         },
-        accessory: {
-          type: 'radio_buttons',
-          action_id: 'select_project',
-          options: options,
-        },
+        value: 'new_project',
       },
-    ];
-    }
+    },
+    { type: 'divider' });
+  }
 
     console.log('Blocks after appending ticket list', blocks);
     
