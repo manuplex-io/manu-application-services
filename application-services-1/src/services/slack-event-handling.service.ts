@@ -289,22 +289,22 @@ export class SlackEventHandlingService implements OnModuleInit {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Sure. Before we move forward, can you confirm if this is related to any of the existing project from below list?"
+          "text": "Sure! Is this related to any of my current task listed below? "
         }
       }]
-      const sections = response2.messageContent.flatMap((ticket) => [
+      const sections = response2.messageContent.flatMap((ticket, index) => [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*Task Description:* ${ticket.ticketDescription}\n*Status:* ${ticket.status}`,
+            text: `*${index + 1}.* ${ticket.ticketDescription}`,
           },
           accessory: {
             type: 'button',
             style: 'primary',
             text: {
               type: 'plain_text',
-              text: 'select',
+              text: 'Select',
             },
             value: ticket.ticketId,
           },
