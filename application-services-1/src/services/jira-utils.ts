@@ -10,17 +10,18 @@ import axios from 'axios';
  * @param comment - The Jira comment string
  * @returns The extracted filename if found, otherwise null
  */
-function extractFilenameFromComment(comment: string): string | null {
-  const filenameRegex = /(?:\b\w+\/\w+\b\(|\[)([^()\[\]]+\.(?:pdf|docx|xlsx|csv|jpg|jpeg|png|gif|txt|zip|rar|tar|gz|7z|pptx))\b/;
-  const match = comment.match(filenameRegex);
-  
-  if (!match || match.length < 2) {
-    console.error('No filename found in the comment.');
+function extractFilename(comment:string): string | null{
+    // Regex to extract filename from [^filename.ext] format
+    const filenameRegex = /\[\^([^\]]+)\]/;
+    
+    const match = comment.match(filenameRegex);
+    
+    if (match && match[1]) {
+      return match[1];
+    }
+    
     return null;
   }
-
-  return match[1];
-}
 
 /**
  * Gets the content URL of an attachment from a Jira issue response.
@@ -65,7 +66,7 @@ export async function getAttachmentUrlFromComment(ticketId: string, comment: str
 
     const issueData = response.data;
 
-    const filename = extractFilenameFromComment(comment);
+    const filename = extractFilename(comment);
     if (!filename) {
       console.error('No filename extracted from the comment.');
       return null;
