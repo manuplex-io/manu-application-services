@@ -44,9 +44,18 @@ export class ChatService {
       let messages: { role: string; content: string }[] = [];
       let userInput1 = userInput;
       let threadId1 = threadId;
+
+      // Check for Slack file uploads and handle them
+      const fileUrls = await this.checkSlackFileUploads(functionInput);
+      console.log('Files uploaded by the user:', fileUrls);
+
+      const response2 =   await this.getTicketDetailsByThreadId(threadId);
+      const ticketId = response2.ticketId
+
       if (threadId1) {
         
-        const response =   await this.getTicketDetailsByThreadId(threadId);
+        // const response =   await this.getTicketDetailsByThreadId(threadId);
+        const {ticketDescription} = response2
         
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
@@ -62,8 +71,8 @@ export class ChatService {
             : { role: 'assistant', content: message.text },
         );
         messages.pop()
-        if (response) {
-          const {ticketId,ticketDescription} = response
+        if (ticketId) {
+          
           console.log("calling chatAfterTicketCreation", ticketId)
           await this.chatAfterTicketCreation(
             functionInput,
@@ -71,6 +80,7 @@ export class ChatService {
             ticketDescription,
             context,
             messages,
+            fileUrls,
           );
           return;
         }
@@ -102,6 +112,9 @@ export class ChatService {
       const executeDto = {
         userPromptVariables: {
           userInput: userInput1,
+          ticketId: ticketId,
+          botToken: token,
+          fileUrl: fileUrls ? fileUrls: "",
         },
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
@@ -170,6 +183,14 @@ export class ChatService {
       throw Error(error);
     }
   }
+  
+  async checkSlackFileUploads(functionInput: any): Promise<string[]> {
+    if (functionInput.files && Array.isArray(functionInput.files)) {
+      return functionInput.files.map((file: any) => file.url_private_download || '');
+    }
+    return [];
+  }
+  
 
   async existingProject(functionInput: any, context: KafkaContext) {
     
@@ -234,6 +255,7 @@ export class ChatService {
     ticketDescription:string,
     context: KafkaContext,
     messages?: any[],
+    fileUrls?: any[],
   ) {
     const {
       token,
@@ -259,6 +281,9 @@ export class ChatService {
         },
         userPromptVariables: {
           userInput: userInput,
+          ticketId: ticketId,
+          botToken: token,
+          fileUrl: fileUrls ? fileUrls: "",
         },
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
@@ -433,7 +458,7 @@ export class ChatService {
           temperature: 0.7,
         },
       };
-      
+
       const CRUDFunctionInput = {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
@@ -464,8 +489,8 @@ export class ChatService {
         );
       
         if (managerMessages.length > 0) {
+
           
-      
           for (const message of managerMessages) {
             await this.postMessageToChannel(
               channelId,
@@ -751,4 +776,3 @@ export class ChatService {
     }
   }
 }
-
