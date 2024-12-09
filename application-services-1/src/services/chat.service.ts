@@ -14,6 +14,7 @@ import {
 import { CRUDPromptRoute } from 'src/kafka-ob1/interfaces/promptCRUD.interfaces';
 import axios from 'axios';
 import { SlackEventHandlingService } from './slack-event-handling.service';
+import {getAttachmentUrlFromComment} from './jira-utils'
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
@@ -407,6 +408,10 @@ export class ChatService {
     const { ticketId, comment, displayName } = functionInput;
 
     try {
+
+      const fileContentUrl = await getAttachmentUrlFromComment(ticketId,comment)
+      console.log("filename",fileContentUrl)
+
       const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
       const executeDto = {
