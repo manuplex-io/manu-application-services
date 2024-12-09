@@ -54,7 +54,7 @@ function getAttachmentContentUrl(issueData: any, filename: string): string | nul
 export async function getAttachmentUrlFromComment(ticketId: string, comment: string): Promise<string | null> {
   try {
     // Call the Jira API to fetch the issue data
-    const response = await axios.get(`https://your-jira-instance.atlassian.net/rest/api/2/issue/${ticketId}`, {
+    const response = await axios.get(`https://manuplex-team.atlassian.net/rest/api/2/issue/${ticketId}`, {
         headers: {
           Authorization: `Basic ${Buffer.from(
             `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`,
