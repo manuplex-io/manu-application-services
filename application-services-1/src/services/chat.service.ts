@@ -410,7 +410,9 @@ export class ChatService {
     try {
 
       const fileContentUrl = await getAttachmentUrlFromComment(ticketId,comment)
+      console.log("comment",comment)
       console.log("filename",fileContentUrl)
+      
 
       const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
