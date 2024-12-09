@@ -414,9 +414,8 @@ export class ChatService {
       console.log("comment",comment)
       console.log("fileContentUrl",fileContentUrl)
       const ticketDetails = await this.agentPlexHistory(ticketId);
-      let executeDto = {}
-      if(fileContentUrl){
-        executeDto = {
+
+      const executeDto = {
         systemPromptVariables: {
           taskDescription: ticketDetails.description,
         },
@@ -425,7 +424,7 @@ export class ChatService {
           botToken:slackToken,
           channelId:channelId,
           threadId:threadId,
-          fileUrl:fileContentUrl
+          fileUrl:fileContentUrl ? fileContentUrl : ""
         },
         messageHistory: ticketDetails.comments, // Pass the transformed history
         llmConfig: {
@@ -434,25 +433,7 @@ export class ChatService {
           temperature: 0.7,
         },
       };
-      }
-      else{
-        // console.log("ticketDetails",ticketDetails)
-       executeDto = {
-        systemPromptVariables: {
-          taskDescription: ticketDetails.description,
-        },
-        userPromptVariables: {
-          consultantMessage: comment,
-        },
-        messageHistory: ticketDetails.comments, // Pass the transformed history
-        llmConfig: {
-          provider: 'openai',
-          model: 'gpt-4o-mini',
-          temperature: 0.7,
-        },
-      };
-      }
-
+      
       const CRUDFunctionInput = {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
