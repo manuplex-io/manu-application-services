@@ -408,15 +408,36 @@ export class ChatService {
     const { ticketId, comment, displayName } = functionInput;
 
     try {
-
+      const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
+      const { slackToken, channelId, threadId } = slackDetails;
       const fileContentUrl = await getAttachmentUrlFromComment(ticketId,comment)
       console.log("comment",comment)
-      console.log("filename",fileContentUrl)
-      
-
+      console.log("fileContentUrl",fileContentUrl)
       const ticketDetails = await this.agentPlexHistory(ticketId);
-      // console.log("ticketDetails",ticketDetails)
-      const executeDto = {
+      let executeDto = {}
+      if(fileContentUrl){
+        executeDto = {
+        systemPromptVariables: {
+          taskDescription: ticketDetails.description,
+        },
+        userPromptVariables: {
+          consultantMessage: comment,
+          botToken:slackToken,
+          channelId:channelId,
+          threadId:threadId,
+          fileUrl:fileContentUrl
+        },
+        messageHistory: ticketDetails.comments, // Pass the transformed history
+        llmConfig: {
+          provider: 'openai',
+          model: 'gpt-4o-mini',
+          temperature: 0.7,
+        },
+      };
+      }
+      else{
+        // console.log("ticketDetails",ticketDetails)
+       executeDto = {
         systemPromptVariables: {
           taskDescription: ticketDetails.description,
         },
@@ -430,6 +451,7 @@ export class ChatService {
           temperature: 0.7,
         },
       };
+      }
 
       const CRUDFunctionInput = {
         CRUDOperationName: CRUDOperationName.POST,
@@ -461,8 +483,7 @@ export class ChatService {
         );
       
         if (managerMessages.length > 0) {
-          const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
-          const { slackToken, channelId, threadId } = slackDetails;
+          
       
           for (const message of managerMessages) {
             await this.postMessageToChannel(
@@ -749,3 +770,4 @@ export class ChatService {
     }
   }
 }
+
