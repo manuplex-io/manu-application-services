@@ -57,7 +57,7 @@ export async function getAttachmentUrlFromComment(ticketId: string, comment: str
     const response = await axios.get(`https://your-jira-instance.atlassian.net/rest/api/2/issue/${ticketId}`, {
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${process.env.JIRA_PLEX_EMAIL}:${process.env.JIRA_PLEX_TOKEN}`,
+            `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`,
           ).toString('base64')}`,
           Accept: 'application/json',
         },
