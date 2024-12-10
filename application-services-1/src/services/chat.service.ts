@@ -315,25 +315,30 @@ export class ChatService {
       const llmResponse = JSON.parse(response.messageContent.content);
       console.log('llmResponse', llmResponse);
       if (Array.isArray(llmResponse?.Messages)) {
-        const Manager = llmResponse.Messages.find(
+        const managerMessages = llmResponse.Messages.filter(
           (element) => element.Recipient === 'manager',
         );
-        const Consultant = llmResponse.Messages.find(
+        const consultantMessages = llmResponse.Messages.filter(
           (element) => element.Recipient === 'consultant',
         );
+      
+        if (managerMessages.length > 0) {
 
-        if (Manager) {
-          await this.postMessageToChannel(
-            channelId,
-            { text: Manager.Message },
-            token,
-            threadId,
-          );
+          
+          for (const message of managerMessages) {
+            await this.postMessageToChannel(
+              channelId,
+              { text: message.Message },
+              token,
+              threadId,
+            );
+          }
         }
-
-        if (Consultant) {
-          // Corrected condition
-          await this.postJiraComment(ticketId, Consultant.Message);
+      
+        if (consultantMessages.length > 0) {
+          for (const message of consultantMessages) {
+            await this.postJiraComment(ticketId, message.Message);
+          }
         }
       } else {
         console.log('llm response did not return array');
