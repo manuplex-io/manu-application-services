@@ -232,6 +232,7 @@ export class ChatService {
       );
 
       const userInput = latestMessage.text
+      const fileUrls = await this.checkSlackFileUploads(latestMessage)
 
       if (!userInput) {
         throw Error('No latest message found for the user');
@@ -241,7 +242,7 @@ export class ChatService {
       const newFunctionInput = {...functionInput, threadId,userInput}
       console.log("newFunctionInput",newFunctionInput)
 
-      await this.chatAfterTicketCreation(newFunctionInput,projectName,ticketDescription,context,messages)
+      await this.chatAfterTicketCreation(newFunctionInput,projectName,ticketDescription,context,messages,fileUrls)
 
     } catch (error) {
       this.logger.error(`error in function existing project ${JSON.stringify(error)}`)
