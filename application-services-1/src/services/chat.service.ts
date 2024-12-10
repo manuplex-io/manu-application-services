@@ -49,13 +49,12 @@ export class ChatService {
       const fileUrls = await this.checkSlackFileUploads(functionInput);
       console.log('Files uploaded by the user:', fileUrls);
 
-      const response2 =   await this.getTicketDetailsByThreadId(threadId);
-      const ticketId = response2.ticketId
+      
 
       if (threadId1) {
         
-        // const response =   await this.getTicketDetailsByThreadId(threadId);
-        const {ticketDescription} = response2
+        const response =   await this.getTicketDetailsByThreadId(threadId);
+        const {ticketId,ticketDescription} = response
         
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
@@ -112,8 +111,8 @@ export class ChatService {
       const executeDto = {
         userPromptVariables: {
           userInput: userInput1,
-          ticketId: ticketId,
-          botToken: token,
+          ticketId: "",
+          botToken: "",
           fileUrl: fileUrls ? fileUrls: "",
         },
         messageHistory: messages, // Pass the transformed history
