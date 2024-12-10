@@ -205,6 +205,7 @@ export async function getChannelMessageHistory(channelId: string, slackToken: st
      text: message.text,
      ts: message.ts,
      user: message.user || 'unknown',
+     files:message.files
    }));
  } catch (error) {
    console.error('Error fetching Slack messages:', error.message);
