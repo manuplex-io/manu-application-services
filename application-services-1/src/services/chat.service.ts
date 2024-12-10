@@ -54,7 +54,7 @@ export class ChatService {
       if (threadId1) {
         
         const response =   await this.getTicketDetailsByThreadId(threadId);
-        const {ticketId,ticketDescription} = response
+        
         
         // Fetch conversation history for the given threadId
         const threadMessages = await getThreadMessageHistory(
@@ -70,8 +70,8 @@ export class ChatService {
             : { role: 'assistant', content: message.text },
         );
         messages.pop()
-        if (ticketId) {
-          
+        if (response) {
+          const {ticketId,ticketDescription} = response
           console.log("calling chatAfterTicketCreation", ticketId)
           await this.chatAfterTicketCreation(
             functionInput,
