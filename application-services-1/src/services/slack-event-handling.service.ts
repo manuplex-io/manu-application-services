@@ -160,7 +160,6 @@ export class SlackEventHandlingService implements OnModuleInit {
       const workspace = workspaceObject.team.name;
 
       let channelName = '';
-      console.log('original blocks', JSON.stringify(blocks));
       // Check if the message is from a direct message channel
       if (channelId.startsWith('D')) {
         channelName = 'Direct Message'; // Label direct message channels
@@ -201,14 +200,12 @@ export class SlackEventHandlingService implements OnModuleInit {
       // Add the element to the 0th index
       blocks[0].elements.unshift(element);
       console.log('notificationMessage', notificationMessage);
-      console.log('blocks', JSON.stringify(blocks));
-      console.log('elements', JSON.stringify(blocks[0].elements));
       await this.webhook.send({
         // text: notificationMessage,
         blocks: blocks,
       });
     } catch (error) {
-      console.error('Error in slackNotification:', error);
+      console.error('Error in slackNotification:', error.response);
       throw error; // Propagate the error to ensure visibility
     }
   }
