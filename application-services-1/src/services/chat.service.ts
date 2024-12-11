@@ -309,40 +309,49 @@ export class ChatService {
         personRole: headers.userRole.toString() || 'user', // userRole
         personId: headers.userEmail.toString(), // userEmail
       };
-      const response = await this.kafkaService.sendAgentCRUDRequest(request);
-      // await this.postJiraComment(ticketId)
+      let isYesResponse = false;
+    let retryCount = 0;
+    const maxRetries = 5; // Avoid infinite loop with a retry limit
+    let llmResponse1 = await this.callFirstLlm(request);
 
-      const llmResponse = JSON.parse(response.messageContent.content);
-      console.log('llmResponse', llmResponse);
-      if (Array.isArray(llmResponse?.Messages)) {
-        const managerMessages = llmResponse.Messages.filter(
-          (element) => element.Recipient === 'user',
-        );
-        const consultantMessages = llmResponse.Messages.filter(
-          (element) => element.Recipient === 'consultant',
-        );
-      
-        if (managerMessages.length > 0) {
-
-          
-          for (const message of managerMessages) {
-            await this.postMessageToChannel(
-              channelId,
-              { text: message.Message },
-              token,
-              threadId,
-            );
-          }
-        }
-      
-        if (consultantMessages.length > 0) {
-          for (const message of consultantMessages) {
-            await this.postJiraComment(ticketId, message.Message);
-          }
-        }
+    console.log('Initial LLM1 Response', llmResponse1);
+    while (!isYesResponse && retryCount < maxRetries) {
+      // Call the second LLM with the latest llmResponse1
+      const secondLlmInput = this.prepareSecondLlmInput(llmResponse1,userInput,context,"c65b39f0-6a99-41fe-b12a-68faa4a6ef98");
+      const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
+      const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
+      console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
+      if (secondLlmResponse?.Evaluation === 'yes') {
+        isYesResponse = true;
       } else {
-        console.log('llm response did not return array');
+        retryCount++;
+        console.log(`Second LLM Response was "no", regenerating LLM1 response (attempt #${retryCount})`);
+        
+        // Regenerate the LLM1 response using the original request
+        llmResponse1 = await this.callFirstLlm(request);
+        console.log(`Regenerated LLM1 Response (attempt #${retryCount})`, llmResponse1);
       }
+    }
+    if (isYesResponse && Array.isArray(llmResponse1?.Messages)) {
+      const managerMessages = llmResponse1.Messages.filter(
+        (element) => element.Recipient === 'user',
+      );
+      const consultantMessages = llmResponse1.Messages.filter(
+        (element) => element.Recipient === 'consultant',
+      );
+      if (managerMessages.length > 0) {
+        for (const message of managerMessages) {
+          await this.postMessageToChannel(channelId, { text: message.Message }, token, threadId);
+        }
+      }
+      if (consultantMessages.length > 0) {
+        for (const message of consultantMessages) {
+          await this.postJiraComment(ticketId, message.Message);
+        }
+      }
+    } else {
+      console.log('Exiting loop: Did not receive a "yes" from second LLM after retries.');
+    }
     } catch (error) {
       console.log('error', error);
       this.logger.error(
@@ -480,46 +489,53 @@ export class ChatService {
         personRole: headers.userRole.toString() || 'user', // userRole
         personId: headers.userEmail.toString(), // userEmail
       };
-      const response = await this.kafkaService.sendAgentCRUDRequest(request);
-      // await this.postJiraComment(ticketId)
+    let isYesResponse = false;
+    let retryCount = 0;
+    const maxRetries = 5; // Avoid infinite loop with a retry limit
+    let llmResponse1 = await this.callFirstLlm(request);
 
-      const llmResponse = JSON.parse(response.messageContent.content);
-      console.log('llmResponse', llmResponse);
-      if (Array.isArray(llmResponse?.Messages)) {
-        const managerMessages = llmResponse.Messages.filter(
-          (element) => element.Recipient === 'engineer',
-        );
-        const consultantMessages = llmResponse.Messages.filter(
-          (element) => element.Recipient === 'consultant',
-        );
-      
-        if (managerMessages.length > 0) {
-
-          
-          for (const message of managerMessages) {
-            await this.postMessageToChannel(
-              channelId,
-              { text: message.Message },
-              slackToken,
-              threadId,
-            );
-          }
-        }
-      
-        if (consultantMessages.length > 0) {
-          for (const message of consultantMessages) {
-            await this.postJiraComment(ticketId, message.Message);
-          }
-        }
+    console.log('Initial LLM1 Response', llmResponse1);
+    while (!isYesResponse && retryCount < maxRetries) {
+      // Call the second LLM with the latest llmResponse1
+      const secondLlmInput = this.prepareSecondLlmInput(llmResponse1,comment,context,"e08423b6-e0a1-4667-b442-4a1d284cdc6a");
+      const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
+      const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
+      console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
+      if (secondLlmResponse?.Evaluation === 'yes') {
+        isYesResponse = true;
       } else {
-        console.log('llm response did not return array');
+        retryCount++;
+        console.log(`Second LLM Response was "no", regenerating LLM1 response (attempt #${retryCount})`);
+        
+        // Regenerate the LLM1 response using the original request
+        llmResponse1 = await this.callFirstLlm(request);
+        console.log(`Regenerated LLM1 Response (attempt #${retryCount})`, llmResponse1);
       }
-    } catch (error) {
-      console.log('error', error);
-      this.logger.error(
-        `error in handleAgentResponse Function ${JSON.stringify(error)}`,
-      );
     }
+    if (isYesResponse && Array.isArray(llmResponse1?.Messages)) {
+      const managerMessages = llmResponse1.Messages.filter(
+        (element) => element.Recipient === 'engineer',
+      );
+      const consultantMessages = llmResponse1.Messages.filter(
+        (element) => element.Recipient === 'consultant',
+      );
+      if (managerMessages.length > 0) {
+        for (const message of managerMessages) {
+          await this.postMessageToChannel(channelId, { text: message.Message }, slackToken, threadId);
+        }
+      }
+      if (consultantMessages.length > 0) {
+        for (const message of consultantMessages) {
+          await this.postJiraComment(ticketId, message.Message);
+        }
+      }
+    } else {
+      console.log('Exiting loop: Did not receive a "yes" from second LLM after retries.');
+    }
+  } catch (error) {
+    console.log('error', error);
+    this.logger.error(`Error in handleAgentResponse function: ${JSON.stringify(error)}`);
+  }
   }
 
   async createTicket(
@@ -779,5 +795,48 @@ export class ChatService {
     } catch (error) {
       console.error('Error sending response to Slack:', error.message);
     }
+  }
+
+  private async callFirstLlm(request: CRUDRequest): Promise<any> {
+    try {
+      const response = await this.kafkaService.sendAgentCRUDRequest(request);
+      return JSON.parse(response.messageContent.content);
+    } catch (error) {
+      console.log('Error calling first LLM:', error);
+      throw error;
+    }
+  }
+  private prepareSecondLlmInput(llmResponse1: any, userInput:string, context:KafkaContext,promptId:string): CRUDRequest {
+    const messageKey = context.getMessage().key.toString();
+    const instanceName = context.getMessage().headers.instanceName.toString();
+    const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+    const secondLlmDto = {
+      userPromptVariables: {
+        llmResponse: llmResponse1,
+        userInput:userInput
+      },
+      llmConfig: {
+        provider: 'openai',
+        model: 'gpt-4o',
+        temperature: 0.7,
+      },
+    };
+    const secondCRUDFunctionInput = {
+      CRUDOperationName: CRUDOperationName.POST,
+      CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
+      CRUDBody: secondLlmDto,
+      routeParams: { promptId: promptId },
+    };
+    const secondRequest: CRUDRequest = {
+      messageKey,
+      userOrgId: instanceName || 'default',
+      sourceFunction: 'executeSecondPrompt',
+      CRUDFunctionNameInput: 'promptCRUD-V1',
+      CRUDFunctionInput: secondCRUDFunctionInput,
+      personRole: headers.userRole.toString() || 'user', // userRole
+      personId: headers.userEmail.toString(), // userEmail
+    };
+    return secondRequest;
   }
 }
