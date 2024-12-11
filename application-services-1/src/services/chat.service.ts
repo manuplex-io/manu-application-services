@@ -487,7 +487,7 @@ export class ChatService {
       console.log('llmResponse', llmResponse);
       if (Array.isArray(llmResponse?.Messages)) {
         const managerMessages = llmResponse.Messages.filter(
-          (element) => element.Recipient === 'manager',
+          (element) => element.Recipient === 'engineer',
         );
         const consultantMessages = llmResponse.Messages.filter(
           (element) => element.Recipient === 'consultant',
