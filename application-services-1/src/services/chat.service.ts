@@ -317,7 +317,8 @@ export class ChatService {
     console.log('Initial LLM1 Response', llmResponse1);
     while (!isYesResponse && retryCount < maxRetries) {
       // Call the second LLM with the latest llmResponse1
-      const secondLlmInput = this.prepareSecondLlmInput(llmResponse1,userInput,context,"c65b39f0-6a99-41fe-b12a-68faa4a6ef98");
+      const stringResponse = JSON.stringify(llmResponse1)
+      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,userInput,context,"c65b39f0-6a99-41fe-b12a-68faa4a6ef98");
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
       const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
@@ -497,7 +498,8 @@ export class ChatService {
     console.log('Initial LLM1 Response', llmResponse1);
     while (!isYesResponse && retryCount < maxRetries) {
       // Call the second LLM with the latest llmResponse1
-      const secondLlmInput = this.prepareSecondLlmInput(llmResponse1,comment,context,"e08423b6-e0a1-4667-b442-4a1d284cdc6a");
+      const stringResponse = JSON.stringify(llmResponse1)
+      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,comment,context,"e08423b6-e0a1-4667-b442-4a1d284cdc6a");
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
       const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
