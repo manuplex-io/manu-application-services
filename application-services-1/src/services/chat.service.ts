@@ -111,8 +111,8 @@ export class ChatService {
       const executeDto = {
         userPromptVariables: {
           userInput: userInput1,
-          ticketId: "KAN-80",
-          botToken: token,
+          ticketId: "",
+          botToken: "",
           fileUrl: fileUrls ? fileUrls: "",
         },
         messageHistory: messages, // Pass the transformed history
