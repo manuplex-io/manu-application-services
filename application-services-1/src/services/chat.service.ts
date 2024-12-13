@@ -143,7 +143,7 @@ export class ChatService {
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
       console.log('response from llm', response.messageContent);
 
-      const parsedMessage = JSON.parse(response.messageContent.content);
+      const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
 
       const { Ticket_ID, Ticket_Title } = parsedMessage;
@@ -320,7 +320,7 @@ export class ChatService {
       const stringResponse = JSON.stringify(llmResponse1)
       const secondLlmInput = this.prepareSecondLlmInput(stringResponse,userInput,context,process.env.REFLECTPOSTTICKETCREATION);
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
-      const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
+      const secondLlmResponse = secondResponse.messageContent.content
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
       if (secondLlmResponse?.Evaluation === 'yes') {
         isYesResponse = true;
@@ -422,7 +422,7 @@ export class ChatService {
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
       console.log('response from llm', response.messageContent);
 
-      const parsedMessage = JSON.parse(response.messageContent.content);
+      const parsedMessage = response.messageContent.content
       const plexMessage = parsedMessage.Response;
 
       await this.postMessageToChannel(
@@ -501,7 +501,7 @@ export class ChatService {
       const stringResponse = JSON.stringify(llmResponse1)
       const secondLlmInput = this.prepareSecondLlmInput(stringResponse,comment,context,process.env.REFLECTHANDLEAGENT);
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
-      const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
+      const secondLlmResponse = secondResponse.messageContent.content
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
       if (secondLlmResponse?.Evaluation === 'yes') {
         isYesResponse = true;
@@ -802,7 +802,7 @@ export class ChatService {
   private async callFirstLlm(request: CRUDRequest): Promise<any> {
     try {
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
-      return JSON.parse(response.messageContent.content);
+      return response.messageContent.content
     } catch (error) {
       console.log('Error calling first LLM:', error);
       throw error;
