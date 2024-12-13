@@ -455,17 +455,22 @@ export class ChatService {
       console.log("fileContentUrl",fileContentUrl)
       const ticketDetails = await this.agentPlexHistory(ticketId);
 
+      const toolInputENVVariables = {
+        botToken: slackToken,
+        channelId: channelId,
+        threadId: threadId,
+        fileUrl: fileContentUrl ? fileContentUrl : ""
+      }
+
       const executeDto = {
         systemPromptVariables: {
           taskDescription: ticketDetails.description,
         },
         userPromptVariables: {
           consultantMessage: comment,
-          botToken:slackToken,
-          channelId:channelId,
-          threadId:threadId,
           fileUrl:fileContentUrl ? fileContentUrl : ""
         },
+        toolInputENVVariables,
         messageHistory: ticketDetails.comments, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
