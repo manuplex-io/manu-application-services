@@ -127,7 +127,7 @@ export class ChatService {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
-        routeParams: { promptId: 'a37b7470-c186-4fc2-90c7-5a1587a6fff6' },
+        routeParams: { promptId: process.env.CHATWITHUSERV2 },
       }; //CRUDFunctionInput
 
       const request: CRUDRequest = {
@@ -297,7 +297,7 @@ export class ChatService {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
-        routeParams: { promptId: '03e88669-a13a-404c-b3b6-fe154f43a4f3' },
+        routeParams: { promptId: process.env.EXISTINGPROJECTS2 },
       }; //CRUDFunctionInput
 
       const request: CRUDRequest = {
@@ -318,7 +318,7 @@ export class ChatService {
     while (!isYesResponse && retryCount < maxRetries) {
       // Call the second LLM with the latest llmResponse1
       const stringResponse = JSON.stringify(llmResponse1)
-      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,userInput,context,"c65b39f0-6a99-41fe-b12a-68faa4a6ef98");
+      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,userInput,context,process.env.REFLECTPOSTTICKETCREATION);
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
       const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
@@ -406,7 +406,7 @@ export class ChatService {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
-        routeParams: { promptId: '6def9705-2456-4c9c-80d9-f5a19e25f657' },
+        routeParams: { promptId: process.env.CHATWITHUSERV2 },
       }; //CRUDFunctionInput
 
       const request: CRUDRequest = {
@@ -478,7 +478,7 @@ export class ChatService {
         CRUDOperationName: CRUDOperationName.POST,
         CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
         CRUDBody: executeDto,
-        routeParams: { promptId: 'f8dd202a-a4f6-489e-9e49-680d8aeb7789' },
+        routeParams: { promptId: process.env.HANDLEAGENTRESPONSE2  },
       }; //CRUDFunctionInput
 
       const request: CRUDRequest = {
@@ -499,7 +499,7 @@ export class ChatService {
     while (!isYesResponse && retryCount < maxRetries) {
       // Call the second LLM with the latest llmResponse1
       const stringResponse = JSON.stringify(llmResponse1)
-      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,comment,context,"e08423b6-e0a1-4667-b442-4a1d284cdc6a");
+      const secondLlmInput = this.prepareSecondLlmInput(stringResponse,comment,context,process.env.REFLECTHANDLEAGENT);
       const secondResponse = await this.kafkaService.sendAgentCRUDRequest(secondLlmInput);
       const secondLlmResponse = JSON.parse(secondResponse.messageContent.content);
       console.log(`Attempt #${retryCount + 1} - Second LLM Response`, secondLlmResponse);
