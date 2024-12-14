@@ -107,14 +107,21 @@ export class ChatService {
         userInput1 = latestMessage.text;
       }
 
+      const toolInputENVVariables = {
+        ticketId: "PPT-2",
+        botToken: token,
+        jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
+        jiraPlexToken: process.env.JIRA_PLEX_TOKEN,
+        fileUrl: fileUrls ? fileUrls: "",
+      }
+
       // Define the executeDto with the conversation history
       const executeDto = {
         userPromptVariables: {
           userInput: userInput1,
-          ticketId: "",
-          botToken: "",
           fileUrl: fileUrls ? fileUrls: "",
         },
+        toolInputENVVariables,
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
@@ -275,16 +282,24 @@ export class ChatService {
     try {
       // const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
+      
+      const toolInputENVVariables = {
+        ticketId: ticketId,
+        botToken: token,
+        jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
+        jiraPlexToken: process.env.JIRA_PLEX_TOKEN,
+        fileUrl: fileUrls ? fileUrls: "",
+      }
+
       const executeDto = {
         systemPromptVariables: {
           taskDescription: ticketDescription,
         },
         userPromptVariables: {
           userInput: userInput,
-          ticketId: ticketId,
-          botToken: token,
           fileUrl: fileUrls ? fileUrls: "",
         },
+        toolInputENVVariables,
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
@@ -459,6 +474,8 @@ export class ChatService {
         botToken: slackToken,
         channelId: channelId,
         threadId: threadId,
+        jiraEmail: process.env.JIRA_EMAIL,
+        jiraToken: process.env.JIRA_TOKEN,
         fileUrl: fileContentUrl ? fileContentUrl : ""
       }
 
