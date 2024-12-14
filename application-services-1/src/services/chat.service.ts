@@ -112,7 +112,7 @@ export class ChatService {
         botToken: token,
         jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
         jiraPlexToken: process.env.JIRA_PLEX_TOKEN,
-        fileUrl: fileUrls ? fileUrls: "",
+        fileUrl: fileUrls ? fileUrls: [],
       }
 
       // Define the executeDto with the conversation history
@@ -288,7 +288,7 @@ export class ChatService {
         botToken: token,
         jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
         jiraPlexToken: process.env.JIRA_PLEX_TOKEN,
-        fileUrl: fileUrls ? fileUrls: "",
+        fileUrl: fileUrls ? fileUrls: [],
       }
 
       const executeDto = {
