@@ -13,21 +13,22 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_BUILD_ID | sed 's/:/-/g') # Replace ":" with "-" to ensure compatibility
       - echo Using image tag $IMAGE_TAG       
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG      
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - export IMAGE_TAG=$IMAGE_TAG  # Export IMAGE_TAG to make it available as an environment variable for later phases      
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - mkdir -p codePipeline/codeDeploy  # Ensure the directory exists
+      # - mkdir -p codePipeline/codeDeploy  # Ensure the directory exists
       # - echo $IMAGE_TAG > /tmp/image_tag.txt  # Write to the /tmp directory, which is accessible across stages
-      - echo $IMAGE_TAG > codePipeline/codeDeploy/image_tag.txt  # Save the tag to the correct location
+      # - echo $IMAGE_TAG > codePipeline/codeDeploy/image_tag.txt  # Save the tag to the correct location
       # - echo $IMAGE_TAG > image_tag.txt  # Save the tag to a file to pass to the deploy stage
-      - echo "Checking if the image_tag.txt file was created..."
-      - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
-      - pwd 
-      - cat codePipeline/codeDeploy/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
-      - export IMAGE_TAG=$IMAGE_TAG  # Set IMAGE_TAG as an environment variable
+      # - echo "Checking if the image_tag.txt file was created..."
+      # - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
+      # - pwd 
+      # - cat codePipeline/codeDeploy/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
+      # - export IMAGE_TAG=$IMAGE_TAG  # Set IMAGE_TAG as an environment variable
 artifacts:
   base-directory: codePipeline/codeDeploy
   files:
@@ -37,10 +38,10 @@ artifacts:
     # - image_tag.txt
     # - image_tag.txt  # Include the image tag in the artifacts
   discard-paths: no
-  name: BuildArtifact
+  # name: BuildArtifact
 
-  secondary-artifacts:
-      image_tag:
-        base-directory: codePipeline/codeDeploy
-        files:
-          - image_tag.txt
+  # secondary-artifacts:
+      # image_tag:
+        # base-directory: codePipeline/codeDeploy
+        # files:
+          # - image_tag.txt

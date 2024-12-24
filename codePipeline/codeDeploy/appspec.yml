@@ -9,4 +9,5 @@ hooks:
   AfterInstall:
     - location: scripts/updateService.sh #change to deployDocker.sh when changing the docker stack file else do updateService.sh
       runas: ec2-user
-      arguments: ["$(cat /home/ec2-user/codeDeploy/image_tag.txt)"] #added for taking image tag as input
+      environment:
+        IMAGE_TAG: "#{IMAGE_TAG}"
