@@ -20,9 +20,9 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      # - mkdir -p codePipeline/codeDeploy  # Ensure the directory exists
+      - mkdir -p codePipeline/codeDeploy  # Ensure the directory exists
       # - echo $IMAGE_TAG > /tmp/image_tag.txt  # Write to the /tmp directory, which is accessible across stages
-      - echo $IMAGE_TAG > codePipeline/codeDeploy/scripts/image_tag.txt  # Save the tag to the correct location
+      - echo $IMAGE_TAG > ../codePipeline/codeDeploy/image_tag.txt  # Save the tag to the correct location
       # - echo $IMAGE_TAG > image_tag.txt  # Save the tag to a file to pass to the deploy stage
       - echo "Checking if the image_tag.txt file was created..."
       - ls
@@ -36,8 +36,7 @@ artifacts:
     # - /tmp/image_tag.txt  # Reference the image_tag.txt file in /tmp directory
     - appspec.yml
     - scripts/*
-    # - image_tag.txt
-    # - image_tag.txt  # Include the image tag in the artifacts
+    - image_tag.txt
   discard-paths: no
   # name: BuildArtifact
 
