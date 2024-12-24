@@ -17,7 +17,7 @@ REPO_VERSION="latest"
 
 
 # Construct the full ECR image reference
-IMAGE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/ob1/${REPO_NAME}:${REPO_VERSION}"
+IMAGE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${REPO_VERSION}"
 
 # 1) Log in to ECR (on the Swarm Manager node)
 echo "Logging into ECR..."
