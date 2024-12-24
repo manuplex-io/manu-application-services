@@ -11,13 +11,23 @@ SERVICE_SHORT_NAME="application-services-1"
 SERVICE_NAME="${STACK_NAME}_${SERVICE_SHORT_NAME}"
 
 # ECR Repository and version.
+
+# We'll get the image tag from the CodePipeline artifact
+IMAGE_TAG=$1   # Accept the image tag as a parameter
+
+if [ -z "$IMAGE_TAG" ]; then
+  echo "Error: IMAGE_TAG is required"
+  exit 1
+fi
+
 # Adjust these to match your image repository in ECR.
 REPO_NAME="manu/application-services"
-REPO_VERSION="latest"
+# REPO_VERSION="latest"
 
 
 # Construct the full ECR image reference
-IMAGE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${REPO_VERSION}"
+# IMAGE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${REPO_VERSION}"
+IMAGE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${IMAGE_TAG}"
 
 # 1) Log in to ECR (on the Swarm Manager node)
 echo "Logging into ECR..."
