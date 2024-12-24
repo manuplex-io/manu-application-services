@@ -13,7 +13,7 @@ SERVICE_NAME="${STACK_NAME}_${SERVICE_SHORT_NAME}"
 # ECR Repository and version.
 
 # We'll get the image tag from the CodePipeline artifact
-IMAGE_TAG=$1   # Accept the image tag as a parameter
+# IMAGE_TAG=$1   # Accept the image tag as a parameter
 
 if [ -z "$IMAGE_TAG" ]; then
   echo "Error: IMAGE_TAG is required"

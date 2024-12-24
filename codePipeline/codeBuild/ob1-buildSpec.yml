@@ -27,6 +27,7 @@ phases:
       - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
       - pwd 
       - cat codePipeline/codeDeploy/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
+      - export IMAGE_TAG=$IMAGE_TAG  # Set IMAGE_TAG as an environment variable
 artifacts:
   base-directory: codePipeline/codeDeploy
   files:
