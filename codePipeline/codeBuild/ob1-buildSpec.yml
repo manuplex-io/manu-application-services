@@ -34,6 +34,13 @@ artifacts:
     # - /tmp/image_tag.txt  # Reference the image_tag.txt file in /tmp directory
     - appspec.yml
     - scripts/*
-    - image_tag.txt
+    # - image_tag.txt
     # - image_tag.txt  # Include the image tag in the artifacts
   discard-paths: no
+  name: BuildArtifact
+
+  secondary-artifacts:
+      image_tag:
+        base-directory: codePipeline/codeDeploy
+        files:
+          - image_tag.txt
