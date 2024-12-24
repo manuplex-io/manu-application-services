@@ -10,7 +10,7 @@ phases:
       - echo Build started on `date`
       - echo Building the $IMAGE_REPO_NAME Docker image... 
       - cd ./application-services-1
-      - IMAGE_TAG=$(git rev-parse --short HEAD)  # or you can use a timestamp: $(date +%Y%m%d%H%M%S)
+      - IMAGE_TAG=$(echo $CODEBUILD_BUILD_ID | sed 's/:/-/g') # Replace ":" with "-" to ensure compatibility
       - echo Using image tag $IMAGE_TAG       
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG      
