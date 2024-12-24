@@ -14,6 +14,7 @@ SERVICE_NAME="${STACK_NAME}_${SERVICE_SHORT_NAME}"
 
 # We'll get the image tag from the CodePipeline artifact
 # IMAGE_TAG=$1   # Accept the image tag as a parameter
+IMAGE_TAG=$(cat /home/ec2-user/codeDeploy/image_tag.txt || echo "")
 
 if [ -z "$IMAGE_TAG" ]; then
   echo "Error: IMAGE_TAG is required"
