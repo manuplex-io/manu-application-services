@@ -22,12 +22,13 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       # - mkdir -p codePipeline/codeDeploy  # Ensure the directory exists
       # - echo $IMAGE_TAG > /tmp/image_tag.txt  # Write to the /tmp directory, which is accessible across stages
-      # - echo $IMAGE_TAG > codePipeline/codeDeploy/image_tag.txt  # Save the tag to the correct location
+      - echo $IMAGE_TAG > codePipeline/codeDeploy/scripts/image_tag.txt  # Save the tag to the correct location
       # - echo $IMAGE_TAG > image_tag.txt  # Save the tag to a file to pass to the deploy stage
-      # - echo "Checking if the image_tag.txt file was created..."
-      # - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
+      - echo "Checking if the image_tag.txt file was created..."
+      - ls
+      - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
       # - pwd 
-      # - cat codePipeline/codeDeploy/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
+      - cat codePipeline/codeDeploy/scripts/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
       # - export IMAGE_TAG=$IMAGE_TAG  # Set IMAGE_TAG as an environment variable
 artifacts:
   base-directory: codePipeline/codeDeploy
