@@ -23,6 +23,9 @@ phases:
       # - echo $IMAGE_TAG > /tmp/image_tag.txt  # Write to the /tmp directory, which is accessible across stages
       - echo $IMAGE_TAG > codePipeline/codeDeploy/image_tag.txt  # Save the tag to the correct location
       # - echo $IMAGE_TAG > image_tag.txt  # Save the tag to a file to pass to the deploy stage
+      - echo "Checking if the image_tag.txt file was created..."
+      - ls -l codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
+      - cat codePipeline/codeDeploy/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
 artifacts:
   base-directory: codePipeline/codeDeploy
   files:
