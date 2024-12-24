@@ -27,8 +27,7 @@ phases:
       - echo "Checking if the image_tag.txt file was created..."
       - ls
       - ls codePipeline/codeDeploy  # List files in the codeDeploy directory to verify image_tag.txt exists
-      # - pwd 
-      - cat codePipeline/codeDeploy/scripts/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
+      # - cat codePipeline/codeDeploy/scripts/image_tag.txt  # Output the contents of image_tag.txt to ensure it's correct
       # - export IMAGE_TAG=$IMAGE_TAG  # Set IMAGE_TAG as an environment variable
 artifacts:
   base-directory: codePipeline/codeDeploy
