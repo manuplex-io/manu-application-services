@@ -1,12 +1,10 @@
 version: 0.0
 os: linux
 files:
-  - source: scripts/
-    destination: /home/ec2-user/codeDeploy/scripts/
   - source: previous_image_tag.txt
     destination: /home/ec2-user/codeDeploy/  
 hooks:
-  AfterAllowTraffic:
+  AfterInstall:
     - location: scripts/health_check.sh
       timeout: 300
       runas: root
