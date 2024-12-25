@@ -1,14 +1,16 @@
 #!/bin/bash
 
-#!/bin/bash
+set -e
 
-# Only run rollback if health_check.sh failed
-if [ $? -eq 0 ]; then
-    echo "Health check passed, skipping rollback"
-    exit 0
+# Check the health check status
+if [ -f /tmp/health_check_status ]; then
+  STATUS=$(cat /tmp/health_check_status)
+  if [ "$STATUS" == "success" ]; then
+    echo "Health check passed, skipping rollback."
+    exit 0  # Skip rollback
+  fi
 fi
 
-set -e
 
 # Customize these as needed:
 REGION="us-west-2"
@@ -54,3 +56,5 @@ docker service update \
   "$SERVICE_NAME"
 
 echo "Service '$SERVICE_NAME' updated successfully!"
+
+exit 1
