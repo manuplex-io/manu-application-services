@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Perform health check by checking if the response contains "status":"ok"
+sleep 60
 if curl -s https://os.manuplex.io/services/health | grep -q '"status":"ok"'; then
   echo "Health check passed."
   exit 0  # Exit with 0 to indicate success
