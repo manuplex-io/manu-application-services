@@ -8,6 +8,7 @@ hooks:
     - location: scripts/health_check.sh
       timeout: 300
       runas: root
+      onFailure: CONTINUE
     - location: scripts/rollback.sh
       timeout: 300
       runas: root
