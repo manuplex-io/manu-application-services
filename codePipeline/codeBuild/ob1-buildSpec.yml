@@ -37,4 +37,5 @@ artifacts:
     - scripts/*
     - image_tag.txt
     - previous_image_tag.txt
+    - appspec_healthcheck.yml
   discard-paths: no
