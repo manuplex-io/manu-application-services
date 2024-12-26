@@ -3,6 +3,7 @@ import { KafkaOb1Module } from './kafka-ob1/kafka-ob1.module';
 import { ConfigModule } from '@nestjs/config';
 import { OrderFormService } from './services/orderform.service';
 import { ServicesModule } from './services/services.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { ServicesModule } from './services/services.module';
     ServicesModule
   ],
   controllers: [
-
+    AppController
   ],
   providers: [
 
