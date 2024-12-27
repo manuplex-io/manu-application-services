@@ -5,8 +5,8 @@ services:
     networks:
       - OB-prod-net1-overlay
     volumes:
-      # - ./certs:/tls
-      - application-services-1-logs:/app/logs # Mount a volume for logs
+      - /ob1-efs/prod-cluster-1/application-services/certs:/tls
+      - /ob1-efs/prod-cluster-1/application-services/application-services-logs:/app/logs
     environment:
       - ENV=prod
       - SERVICE_NAME=application-services
@@ -52,14 +52,13 @@ services:
       options:
         max-size: "50m" # Rotate after 10MB
         max-file: "2" # Keep 3 files
-    
 
 networks:
   OB-prod-net1-overlay:
     external: true
 
 volumes:
-  application-services-1-logs:
+  application-services-logs:
     driver: local
 
 secrets:
@@ -75,7 +74,5 @@ secrets:
     external: true
   GOOGLE_SHEET_CLIENT_SECRET:
     external: true
-  GOOGLE_SHEET_CALLBACK_URL:  
+  GOOGLE_SHEET_CALLBACK_URL:
     external: true
-  
-
