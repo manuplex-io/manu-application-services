@@ -3,7 +3,7 @@ services:
     image: 637423298319.dkr.ecr.us-west-2.amazonaws.com/manu/application-services:latest
     hostname: application-services-1.manuplex-uswest-2.local
     networks:
-      - MP-prod-net1-overlay
+      - OB-prod-net1-overlay
     volumes:
       # - ./certs:/tls
       - application-services-1-logs:/app/logs # Mount a volume for logs
@@ -21,6 +21,9 @@ services:
       - REFLECTHANDLEAGENT=bf1bdf6c-aec1-422c-98aa-b83e3a59afd4
       - REFLECTPOSTTICKETCREATION=5cbd02f0-ed42-4f8d-aebf-1781e90b326c
     secrets:
+      - GOOGLE_SHEET_CLIENT_ID
+      - GOOGLE_SHEET_CLIENT_SECRET
+      - GOOGLE_SHEET_CALLBACK_URL
       - APPLICATION_SERVICES_JIRA_TOKEN
       - APPLICATION_SERVICES_JIRA_PLEX_TOKEN
       - OPENAI_API_KEY
@@ -30,6 +33,9 @@ services:
       export JIRA_TOKEN=$$(cat /run/secrets/APPLICATION_SERVICES_JIRA_TOKEN | tr -d '\\n') &&
       export JIRA_PLEX_TOKEN=$$(cat /run/secrets/APPLICATION_SERVICES_JIRA_PLEX_TOKEN | tr -d '\\n') &&
       export OPENAI_API_KEY=$$(cat /run/secrets/OPENAI_API_KEY | tr -d '\\n') &&
+      export GOOGLE_CLIENT_ID=$$(cat /run/secrets/GOOGLE_SHEET_CLIENT_ID | tr -d '\\n') &&
+      export GOOGLE_REDIRECT_URI=$$(cat /run/secrets/GOOGLE_SHEET_CALLBACK_URL | tr -d '\\n') &&
+      export GOOGLE_CLIENT_SECRET=$$(cat /run/secrets/GOOGLE_SHEET_CLIENT_SECRET | tr -d '\\n') &&
       export webhookURL=$$(cat /run/secrets/APPLICATION_SERVICES_SLACK_WEBHOOK_URL | tr -d '\\n') &&
       node --trace-warnings dist/main.js"
     labels:
@@ -49,9 +55,7 @@ services:
     
 
 networks:
-  MP-dev-net1-overlay:
-    external: true
-  MP-prod-net1-overlay:
+  OB-prod-net1-overlay:
     external: true
 
 volumes:
@@ -66,6 +70,12 @@ secrets:
   OPENAI_API_KEY:
     external: true
   APPLICATION_SERVICES_SLACK_WEBHOOK_URL:
+    external: true
+  GOOGLE_SHEET_CLIENT_ID:
+    external: true
+  GOOGLE_SHEET_CLIENT_SECRET:
+    external: true
+  GOOGLE_SHEET_CALLBACK_URL:  
     external: true
   
 
