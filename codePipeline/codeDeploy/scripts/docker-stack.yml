@@ -20,6 +20,7 @@ services:
       - EXISTINGPROJECTS2=9cfad00b-0b8d-45ce-a3e3-2b335318d6da
       - REFLECTHANDLEAGENT=bf1bdf6c-aec1-422c-98aa-b83e3a59afd4
       - REFLECTPOSTTICKETCREATION=5cbd02f0-ed42-4f8d-aebf-1781e90b326c
+      - SERVICE_ID="{{.Task.ID}}"
     secrets:
       - GOOGLE_SHEET_CLIENT_ID
       - GOOGLE_SHEET_CLIENT_SECRET
