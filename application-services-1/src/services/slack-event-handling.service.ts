@@ -476,12 +476,11 @@ export class SlackEventHandlingService implements OnModuleInit {
     }
   }
 
-  async getSlackDetails(ticketId: string) {
+  async getSlackDetails(ticketId: string,context: KafkaContext) {
     try {
-      // const headers: OB1MessageHeader = context.getMessage()
-        // .headers as unknown as OB1MessageHeader;
-      const messageKey = "aadish@manuplex.io";
-      // const messageKey = context.getMessage().key.toString();
+      const headers: OB1MessageHeader = context.getMessage()
+        .headers as unknown as OB1MessageHeader;
+      const messageKey = context.getMessage().key.toString();
       const instanceId = 'consultant';
       const userRole = 'consultant';
       const destinationService = 'database-service';

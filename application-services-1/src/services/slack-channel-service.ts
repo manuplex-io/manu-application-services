@@ -133,7 +133,7 @@ export class SlackChannelService {
       const token = functionInput.token
     const {text,channel:channelId,response_url,teamId} = functionInput
     const userRole = 'consultant';
-    const messageKey = 'aadish@manuplex.io';
+    const messageKey = context.getMessage().key.toString();
     const instanceId = 'consultant';
     const destinationService = 'database-service';
     const sourceFunction = 'back-end';

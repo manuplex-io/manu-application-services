@@ -53,7 +53,7 @@ export class ChatService {
 
       if (threadId1) {
         
-        const response =   await this.getTicketDetailsByThreadId(threadId);
+        const response =   await this.getTicketDetailsByThreadId(threadId,context);
         
         
         // Fetch conversation history for the given threadId
@@ -107,7 +107,7 @@ export class ChatService {
         userInput1 = latestMessage.text;
       }
 
-      const toolInputENVVariables = {
+      const toolENVInputVariables = {
         ticketId: "PPT-2",
         botToken: token,
         jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
@@ -121,7 +121,7 @@ export class ChatService {
           userInput: userInput1,
           fileUrl: fileUrls ? fileUrls: "",
         },
-        toolInputENVVariables,
+        toolENVInputVariables,
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
@@ -211,7 +211,7 @@ export class ChatService {
 
     try {
 
-      const {threadId,ticketDescription} = await this.slackEventHandlingService.getSlackDetails(projectName)
+      const {threadId,ticketDescription} = await this.slackEventHandlingService.getSlackDetails(projectName,context)
 
       console.log(`existing project ${projectName} ${threadId}`)
 
@@ -283,7 +283,7 @@ export class ChatService {
       // const ticketDetails = await this.agentPlexHistory(ticketId);
       // console.log("ticketDetails",ticketDetails)
       
-      const toolInputENVVariables = {
+      const toolENVInputVariables = {
         ticketId: ticketId,
         botToken: token,
         jiraPlexEmail: process.env.JIRA_PLEX_EMAIL,
@@ -299,7 +299,7 @@ export class ChatService {
           userInput: userInput,
           fileUrl: fileUrls ? fileUrls: "",
         },
-        toolInputENVVariables,
+        toolENVInputVariables,
         messageHistory: messages, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
@@ -463,14 +463,14 @@ export class ChatService {
     const { ticketId, comment, displayName } = functionInput;
 
     try {
-      const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId);
+      const slackDetails = await this.slackEventHandlingService.getSlackDetails(ticketId,context);
       const { slackToken, channelId, threadId } = slackDetails;
       const fileContentUrl = await getAttachmentUrlFromComment(ticketId,comment)
       console.log("comment",comment)
       console.log("fileContentUrl",fileContentUrl)
       const ticketDetails = await this.agentPlexHistory(ticketId);
 
-      const toolInputENVVariables = {
+      const toolENVInputVariables = {
         botToken: slackToken,
         channelId: channelId,
         threadId: threadId,
@@ -487,7 +487,7 @@ export class ChatService {
           consultantMessage: comment,
           fileUrl:fileContentUrl ? fileContentUrl : ""
         },
-        toolInputENVVariables,
+        toolENVInputVariables,
         messageHistory: ticketDetails.comments, // Pass the transformed history
         llmConfig: {
           provider: 'openai',
@@ -758,12 +758,11 @@ export class ChatService {
     }
   }
 
-  async getTicketDetailsByThreadId(threadId: string) {
+  async getTicketDetailsByThreadId(threadId: string,context: KafkaContext) {
     try {
-      // const headers: OB1MessageHeader = context.getMessage()
-      // .headers as unknown as OB1MessageHeader;
-      const messageKey = 'aadish@manuplex.io';
-      // const messageKey = context.getMessage().key.toString();
+      const headers: OB1MessageHeader = context.getMessage()
+      .headers as unknown as OB1MessageHeader;
+      const messageKey = context.getMessage().key.toString();
       const instanceId = 'consultant';
       const userRole = 'consultant';
       const destinationService = 'database-service';
