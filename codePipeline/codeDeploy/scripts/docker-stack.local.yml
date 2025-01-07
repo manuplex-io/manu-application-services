@@ -1,0 +1,79 @@
+services:
+  application-services-1:
+    image: application-services:latest
+    hostname: application-services-1.manuplex-uswest-2.local
+    networks:
+      - OB-prod-net1-overlay
+    volumes:
+      # - /ob1-efs/prod-cluster-1/application-services/certs:/tls
+      - application-services-logs:/app/logs
+    environment:
+      - ENV=prod
+      - SERVICE_NAME=application-services
+      - KAFKAJS_NO_PARTITIONER_WARNING=1
+      - GOOGLE_REDIRECT_URI=https://app.manuplex.io/auth/plex/callback
+      - JIRA_EMAIL=apoorv@manuplex.io
+      - JIRA_PLEX_EMAIL=plex@manuplex.io
+      - CHATWITHUSER=ffe3cc6b-3a06-4837-b9c5-bef08809806a
+      - CHATWITHUSERV2=26054e0d-fab8-4edf-88f8-0d225767b270
+      - HANDLEAGENTRESPONSE2=985f9e1a-41e6-46f8-aaf9-b6bb788a7156
+      - EXISTINGPROJECTS2=9cfad00b-0b8d-45ce-a3e3-2b335318d6da
+      - REFLECTHANDLEAGENT=bf1bdf6c-aec1-422c-98aa-b83e3a59afd4
+      - REFLECTPOSTTICKETCREATION=5cbd02f0-ed42-4f8d-aebf-1781e90b326c
+      - SERVICE_ID="{{.Task.ID}}"
+    secrets:
+      - GOOGLE_SHEET_CLIENT_ID
+      - GOOGLE_SHEET_CLIENT_SECRET
+      - GOOGLE_SHEET_CALLBACK_URL
+      - APPLICATION_SERVICES_JIRA_TOKEN
+      - APPLICATION_SERVICES_JIRA_PLEX_TOKEN
+      - OPENAI_API_KEY
+      - APPLICATION_SERVICES_SLACK_WEBHOOK_URL
+    command: >
+      sh -c "
+      export JIRA_TOKEN=$$(cat /run/secrets/APPLICATION_SERVICES_JIRA_TOKEN | tr -d '\\n') &&
+      export JIRA_PLEX_TOKEN=$$(cat /run/secrets/APPLICATION_SERVICES_JIRA_PLEX_TOKEN | tr -d '\\n') &&
+      export OPENAI_API_KEY=$$(cat /run/secrets/OPENAI_API_KEY | tr -d '\\n') &&
+      export GOOGLE_CLIENT_ID=$$(cat /run/secrets/GOOGLE_SHEET_CLIENT_ID | tr -d '\\n') &&
+      export GOOGLE_REDIRECT_URI=$$(cat /run/secrets/GOOGLE_SHEET_CALLBACK_URL | tr -d '\\n') &&
+      export GOOGLE_CLIENT_SECRET=$$(cat /run/secrets/GOOGLE_SHEET_CLIENT_SECRET | tr -d '\\n') &&
+      export webhookURL=$$(cat /run/secrets/APPLICATION_SERVICES_SLACK_WEBHOOK_URL | tr -d '\\n') &&
+      node --trace-warnings dist/main.js"
+    labels:
+      - "register-consul.enable=true"
+      - "register-consul.service-id=application-services-1"
+      - "register-consul.service-name=application-services"
+      - "register-consul.check.healthcheck-endpoint=http://application-services-1.manuplex-uswest-2.local:3000/services/health"
+      - "register-consul.service-tags=application-services,nestjs,prod"
+      - "register-consul.check.interval=15s"
+      - "register-consul.check.timeout=1s"
+      - "register-consul.check.deregister=72h"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m" # Rotate after 10MB
+        max-file: "2" # Keep 3 files
+    
+networks:
+  OB-prod-net1-overlay:
+    external: true
+
+volumes:
+  application-services-logs:
+    driver: local
+
+secrets:
+  APPLICATION_SERVICES_JIRA_TOKEN:
+    external: true
+  APPLICATION_SERVICES_JIRA_PLEX_TOKEN:
+    external: true
+  OPENAI_API_KEY:
+    external: true
+  APPLICATION_SERVICES_SLACK_WEBHOOK_URL:
+    external: true
+  GOOGLE_SHEET_CLIENT_ID:
+    external: true
+  GOOGLE_SHEET_CLIENT_SECRET:
+    external: true
+  GOOGLE_SHEET_CALLBACK_URL:
+    external: true
