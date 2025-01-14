@@ -18,6 +18,7 @@ import { SlackChannelService } from 'src/services/slack-channel-service';
 import { SlackEventHandlingService } from 'src/services/slack-event-handling.service';
 import { DecisionService } from 'src/services/decision.service';
 import { ChatService } from 'src/services/chat.service';
+import { JiraService } from 'src/services/jira.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -34,7 +35,8 @@ export class KafkaOb1ProcessingService {
     private readonly slackChannelService: SlackChannelService,
     private readonly slackEventHandlingService: SlackEventHandlingService,
     private readonly decisionService:DecisionService,
-    private readonly chatService:ChatService
+    private readonly chatService:ChatService,
+    private readonly jiraService: JiraService
 
   ) {}
 
@@ -122,6 +124,12 @@ export class KafkaOb1ProcessingService {
       }
       else if (functionName === 'chatWithUser') {
         return await this.chatService.chatWithUser(
+          functionInput,
+          context,
+        );
+      }
+      else if (functionName === 'getTicketJira') {
+        return await this.jiraService.getTicketJira(
           functionInput,
           context,
         );
