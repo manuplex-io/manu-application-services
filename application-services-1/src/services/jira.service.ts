@@ -210,14 +210,14 @@ export class JiraService {
         console.log('All ticket summaries collated and Jira ticket created');
       }
         
-      // Append the bot's response to the history
-      if (!threadId) {
-        messages.push({ role: 'user', content: userInput1 });
-      }
-      messages.push({ role: 'assistant', content: plexMessage });
+    //   // Append the bot's response to the history
+    //   if (!threadId) {
+    //     messages.push({ role: 'user', content: userInput1 });
+    //   }
+    //   messages.push({ role: 'assistant', content: plexMessage });
 
-      // Save the updated conversation history
-      await this.chatService.appendConversation(threadId1, context, messages);
+    //   // Save the updated conversation history
+    //   await this.chatService.appendConversation(threadId1, context, messages);
 
       // Post the bot's response to the thread
       await this.postMessageToChannel(
@@ -340,7 +340,7 @@ export class JiraService {
             CRUDOperationName: CRUDOperationName.POST,
             CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
             CRUDBody: executeDto,
-            routeParams: { promptId: process.env.CHATWITHUSERV2 },
+            routeParams: { promptId: process.env.GETSUMMARYJIRA },
           }; //CRUDFunctionInput
     
           const request: CRUDRequest = {
@@ -359,7 +359,7 @@ export class JiraService {
 
 
   async  createJiraTicket(summary:string,ticketDescription:string) {
-    const jiraBaseUrl = 'https://manuplex-team.atlassian.net'; // Replace with your Jira domain
+    const jiraBaseUrl = this.JIRA_BASE_URL; // Replace with your Jira domain
     const ticketDetails = {
       fields: {
         project: {
@@ -398,7 +398,7 @@ export class JiraService {
     csvData: Array<{ ticketId: string; ticketDescription:string; summary: string }>,
   ) {
     // Generate a temporary CSV file
-    const jiraBaseUrl = 'https://manuplex-team.atlassian.net';
+    const jiraBaseUrl = this.JIRA_BASE_URL;
     const tempDir = os.tmpdir();
     const tempFilePath = path.join(tempDir, `tempfile-${Date.now()}.csv`);
   
