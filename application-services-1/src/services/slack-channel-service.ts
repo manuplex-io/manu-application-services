@@ -367,7 +367,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
       userId,
       token,
     );
-    const userName = userObject.user.real_name;
+    const userName = userObject?.user?.profile?.first_name || "Default Name";
     try {
       // Fixed welcome message
       const welcomeMessage = [
@@ -375,7 +375,7 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work—whether it’s finding suppliers, preparing RFQs, or solving complex challenges. Let me show you what I can do!`,
+            text: `:tada: Hi ${userName}! I'm Plex, your AI-powered assistant for all things hardware!\n\nI’m here to help you streamline your work, and make hardware development more fun!`,
           },
         },
         // Section 1: For any hardware-related requirement
@@ -383,54 +383,54 @@ async inviteUserToChannel(channelId: string, userId: string, token: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*To ask me anything:*\nTag me \`@plex\` and ask anything to get started. Try from the below options or type anything you want:`,
+            text: `*To ask me anything:*\nTag me \`@plex\` and ask anything to get started.`,
           },
         },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "<@plex> *What are the various ASTM grades for steel?*",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to Ask",
-            },
-            action_id: "ask_astm_grades",
-          },
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "<@plex> *Help me find a CNC machinist who does small orders.*",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to Ask",
-            },
-            action_id: "ask_cnc_machinist",
-          },
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "<@plex> *Help me find an alternative to a PCB connector.*",
-          },
-          accessory: {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Click to Ask",
-            },
-            action_id: "ask_pcb_connector",
-          },
-        },
+        // {
+        //   type: "section",
+        //   text: {
+        //     type: "mrkdwn",
+        //     text: "<@plex> *What are the various ASTM grades for steel?*",
+        //   },
+        //   accessory: {
+        //     type: "button",
+        //     text: {
+        //       type: "plain_text",
+        //       text: "Click to Ask",
+        //     },
+        //     action_id: "ask_astm_grades",
+        //   },
+        // },
+        // {
+        //   type: "section",
+        //   text: {
+        //     type: "mrkdwn",
+        //     text: "<@plex> *Help me find a CNC machinist who does small orders.*",
+        //   },
+        //   accessory: {
+        //     type: "button",
+        //     text: {
+        //       type: "plain_text",
+        //       text: "Click to Ask",
+        //     },
+        //     action_id: "ask_cnc_machinist",
+        //   },
+        // },
+        // {
+        //   type: "section",
+        //   text: {
+        //     type: "mrkdwn",
+        //     text: "<@plex> *Help me find an alternative to a PCB connector.*",
+        //   },
+        //   accessory: {
+        //     type: "button",
+        //     text: {
+        //       type: "plain_text",
+        //       text: "Click to Ask",
+        //     },
+        //     action_id: "ask_pcb_connector",
+        //   },
+        // },
         // Section 2: For checking what I am working on
         {
           type: "section",
