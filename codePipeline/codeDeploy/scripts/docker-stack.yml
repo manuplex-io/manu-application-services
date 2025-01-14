@@ -39,21 +39,21 @@ services:
       export GOOGLE_CLIENT_SECRET=$$(cat /run/secrets/GOOGLE_SHEET_CLIENT_SECRET | tr -d '\\n') &&
       export webhookURL=$$(cat /run/secrets/APPLICATION_SERVICES_SLACK_WEBHOOK_URL | tr -d '\\n') &&
       node --trace-warnings dist/main.js"
-    labels:
-      - "register-consul.enable=true"
-      - "register-consul.service-id=application-services-1"
-      - "register-consul.service-name=application-services"
-      - "register-consul.check.healthcheck-endpoint=http://application-services-1.manuplex-uswest-2.local:3000/services/health"
-      - "register-consul.service-tags=application-services,nestjs,prod"
-      - "register-consul.check.interval=15s"
-      - "register-consul.check.timeout=1s"
-      - "register-consul.check.deregister=72h"
+    deploy:
+      labels:
+        - "register-consul.enable=true"
+        - "register-consul.service-name=manu-application-service"
+        - "register-consul.healthcheck-endpoint.endurl=http://application-services-1.manuplex-uswest-2.local:3000/services/health"
+        - "register-consul.service-tags=prod-uSt,application-service-monitoring"
+        - "register-consul.check.interval=10s"
+        - "register-consul.check.timeout=5s"
+        - "register-consul.check.deregister=72h"
     logging:
       driver: "json-file"
       options:
         max-size: "50m" # Rotate after 10MB
         max-file: "2" # Keep 3 files
-    
+
 networks:
   OB-prod-net1-overlay:
     external: true
