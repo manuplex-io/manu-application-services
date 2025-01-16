@@ -223,15 +223,6 @@ export class JiraService {
         this.logger.log('All ticket summaries collated and Jira ticket created');
       }
         
-    //   // Append the bot's response to the history
-    //   if (!threadId) {
-    //     messages.push({ role: 'user', content: userInput1 });
-    //   }
-    //   messages.push({ role: 'assistant', content: plexMessage });
-
-    //   // Save the updated conversation history
-    //   await this.chatService.appendConversation(threadId1, context, messages);
-
       // Post the bot's response to the thread
       await this.postMessageToChannel(
         channelId,
