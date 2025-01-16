@@ -20,6 +20,9 @@ services:
       - EXISTINGPROJECTS2=9cfad00b-0b8d-45ce-a3e3-2b335318d6da
       - REFLECTHANDLEAGENT=bf1bdf6c-aec1-422c-98aa-b83e3a59afd4
       - REFLECTPOSTTICKETCREATION=5cbd02f0-ed42-4f8d-aebf-1781e90b326c
+      - GETTICKETJIRA=df8d95ba-3cbc-41d4-ab53-b97470926e45
+      - GETSUMMARYJIRA=8983ee8c-c918-4c44-a434-db4fb2669966
+      - jiraProjectKey=PPT
       - SERVICE_ID="{{.Task.ID}}"
     secrets:
       - GOOGLE_SHEET_CLIENT_ID

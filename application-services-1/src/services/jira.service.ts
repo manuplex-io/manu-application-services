@@ -23,7 +23,7 @@ import * as FormData from 'form-data';
 
 @Injectable()
 export class JiraService {
-  private readonly logger = new Logger(ChatService.name);
+  private readonly logger = new Logger(JiraService.name);
   private readonly SLACK_BASE_URL = 'https://slack.com/api';
   private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net';
   constructor(
@@ -204,8 +204,11 @@ export class JiraService {
           mainTicketTitle, // Replace with your overall ticket title
           mainTicketDescription // Replace with your overall ticket description
         );
-
+        this.logger.log(`ticket created with ticketId:  ${ticketId}`);
+        if(ticketId){
         await this.sendCsvAttachment(ticketId,allTicketSummaries);
+
+        }
 
         console.log('All ticket summaries collated and Jira ticket created');
       }
@@ -354,8 +357,11 @@ export class JiraService {
           };
     
           const response = await this.kafkaService.sendAgentCRUDRequest(request);
-          return response.messageContent.content
-  }
+          if(response.messageContent.content && response.messageContent.content.Summary){
+            return response.messageContent.content.Summary
+          }
+          return "No Summary Found"
+  } 
 
 
   async  createJiraTicket(summary:string,ticketDescription:string) {
@@ -366,7 +372,21 @@ export class JiraService {
           key: process.env.jiraProjectKey, // Project key where the issue will be created
         },
         summary: summary, // Short title
-        description: ticketDescription, // Detailed description
+        description: {
+      type: "doc",
+      version: 1,
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: ticketDescription
+            }
+          ]
+        }
+      ]
+    }, // Detailed description
         issuetype: {
           name: 'Task', // Issue type (e.g., Task, Bug, Story)
         },
