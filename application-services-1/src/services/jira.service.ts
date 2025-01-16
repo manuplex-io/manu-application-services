@@ -168,7 +168,7 @@ export class JiraService {
       const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
 
-      const { mainTicketTitle, mainTicketDescription } = parsedMessage;
+      const { title, summary } = parsedMessage;
       const { Ticket_Array } = parsedMessage; // Assuming the array of ticket IDs and descriptions is in Ticket_Array
 
       if (Ticket_Array && Ticket_Array.length > 0) {
@@ -202,14 +202,14 @@ export class JiraService {
 
         // Call createJiraTicket function with the collated summaries
         const ticketId =  await this.createJiraTicket( 
-          mainTicketTitle, // Replace with your overall ticket title
-          mainTicketDescription // Replace with your overall ticket description
+          title, // Replace with your overall ticket title
+          summary // Replace with your overall ticket description
         );
         this.logger.log(`ticket created in Jira with ticketId:  ${ticketId}`);
         if(ticketId){
           await this.chatService.createTicket(
             ticketId,
-            mainTicketTitle,
+            title,
             teamId,
             threadId1,
             context,
