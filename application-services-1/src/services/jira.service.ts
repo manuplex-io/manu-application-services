@@ -162,7 +162,8 @@ export class JiraService {
       };
 
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
-      console.log('response from llm', response.messageContent);
+
+      this.logger.log('response from llm', response.messageContent);
 
       const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
@@ -204,13 +205,22 @@ export class JiraService {
           mainTicketTitle, // Replace with your overall ticket title
           mainTicketDescription // Replace with your overall ticket description
         );
-        this.logger.log(`ticket created with ticketId:  ${ticketId}`);
+        this.logger.log(`ticket created in Jira with ticketId:  ${ticketId}`);
         if(ticketId){
+          await this.chatService.createTicket(
+            ticketId,
+            mainTicketTitle,
+            teamId,
+            threadId1,
+            context,
+            channelId,
+          );
+          this.logger.log('ticket created in database');
         await this.sendCsvAttachment(ticketId,allTicketSummaries);
 
         }
 
-        console.log('All ticket summaries collated and Jira ticket created');
+        this.logger.log('All ticket summaries collated and Jira ticket created');
       }
         
     //   // Append the bot's response to the history
@@ -415,20 +425,25 @@ export class JiraService {
 
   async sendCsvAttachment(
     ticketId: string,
-    csvData: Array<{ ticketId: string; ticketDescription:string; summary: string }>,
+    csvData: Array<{ ticketId: string; ticketDescription: string; summary: string }>,
   ) {
-    // Generate a temporary CSV file
     const jiraBaseUrl = this.JIRA_BASE_URL;
     const tempDir = os.tmpdir();
     const tempFilePath = path.join(tempDir, `tempfile-${Date.now()}.csv`);
   
     try {
-      // Create the CSV content
+      // Create the CSV content with proper escaping, including handling of newlines
       const csvContent = csvData
-        .map((row) => `${row.ticketId},${row.summary}`)
+        .map((row) => {
+          const escapedTicketId = `"${row.ticketId.replace(/"/g, '""')}"`;
+          const escapedSummary = `"${row.summary.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+          return `${escapedTicketId},${escapedSummary}`;
+        })
         .join('\n');
-      fs.writeFileSync(tempFilePath, `ticketId,commentSummary\n${csvContent}`);
-      console.log('Temporary CSV file created at:', tempFilePath);
+  
+      // Write to the CSV file
+      fs.writeFileSync(tempFilePath, `"ticketId","commentSummary"\n${csvContent}`);
+      this.logger.log('Temporary CSV file created at:', tempFilePath);
   
       // Create the form data for the attachment
       const formData = new FormData();
@@ -443,24 +458,24 @@ export class JiraService {
             Authorization: `Basic ${Buffer.from(
               `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`,
             ).toString('base64')}`,
-            'X-Atlassian-Token': 'no-check', // Required to bypass XSRF check for attachments
+            'X-Atlassian-Token': 'no-check',
             ...formData.getHeaders(),
           },
-        }
+        },
       );
   
-      console.log('Attachment added successfully:', response.data);
+      this.logger.log('Attachment added successfully:', response.data);
     } catch (error) {
-      console.error('Error adding attachment to Jira ticket:', error.response?.data || error.message);
+      this.logger.error('Error adding attachment to Jira ticket:', error.response?.data || error.message);
     } finally {
       // Clean up the temporary file
       try {
         if (fs.existsSync(tempFilePath)) {
           fs.unlinkSync(tempFilePath);
-          console.log('Temporary file removed.');
+          this.logger.log('Temporary file removed.');
         }
       } catch (cleanupError) {
-        console.error('Error removing temporary file:', cleanupError.message);
+        this.logger.error('Error removing temporary file:', cleanupError.message);
       }
     }
   }
