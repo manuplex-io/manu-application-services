@@ -136,12 +136,7 @@ export class JiraService {
         //   fileUrl: fileUrls ? fileUrls: "",
         },
         toolENVInputVariables,
-        messageHistory: messages, // Pass the transformed history
-        llmConfig: {
-          provider: 'openai',
-          model: 'gpt-4o-mini',
-          temperature: 0.7,
-        },
+        messageHistory: messages // Pass the transformed history
       };
 
       const CRUDFunctionInput = {
