@@ -163,6 +163,14 @@ export class JiraService {
       const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
 
+      // Post the bot's response to the thread
+      await this.postMessageToChannel(
+        channelId,
+        { text: plexMessage },
+        token,
+        threadId1, // Post the message in the thread
+      );
+
       const { title, summary } = parsedMessage;
       const { Ticket_Array } = parsedMessage; // Assuming the array of ticket IDs and descriptions is in Ticket_Array
 
@@ -218,13 +226,7 @@ export class JiraService {
         this.logger.log('All ticket summaries collated and Jira ticket created');
       }
         
-      // Post the bot's response to the thread
-      await this.postMessageToChannel(
-        channelId,
-        { text: plexMessage },
-        token,
-        threadId1, // Post the message in the thread
-      );
+      
 
       return { ...response.messageContent };
     } catch (error) {
