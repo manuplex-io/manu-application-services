@@ -204,7 +204,7 @@ export class JiraService {
         };
 
         // New LLM call to generate a concise summary
-        const conciseSummary = await this.generateConciseSummary(
+        const { conciseSummary, relevantTickets } = await this.generateConciseSummary(
           allTicketSummaries,
           title,
           description,
@@ -216,6 +216,34 @@ export class JiraService {
           { text: conciseSummary },
           token,
           threadId1, // Post the message in the thread
+        );
+
+        // Generate Block Kit structure for ticket details
+        const ticketBlocks = relevantTickets.map(ticket => [
+          {
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*${ticket.TicketID}:* ${this.JIRA_BASE_URL}/browse/${ticket.TicketID}` },
+            ]
+          },
+          {
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*Status:* ${ticket.Status}` },
+              // { type: "mrkdwn", text: `*Priority:* ${ticket.Priority}` },
+              // { type: "mrkdwn", text: `*Type:* ${ticket.Type}` },
+              { type: "mrkdwn", text: `*Assignee:* ${ticket.Assignee || "Unassigned"}` },
+            ]
+          },
+          { type: "divider" }
+        ]).flat();
+
+        // Post the ticket details
+        await this.postMessageToChannel(
+          channelId,
+          { blocks: ticketBlocks },
+          token,
+          threadId1
         );
 
         // Call createJiraTicket function with the collated summaries
@@ -381,7 +409,7 @@ export class JiraService {
         title: string,
         description: string,
         context: KafkaContext
-      ): Promise<string> {
+      ) {
         const headers: OB1MessageHeader = context.getMessage().headers as unknown as OB1MessageHeader;
         const messageKey = context.getMessage().key.toString();
         const instanceName = context.getMessage().headers.instanceName.toString();
@@ -424,10 +452,17 @@ export class JiraService {
         };
       
         const response = await this.kafkaService.sendAgentCRUDRequest(request);
-        if (response.messageContent.content && response.messageContent.content.ConciseSummary) {
-          return response.messageContent.content.ConciseSummary;
+        // if (response.messageContent.content && response.messageContent.content.ConciseSummary) {
+        //   return response.messageContent.content.ConciseSummary;
+        // }
+        if (response.messageContent.content) {
+          const { ConciseSummary, RelevantTickets } = response.messageContent.content;
+          return {
+            conciseSummary: ConciseSummary || "No final Concise Summary Found",
+            relevantTickets: RelevantTickets || [],
+          };
         }
-        return "No Concise Summary Found";
+        return { conciseSummary: "No Concise Summary Found", relevantTickets: [] }
   }
 
 
