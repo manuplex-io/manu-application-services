@@ -171,7 +171,7 @@ export class JiraService {
         threadId1, // Post the message in the thread
       );
 
-      const { title, summary } = parsedMessage;
+      const { title, description } = parsedMessage;
       const { Ticket_Array } = parsedMessage; // Assuming the array of ticket IDs and descriptions is in Ticket_Array
 
       if (Ticket_Array && Ticket_Array.length > 0) {
@@ -203,10 +203,25 @@ export class JiraService {
           summaries: allTicketSummaries,
         };
 
+        // New LLM call to generate a concise summary
+        const conciseSummary = await this.generateConciseSummary(
+          allTicketSummaries,
+          title,
+          description,
+          context
+        );
+
+        await this.postMessageToChannel(
+          channelId,
+          { text: conciseSummary },
+          token,
+          threadId1, // Post the message in the thread
+        );
+
         // Call createJiraTicket function with the collated summaries
         const ticketId =  await this.createJiraTicket( 
           title, // Replace with your overall ticket title
-          summary // Replace with your overall ticket description
+          description // Replace with your overall ticket description
         );
         this.logger.log(`ticket created in Jira with ticketId:  ${ticketId}`);
         if(ticketId){
@@ -360,6 +375,60 @@ export class JiraService {
           }
           return "No Summary Found"
   } 
+
+  async generateConciseSummary(
+        allTicketSummaries: { ticketId: string; ticketDescription: string; summary: string }[],
+        title: string,
+        description: string,
+        context: KafkaContext
+      ): Promise<string> {
+        const headers: OB1MessageHeader = context.getMessage().headers as unknown as OB1MessageHeader;
+        const messageKey = context.getMessage().key.toString();
+        const instanceName = context.getMessage().headers.instanceName.toString();
+      
+        // const toolENVInputVariables = {
+        //   summariesJson: allTicketSummary,
+        //   title,
+        //   summary,
+        // };
+      
+        const executeDto = {
+          userPromptVariables: {
+            summariesJson: JSON.stringify(allTicketSummaries),
+            title,
+            description,
+          },
+          // toolENVInputVariables,
+          llmConfig: {
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+          },
+        };
+      
+        const CRUDFunctionInput = {
+          CRUDOperationName: CRUDOperationName.POST,
+          CRUDRoute: CRUDPromptRoute.EXECUTE_WITHOUT_USER_PROMPT,
+          CRUDBody: executeDto,
+          routeParams: { promptId: process.env.GENERATECONCISESUMMARY },
+        };
+      
+        const request: CRUDRequest = {
+          messageKey,
+          userOrgId: instanceName || 'default',
+          sourceFunction: 'executePromptWithoutUserPrompt',
+          CRUDFunctionNameInput: 'promptCRUD-V1',
+          CRUDFunctionInput,
+          personRole: headers.userRole.toString() || 'user',
+          personId: headers.userEmail.toString(),
+        };
+      
+        const response = await this.kafkaService.sendAgentCRUDRequest(request);
+        if (response.messageContent.content && response.messageContent.content.ConciseSummary) {
+          return response.messageContent.content.ConciseSummary;
+        }
+        return "No Concise Summary Found";
+  }
 
 
   async  createJiraTicket(summary:string,ticketDescription:string) {

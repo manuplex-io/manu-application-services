@@ -22,6 +22,7 @@ services:
       - REFLECTPOSTTICKETCREATION=5cbd02f0-ed42-4f8d-aebf-1781e90b326c
       - GETTICKETJIRA=6170a92d-b0a9-4e2b-8849-dddd41df908c
       - GETSUMMARYJIRA=27c286fd-eccb-404b-af89-8205f776267d
+      - GENERATECONCISESUMMARY=5c3aa6a4-4262-4168-959b-4ff32832a8eb
       - jiraProjectKey=PPT
       - SERVICE_ID="{{.Task.ID}}"
     secrets:
