@@ -158,10 +158,12 @@ export class JiraService {
 
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
 
-      this.logger.log('response from llm', response.messageContent);
+      this.logger.log('response from llm before sending message to slack', response.messageContent);
 
       const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
+
+      this.logger.log('Sending message to Slack', plexMessage); // For debugging purpose, can be removed later
 
       // Post the bot's response to the thread
       await this.postMessageToChannel(
@@ -328,6 +330,7 @@ export class JiraService {
     thread_ts?: string,
   ) {
     try {
+      this.logger.log('Sending message to Slack inside function', message.text)  // For debugging purpose, can be removed later
       const response = await axios.post(
         `${this.SLACK_BASE_URL}/chat.postMessage`,
         {
@@ -343,6 +346,8 @@ export class JiraService {
           },
         },
       );
+
+      this.logger.log('Sent message to Slack inside function', message.text)  // For debugging purpose, can be removed later
 
       return response.data;
 
