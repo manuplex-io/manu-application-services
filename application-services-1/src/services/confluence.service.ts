@@ -159,10 +159,10 @@ export class ConfluenceService {
       };
 
       const response = await this.kafkaService.sendAgentCRUDRequest(request);
-
+      this.logger.log('Response from agent received')
       const parsedMessage = response.messageContent.content;
       const plexMessage = parsedMessage.Response;
-
+      this.logger.log('Sending message to Slack', plexMessage); // For debugging purpose, can be removed later
       // Post the bot's response to the thread
       await this.postMessageToChannel(
         channelId,
@@ -211,6 +211,19 @@ export class ConfluenceService {
           context
         );
 
+        // Modify conciseSummary and store in a new variable
+        const modifiedSummary = conciseSummary.replace(/\*\*(.*?)\*\*/g, '*$1*'); // Convert bold from **text** to *text*
+
+
+        // Determine the message about ticket links
+        const pageLinksMessage = relevantPages.length > 0 
+          ? 'Below are relevant page links for your purview' 
+          : 'I could not find any relevant pages';
+
+        
+          // Combine the concise summary with the ticket links message
+        const slackMessage = `${modifiedSummary}\n\n${pageLinksMessage}`;
+
         await this.postMessageToChannel(
           channelId,
           { text: conciseSummary },
@@ -223,7 +236,7 @@ export class ConfluenceService {
           {
             type: "section",
             fields: [
-              { type: "mrkdwn", text: `*${page.pageId}:* ` },
+              { type: "mrkdwn", text: `*${page.pageId}:* ${page.pageLink}` },
             ]
           },
         //   {
@@ -326,6 +339,7 @@ export class ConfluenceService {
     thread_ts?: string,
   ) {
     try {
+        this.logger.log(`Sending message to Slack inside function, ${message.text}`)
       const response = await axios.post(
         `${this.SLACK_BASE_URL}/chat.postMessage`,
         {
@@ -341,6 +355,7 @@ export class ConfluenceService {
           },
         },
       );
+      this.logger.log('Sent message to Slack inside function')  // For debugging purpose, can be removed later
 
       return response.data;
     } catch (error) {
