@@ -25,7 +25,7 @@ import * as FormData from 'form-data';
 export class JiraService {
   private readonly logger = new Logger(JiraService.name);
   private readonly SLACK_BASE_URL = 'https://slack.com/api';
-  private readonly JIRA_BASE_URL = 'https://manuplex-team.atlassian.net';
+  private readonly JIRA_BASE_URL = 'https://forty-two-team.atlassian.net';
   constructor(
     private kafkaService: KafkaOb1Service,
     private chatService: ChatService,
