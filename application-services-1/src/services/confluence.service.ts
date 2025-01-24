@@ -226,7 +226,7 @@ export class ConfluenceService {
 
         await this.postMessageToChannel(
           channelId,
-          { text: conciseSummary },
+          { text: slackMessage },
           token,
           threadId1, // Post the message in the thread
         );
