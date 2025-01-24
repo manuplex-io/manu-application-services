@@ -213,9 +213,22 @@ export class JiraService {
           context
         );
 
-        await this.postMessageToChannel(
+        // Modify conciseSummary and store in a new variable
+        const modifiedSummary = conciseSummary.replace(/\*\*(.*?)\*\*/g, '*$1*'); // Convert bold from **text** to *text*
+
+
+        // Determine the message about ticket links
+        const ticketLinksMessage = relevantTickets.length > 0 
+          ? 'Below are relevant ticket links for your purview' 
+          : 'I could not find any relevant tickets';
+
+        
+          // Combine the concise summary with the ticket links message
+        const slackMessage = `${modifiedSummary}\n\n${ticketLinksMessage}`;
+        
+          await this.postMessageToChannel(
           channelId,
-          { text: conciseSummary },
+          { text: slackMessage },
           token,
           threadId1, // Post the message in the thread
         );
