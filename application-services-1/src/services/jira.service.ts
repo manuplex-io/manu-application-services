@@ -238,7 +238,7 @@ export class JiraService {
           {
             type: "section",
             fields: [
-              { type: "mrkdwn", text: `*${ticket.TicketID}:* ${this.JIRA_BASE_URL}/browse/${ticket.TicketID}` },
+              { type: "mrkdwn", text: `*${ticket.TicketID}:* ${jiraBaseUrl}/browse/${ticket.TicketID}` },
             ]
           },
           {
