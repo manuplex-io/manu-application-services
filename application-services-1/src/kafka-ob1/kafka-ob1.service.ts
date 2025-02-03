@@ -160,7 +160,7 @@ export class KafkaOb1Service implements OnModuleInit {
       .pipe(
         filter((response) => response !== null && response !== undefined), // Filter out null/undefined responses
         take(1), // Take the first valid response
-        timeout(30000), // Optional: Set a timeout to prevent waiting indefinitely
+        timeout(90000), // Optional: Set a timeout to prevent waiting indefinitely
       );
 
     try {
