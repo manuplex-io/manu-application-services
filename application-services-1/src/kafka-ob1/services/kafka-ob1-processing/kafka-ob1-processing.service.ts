@@ -19,6 +19,7 @@ import { SlackEventHandlingService } from 'src/services/slack-event-handling.ser
 import { DecisionService } from 'src/services/decision.service';
 import { ChatService } from 'src/services/chat.service';
 import { JiraService } from 'src/services/jira.service';
+import { googleSpaceService } from 'src/services/gspace.service';
 
 @Injectable()
 export class KafkaOb1ProcessingService {
@@ -36,7 +37,8 @@ export class KafkaOb1ProcessingService {
     private readonly slackEventHandlingService: SlackEventHandlingService,
     private readonly decisionService:DecisionService,
     private readonly chatService:ChatService,
-    private readonly jiraService: JiraService
+    private readonly jiraService: JiraService,
+    private readonly googleSpaceService: googleSpaceService
 
   ) {}
 
@@ -130,6 +132,12 @@ export class KafkaOb1ProcessingService {
       }
       else if (functionName === 'getTicketJira') {
         return await this.jiraService.getTicketJira(
+          functionInput,
+          context,
+        );
+      }
+      else if (functionName === 'getSpaceInfo') {
+        return await this.googleSpaceService.getSpaceInfo(
           functionInput,
           context,
         );

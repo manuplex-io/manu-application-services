@@ -23,6 +23,11 @@ services:
       - GETTICKETJIRA=6170a92d-b0a9-4e2b-8849-dddd41df908c
       - GETSUMMARYJIRA=27c286fd-eccb-404b-af89-8205f776267d
       - GENERATECONCISESUMMARY=5c3aa6a4-4262-4168-959b-4ff32832a8eb
+      - GETSPACEINFO=ee9971c9-ada8-4099-afc2-d37738b49341
+      - GENERATESPACESUMMARY=b7300546-2421-4fc8-b258-53775f69dfd7
+      - SPACE_CLIENT_ID=29569436117-7thitn80bqud95jc0vevsudmtasmbibn.apps.googleusercontent.com
+      - SPACE_CLIENT_SECRET=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
+      - SPACEREFRESHTOKEN=1//0gXDuXQPtaUDgCgYIARAAGBASNwF-L9IrY6bg57GEpw5yKs_WOcn_c4flzsamsceREPnkcfL27oTlaAWBaobE9t6NIv9vUXH9ICk
       - jiraProjectKey=PPT
       - SERVICE_ID="{{.Task.ID}}"
     secrets:

@@ -12,6 +12,7 @@ import { DecisionService } from './decision.service';
 import { NoCapabilitiesService } from './no-capability.service';
 import { ChatService } from './chat.service';
 import { JiraService } from './jira.service';
+import { googleSpaceService } from './gspace.service';
 
 @Module({
   imports: [forwardRef(() => KafkaOb1Module)],
@@ -27,7 +28,8 @@ import { JiraService } from './jira.service';
     DecisionService,
     NoCapabilitiesService,
     ChatService,
-    JiraService
+    JiraService,
+    googleSpaceService
   ],
   exports: [
     OrderFormService,
@@ -41,7 +43,8 @@ import { JiraService } from './jira.service';
     DecisionService,
     NoCapabilitiesService,
     ChatService,
-    JiraService
+    JiraService,
+    googleSpaceService
   ],
 })
 export class ServicesModule {}
