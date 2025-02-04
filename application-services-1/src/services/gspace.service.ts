@@ -135,6 +135,7 @@ export class googleSpaceService {
 
       const toolENVInputVariables = {
         access_token: accessToken,
+        created_at_query: 'createTime > \"2025-02-02T00:00:00.000Z\"'
       }
 
       // Define the executeDto with the conversation history
@@ -454,7 +455,7 @@ export class googleSpaceService {
   // } 
 
   async generateConciseSummary(
-        spaceMessages: { MessageID: string; SpaceName: string; Text: string; Time: string; Sender: string }[],
+        spaceMessages: { Text: string; Time: string; Sender: string }[],
         title: string,
         description: string,
         context: KafkaContext
@@ -567,7 +568,7 @@ export class googleSpaceService {
 
   async sendCsvAttachment(
     ticketId: string,
-    csvData: Array<{ MessageID: string; SpaceName: string; Text: string; Time: string; Sender: string }>,
+    csvData: Array<{ Text: string; Time: string; Sender: string }>,
   ) {
     const jiraBaseUrl = this.JIRA_BASE_URL;
     const tempDir = os.tmpdir();
